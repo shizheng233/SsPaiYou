@@ -1,12 +1,15 @@
 package com.shihcheeng.sspaiyou.ui.screen.user
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.shihcheeng.sspaiyou.utils.imageUrlFor
@@ -49,7 +53,9 @@ fun UserActivityItem(
                 placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer)
             )
             Column(
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .fillMaxWidth()
             ) {
                 Text(
                     text = actionString,
@@ -61,30 +67,33 @@ fun UserActivityItem(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onCardClick
                 ) {
-                    Row {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = type,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Text(
-                                text = title,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = type,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+
+                        Text(
+                            text = title,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                        )
                         banner?.let {
                             AsyncImage(
                                 model = imageUrlFor(it),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .height(60.dp)
-                                    .aspectRatio(2f / 1f),
-                                placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer)
+                                    .aspectRatio(2f / 1f)
+                                    .padding(vertical = 8.dp)
+                                    .padding(end = 8.dp)
+                                    .clip(MaterialTheme.shapes.medium),
+                                placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer),
+                                contentScale = ContentScale.Crop,
                             )
                         }
                     }
@@ -94,4 +103,3 @@ fun UserActivityItem(
         HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
     }
 }
-

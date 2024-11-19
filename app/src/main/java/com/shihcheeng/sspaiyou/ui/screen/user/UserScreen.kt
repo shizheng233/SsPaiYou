@@ -28,7 +28,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 @Composable
 fun UserScreen(
     viewModel: UserViewModel = hiltViewModel(),
-    onNavUp:() -> Unit
+    onNavUp: () -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
     val user by viewModel.dataOfUser.collectAsStateWithLifecycle()
@@ -64,11 +64,7 @@ fun UserScreen(
         TriStateScreen(
             padding = padding,
             onError = {
-                Error(
-                    error = it.localizedMessage
-                ) {
-                    viewModel.load()
-                }
+                Error(error = it.localizedMessage, onClick = viewModel::load)
             },
             triState = user,
         ) {
@@ -77,14 +73,26 @@ fun UserScreen(
                 listState = list,
                 data = data,
                 followed = it.data.followed,
-                color = it.data.userBadges.takeIf { x ->
-                    x.isNotEmpty()
-                }?.get(0)?.color?.takeIf { x -> x.isNotEmpty() },
+                color = it.data.userBadges
+                    .takeIf { x ->
+                        x.isNotEmpty()
+                    }?.get(0)?.color
+                    ?.takeIf { x ->
+                        x.isNotEmpty()
+                    },
                 onFollowedChange = {},
                 username = it.data.nickname,
                 bio = it.data.bio,
                 followingCount = it.data.followingCount,
-                beFollowedCount = it.data.followedCount
+                beFollowedCount = it.data.followedCount,
+                imageUrl = it.data.avatar,
+                rewardBadge = it.data.userRewardBadges,
+                badge = it.data.userBadges,
+                userFlag = it.data.userFlags,
+                releasedArticleCount = it.data.releasedArticleCount,
+                articleViewCount = it.data.articleViewCount,
+                likeCount = it.data.likedCount,
+                haveBeenSSPai = it.data.createdAt,
             )
         }
     }

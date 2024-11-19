@@ -40,5 +40,7 @@
     <string name="sspai_writer">少数派作者</string>
     <string name="member_of_sspai">少数派成员</string>
     <string name="type_obj_1">文章</string>
-    <string name="as">as</string>
+    <string name="type_obj_3">牌友</string>
+    <string name="type_obj_4">专栏</string>
+    <string name="some_day">%d天</string>
 </resources>

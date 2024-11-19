@@ -1,9 +1,9 @@
 package com.shihcheeng.sspaiyou.api.data.user.third
 
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import androidx.annotation.Keep
 
 @Keep
 @Serializable
@@ -25,3 +25,5 @@ data class UserFlag(
     @SerialName("url")
     val url: String = ""
 )
+
+typealias ThirdUserFlag = UserFlag

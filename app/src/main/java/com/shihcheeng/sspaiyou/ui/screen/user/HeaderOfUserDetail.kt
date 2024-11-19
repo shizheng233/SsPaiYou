@@ -26,25 +26,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.shihcheeng.sspaiyou.R
+import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserFlag
 import com.shihcheeng.sspaiyou.ui.compoents.WithTooltipBox
 import com.shihcheeng.sspaiyou.utils.extra.toDp
+import com.shihcheeng.sspaiyou.utils.imageUrlFor
 
 @Composable
 fun HeaderOfUserDetail(
+    imageUrl: String,
     followed: Boolean,
     primary: ColorScheme,
     onFollowedChange: (Boolean) -> Unit,
     username: String,
     bio: String,
     followingCount: Int,
-    beFollowedCount: Int
+    beFollowedCount: Int,
+    userFlag: List<ThirdUserFlag>,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
-                model = "",
+                model = imageUrlFor(imageUrl),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -82,43 +86,47 @@ fun HeaderOfUserDetail(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Badge(
-                containerColor = primary.secondary,
-                contentColor = primary.onSecondary
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.game_icons__pencil_ruler),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(MaterialTheme.typography.labelLarge.fontSize.toDp())
-                )
-                Text(
-                    text = stringResource(R.string.sspai_writer),
-                    modifier = Modifier.padding(4.dp),
-                )
+            if (userFlag.any { x -> x.key == "writer" }) {
+                Badge(
+                    containerColor = primary.secondary,
+                    contentColor = primary.onSecondary
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.game_icons__pencil_ruler),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(MaterialTheme.typography.labelLarge.fontSize.toDp())
+                    )
+                    Text(
+                        text = stringResource(R.string.sspai_writer),
+                        modifier = Modifier.padding(4.dp),
+                    )
+                }
             }
-            Badge(
-                containerColor = primary.secondaryContainer,
-                contentColor = primary.onSecondaryContainer
-            ) {
-                Icon(
-                    painter = painterResource(
-                        id = R.drawable.streamline__pi_symbol_circle_solid
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(
-                            with(LocalDensity.current) {
-                                MaterialTheme.typography.labelLarge.fontSize.toDp()
-                            }
-                        )
-                )
-                Text(
-                    text = stringResource(R.string.member_of_sspai),
-                    modifier = Modifier.padding(4.dp),
-                )
+            if (userFlag.any { x -> x.key == "role_admin" }) {
+                Badge(
+                    containerColor = primary.secondaryContainer,
+                    contentColor = primary.onSecondaryContainer
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.streamline__pi_symbol_circle_solid
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(
+                                with(LocalDensity.current) {
+                                    MaterialTheme.typography.labelLarge.fontSize.toDp()
+                                }
+                            )
+                    )
+                    Text(
+                        text = stringResource(R.string.member_of_sspai),
+                        modifier = Modifier.padding(4.dp),
+                    )
+                }
             }
         }
         Text(

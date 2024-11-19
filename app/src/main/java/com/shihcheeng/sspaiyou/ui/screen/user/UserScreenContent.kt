@@ -28,6 +28,10 @@ import androidx.paging.compose.LazyPagingItems
 import com.materialkolor.rememberDynamicColorScheme
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.api.data.user.activity.ActivityData
+import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserFlag
+import com.shihcheeng.sspaiyou.api.data.user.third.UserBadge
+import com.shihcheeng.sspaiyou.api.data.user.third.UserRewardBadge
+import com.shihcheeng.sspaiyou.utils.extra.untilToDay
 import android.graphics.Color as xmlColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,14 +39,22 @@ import android.graphics.Color as xmlColor
 fun UserScreenContent(
     contentPaddingValues: PaddingValues,
     listState: LazyListState,
-    data: LazyPagingItems<ActivityData /* = Data */>,
+    data: LazyPagingItems<ActivityData>,
     followed: Boolean,
     color: String?,
     onFollowedChange: (Boolean) -> Unit,
     username: String,
     bio: String,
     followingCount: Int,
-    beFollowedCount: Int
+    beFollowedCount: Int,
+    imageUrl: String,
+    rewardBadge: List<UserRewardBadge>,
+    badge: List<UserBadge>,
+    userFlag: List<ThirdUserFlag>,
+    releasedArticleCount: Int,
+    articleViewCount: Int,
+    likeCount: Int,
+    haveBeenSSPai: Int
 ) {
 
     val primary = color?.let {
@@ -68,7 +80,9 @@ fun UserScreenContent(
                 username = username,
                 bio = bio,
                 followingCount = followingCount,
-                beFollowedCount = beFollowedCount
+                beFollowedCount = beFollowedCount,
+                imageUrl = imageUrl,
+                userFlag = userFlag
             )
         }
         item {
@@ -79,30 +93,39 @@ fun UserScreenContent(
                     .horizontalScroll(state = rememberScrollState())
             ) {
                 UserTwoColumnItem(
-                    leadingImage = "",
+                    leadingImage = rewardBadge.takeIf { x -> x.isNotEmpty() }?.get(0)?.icon,
                     end = false,
                     topText = stringResource(R.string.user_reward_badges),
-                    bottomText = 1.toString()
+                    bottomText = rewardBadge.size.toString()
                 )
-                UserTwoColumnItem(
-                    end = false,
-                    topText = stringResource(R.string.released_article_count),
-                    bottomText = "2344"
-                )
-                UserTwoColumnItem(
-                    end = false,
-                    topText = stringResource(R.string.article_view_count),
-                    bottomText = "123"
-                )
-                UserTwoColumnItem(
-                    end = false,
-                    topText = stringResource(R.string.liked_count),
-                    bottomText = "2344"
-                )
+                if (releasedArticleCount > 0) {
+                    UserTwoColumnItem(
+                        end = false,
+                        topText = stringResource(R.string.released_article_count),
+                        bottomText = releasedArticleCount.toString()
+                    )
+                }
+                if (articleViewCount > 0) {
+                    UserTwoColumnItem(
+                        end = false,
+                        topText = stringResource(R.string.article_view_count),
+                        bottomText = articleViewCount.toString()
+                    )
+                }
+                if (likeCount > 0) {
+                    UserTwoColumnItem(
+                        end = false,
+                        topText = stringResource(R.string.liked_count),
+                        bottomText = likeCount.toString()
+                    )
+                }
                 UserTwoColumnItem(
                     end = true,
                     topText = stringResource(R.string.had_been_sspai_spc),
-                    bottomText = "1234天"
+                    bottomText = stringResource(
+                        R.string.some_day,
+                        haveBeenSSPai.toLong().untilToDay()
+                    )
                 )
             }
         }
