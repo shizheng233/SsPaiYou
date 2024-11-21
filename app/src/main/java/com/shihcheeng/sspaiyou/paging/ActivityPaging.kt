@@ -2,7 +2,7 @@ package com.shihcheeng.sspaiyou.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.shihcheeng.sspaiyou.api.data.user.activity.ActivityData
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.IBaseData
 import com.shihcheeng.sspaiyou.api.service.UserService
 import com.shihcheeng.sspaiyou.utils.Constants
 import com.shihcheeng.sspaiyou.utils.extra.printStackOnlyDebug
@@ -10,13 +10,13 @@ import com.shihcheeng.sspaiyou.utils.extra.printStackOnlyDebug
 class ActivityPaging(
     private val service: UserService,
     private val slug: String
-) : PagingSource<Int, ActivityData>() {
+) : PagingSource<Int, IBaseData>() {
 
-    override fun getRefreshKey(state: PagingState<Int, ActivityData>): Int {
+    override fun getRefreshKey(state: PagingState<Int, IBaseData>): Int {
         return 0
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ActivityData> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, IBaseData> {
         val offset = params.key ?: 0
         return try {
             val data = service.getUserActivity(offset = offset, slug = slug)

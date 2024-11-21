@@ -4,9 +4,6 @@ package com.shihcheeng.sspaiyou.api.data.user.activity
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonTransformingSerializer
 
 @Keep
 @Serializable
@@ -74,15 +71,7 @@ data class DataX(
     @SerialName("user_member_card_show_on")
     val userMemberCardShowOn: Boolean = false,
     @SerialName("view_count")
-    val viewCount: Int = 0
+    val viewCount: Int = 0,
 )
 
 
-data object DataXListChanger : JsonTransformingSerializer<DataX>(DataX.serializer()) {
-    override fun transformDeserialize(element: JsonElement): JsonElement {
-        return when (element) {
-            is JsonArray -> element.first()
-            else -> element
-        }
-    }
-}

@@ -5,7 +5,6 @@ import androidx.paging.PagingConfig
 import com.shihcheeng.sspaiyou.api.data.home.sub.BannerData
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.paging.HomePaging
-import com.shihcheeng.sspaiyou.utils.extra.IGNORE_PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

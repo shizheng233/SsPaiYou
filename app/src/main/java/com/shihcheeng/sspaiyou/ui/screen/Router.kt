@@ -58,7 +58,10 @@ fun Router(
         }
         composable(Router.Detail.name) {
             DetailScreen(
-                onNavBack = navHostController::popBackStack
+                onNavBack = navHostController::popBackStack,
+                onAvatarClick = {
+                    navHostController.proceedToUserInfo(it)
+                }
             )
         }
         composable(Router.Login.name) {

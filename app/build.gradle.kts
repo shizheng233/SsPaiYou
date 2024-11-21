@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,12 +14,18 @@ android {
     compileSdk = 35
 
     defaultConfig {
+        val file = project.rootProject.file("version.code.properties")
+        val codeProperties = Properties()
+        codeProperties.load(file.inputStream())
+        val codeOfVersion = codeProperties.getProperty("VERSION_CODE").toInt() + 1
+        val nameOfVersion = codeProperties.getProperty("VERSION_NAME")
+        codeProperties["VERSION_CODE"] = codeOfVersion.toString()
         applicationId = "com.shihcheeng.sspaiyou"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
-
+        versionCode = codeOfVersion
+        versionName = nameOfVersion
+        codeProperties.store(file.writer(), null)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

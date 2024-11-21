@@ -14,7 +14,6 @@ data class Data(
     val author: Author = Author(),
     @SerialName("created_at")
     val createdAt: Int = 0,
-    @Serializable(DataXListChanger::class)
     @SerialName("data")
     val `data`: DataX = DataX(),
     @SerialName("delete_status")
@@ -30,6 +29,3 @@ data class Data(
     @SerialName("read")
     val read: Boolean = false
 )
-
-
-typealias ActivityData = Data

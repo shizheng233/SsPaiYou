@@ -27,7 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import com.materialkolor.rememberDynamicColorScheme
 import com.shihcheeng.sspaiyou.R
-import com.shihcheeng.sspaiyou.api.data.user.activity.ActivityData
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityArticle
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityAuthors
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityColumns
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityComment
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityPrimeArticle
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.IBaseData
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserFlag
 import com.shihcheeng.sspaiyou.api.data.user.third.UserBadge
 import com.shihcheeng.sspaiyou.api.data.user.third.UserRewardBadge
@@ -39,7 +44,7 @@ import android.graphics.Color as xmlColor
 fun UserScreenContent(
     contentPaddingValues: PaddingValues,
     listState: LazyListState,
-    data: LazyPagingItems<ActivityData>,
+    data: LazyPagingItems<IBaseData>,
     followed: Boolean,
     color: String?,
     onFollowedChange: (Boolean) -> Unit,
@@ -152,19 +157,33 @@ fun UserScreenContent(
         }
         items(data.itemCount) { innerIndex ->
             data[innerIndex]?.let { data ->
-                when (data.objectType) {
-                    1 -> {
+                when (data) {
+                    is DataActivityArticle -> {
                         UserActivityItem(
                             modifier = Modifier.padding(vertical = 16.dp),
                             imageUrl = data.author.avatar,
                             actionString = data.action,
                             type = stringResource(R.string.type_obj_1),
                             title = data.data.title,
-                            onCardClick = {
-
-                            },
+                            onCardClick = {},
                             banner = data.data.banner.takeIf { x -> x.isNotEmpty() && x.isNotBlank() }
                         )
+                    }
+
+                    is DataActivityAuthors -> {
+                        //TODO
+                    }
+
+                    is DataActivityColumns -> {
+                        //TODO
+                    }
+
+                    is DataActivityComment -> {
+                        //TODO
+                    }
+
+                    is DataActivityPrimeArticle -> {
+                        //TODO
                     }
                 }
             }

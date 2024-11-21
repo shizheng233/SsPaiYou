@@ -3,6 +3,7 @@ package com.shihcheeng.sspaiyou.ui.screen.main.personal
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -100,18 +101,23 @@ fun PersonalScreenContent(
                 ) {
                     Text(
                         text = username,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(
-                        text = stringResource(R.string.followed, followingCount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 2.dp)
-                    )
                     Row(
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                        ) {
+                            Text(
+                                text = stringResource(R.string.followed, followingCount),
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier.padding(4.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                         Badge {
                             Text(
                                 text = stringResource(R.string.had_been_sspai, beingDays),
@@ -130,7 +136,7 @@ fun PersonalScreenContent(
             }
         }
         item {
-            HorizontalDivider()
+            HorizontalDivider(Modifier.padding(top = 8.dp))
         }
         items(list) { item ->
             ListItem(

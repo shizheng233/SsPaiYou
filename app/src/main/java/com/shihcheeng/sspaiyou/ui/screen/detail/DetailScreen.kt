@@ -32,6 +32,7 @@ import com.shihcheeng.sspaiyou.utils.NetState
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel(),
+    onAvatarClick:(String) -> Unit,
     onNavBack: () -> Unit
 ) {
     val data by viewModel.data.collectAsStateWithLifecycle()
@@ -67,6 +68,9 @@ fun DetailScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+
         }
     ) { padding ->
         TriStateScreen(
@@ -83,7 +87,8 @@ fun DetailScreen(
                 author = it.author,
                 content = it.body,
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                state = state
+                state = state,
+                onAvatarClick = onAvatarClick
             )
         }
     }

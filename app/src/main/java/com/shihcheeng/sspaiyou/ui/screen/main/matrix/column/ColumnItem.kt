@@ -86,7 +86,13 @@ fun ColumnItem(
                         checked = checkValue
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.eos_icons_activate_subscriptions_outlined),
+                            painter = painterResource(
+                                id = if (!checkValue) {
+                                    R.drawable.eos_icons_activate_subscriptions_outlined
+                                } else {
+                                    R.drawable.eos_icons_activate_subscriptions
+                                }
+                            ),
                             contentDescription = stringResource(R.string.add_to_list)
                         )
                     }
