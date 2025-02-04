@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -99,13 +100,26 @@ fun PersonalScreenContent(
                         .padding(start = 16.dp)
                         .weight(1f)
                 ) {
-                    Text(
-                        text = username,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    BadgedBox(
+                        badge = {
+                            Badge {
+                                Text(
+                                    text = stringResource(R.string.had_been_sspai, beingDays),
+                                    modifier = Modifier.padding(4.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = username,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                     Row(
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Badge(
@@ -115,14 +129,6 @@ fun PersonalScreenContent(
                                 text = stringResource(R.string.followed, followingCount),
                                 style = MaterialTheme.typography.labelMedium,
                                 modifier = Modifier.padding(4.dp),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Badge {
-                            Text(
-                                text = stringResource(R.string.had_been_sspai, beingDays),
-                                modifier = Modifier.padding(4.dp),
-                                style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold
                             )
                         }

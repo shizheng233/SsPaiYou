@@ -30,8 +30,14 @@ class LocalTokenManager @Inject constructor(
         }
     }
 
+    suspend fun saveUserSlug(slug: String) = withContext(Dispatchers.IO) {
+        tokenPreferences.edit {
+            putString(LOCAL_REAL_USER_NAME, slug)
+        }
+    }
+
     fun cookieSaver(key: String, string: String) {
-        tokenPreferences.edit(commit = true) {
+        tokenPreferences.edit {
             putString(key, string)
         }
     }
@@ -46,6 +52,8 @@ class LocalTokenManager @Inject constructor(
         } else null
     }
 
+    fun getSlug(): String? = tokenPreferences.getString(LOCAL_REAL_USER_NAME, null)
+
 
     fun tokenFlow(
         scoped: CoroutineScope
@@ -56,5 +64,9 @@ class LocalTokenManager @Inject constructor(
         }.map { getToken() }
         .conflate()
         .stateIn(scoped, SharingStarted.Eagerly, getToken())
+
+    companion object {
+        private const val LOCAL_REAL_USER_NAME = "LOCAL_USER_NAME"
+    }
 
 }

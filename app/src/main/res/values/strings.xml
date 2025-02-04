@@ -24,7 +24,7 @@
     <string name="fav">我的收藏</string>
     <string name="setting">设置</string>
     <string name="log_out">退出登录</string>
-    <string name="had_been_sspai">成为少数派已经 %d 天</string>
+    <string name="had_been_sspai"> %d 天</string>
     <string name="had_been_sspai_spc">成为少数派</string>
     <string name="followed">已关注%1$s人</string>
     <string name="sspai_member">荣誉会员</string>
@@ -43,4 +43,5 @@
     <string name="type_obj_3">牌友</string>
     <string name="type_obj_4">专栏</string>
     <string name="some_day">%d天</string>
+    <string name="no_desc">没有简介</string>
 </resources>

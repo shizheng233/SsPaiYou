@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserDataModel
 import com.shihcheeng.sspaiyou.repository.UserRepository
+import com.shihcheeng.sspaiyou.utils.LocalTokenManager
 import com.shihcheeng.sspaiyou.utils.NetState
 import com.shihcheeng.sspaiyou.utils.extra.mutableNetStateOf
 import com.shihcheeng.sspaiyou.utils.extra.printStackOnlyDebug
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val repository: UserRepository,
+    val localTokenManager: LocalTokenManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -53,6 +55,7 @@ class UserViewModel @Inject constructor(
         try {
             _slug?.let {
                 val data = repository.getUserInfo(slug = it)
+                localTokenManager.saveUserSlug(data.data.slug)
                 _data.emit(NetState.Success(data))
                 _title.emit(data.data.nickname)
             }

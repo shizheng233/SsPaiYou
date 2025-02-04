@@ -70,7 +70,7 @@ fun HomeScreen(
                         BannerItem(
                             image = it[index].image,
                             title = it[index].title,
-                            shape = rememberMaskShape(MaterialTheme.shapes.medium)
+                            shape = rememberMaskShape(MaterialTheme.shapes.medium),
                         ) {
                             it[index].url.detectiveUrlTypeOp { bannerType, s ->
                                 if (bannerType == BannerType.POST) {

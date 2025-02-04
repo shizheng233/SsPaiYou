@@ -33,6 +33,7 @@ import com.shihcheeng.sspaiyou.utils.imageUrlFor
 
 @Composable
 fun HeaderOfUserDetail(
+    isMine: Boolean,
     imageUrl: String,
     followed: Boolean,
     primary: ColorScheme,
@@ -62,7 +63,8 @@ fun HeaderOfUserDetail(
             ) {
                 FilledTonalIconToggleButton(
                     checked = followed,
-                    onCheckedChange = onFollowedChange
+                    onCheckedChange = onFollowedChange,
+                    enabled = !isMine
                 ) {
                     Icon(
                         painter = painterResource(

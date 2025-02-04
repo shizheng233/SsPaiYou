@@ -36,6 +36,11 @@ import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.IBaseData
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserFlag
 import com.shihcheeng.sspaiyou.api.data.user.third.UserBadge
 import com.shihcheeng.sspaiyou.api.data.user.third.UserRewardBadge
+import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionComment
+import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionFollowUser
+import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityItem
+import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityNormalItem
+import com.shihcheeng.sspaiyou.utils.extra.formatWithUnit
 import com.shihcheeng.sspaiyou.utils.extra.untilToDay
 import android.graphics.Color as xmlColor
 
@@ -59,7 +64,9 @@ fun UserScreenContent(
     releasedArticleCount: Int,
     articleViewCount: Int,
     likeCount: Int,
-    haveBeenSSPai: Int
+    haveBeenSSPai: Int,
+    isMine: Boolean,
+    onArticleClick:(Int) -> Unit
 ) {
 
     val primary = color?.let {
@@ -87,7 +94,8 @@ fun UserScreenContent(
                 followingCount = followingCount,
                 beFollowedCount = beFollowedCount,
                 imageUrl = imageUrl,
-                userFlag = userFlag
+                userFlag = userFlag,
+                isMine = isMine
             )
         }
         item {
@@ -98,10 +106,18 @@ fun UserScreenContent(
                     .horizontalScroll(state = rememberScrollState())
             ) {
                 UserTwoColumnItem(
-                    leadingImage = rewardBadge.takeIf { x -> x.isNotEmpty() }?.get(0)?.icon,
+                    leadingImage = rewardBadge
+                        .takeIf { x ->
+                            x.isNotEmpty()
+                        }?.get(0)
+                        ?.icon
+                        ?: badge.takeIf { x ->
+                            x.isNotEmpty()
+                        }?.get(0)
+                            ?.icon,
                     end = false,
                     topText = stringResource(R.string.user_reward_badges),
-                    bottomText = rewardBadge.size.toString()
+                    bottomText = (rewardBadge.size + badge.size).toString()
                 )
                 if (releasedArticleCount > 0) {
                     UserTwoColumnItem(
@@ -114,7 +130,7 @@ fun UserScreenContent(
                     UserTwoColumnItem(
                         end = false,
                         topText = stringResource(R.string.article_view_count),
-                        bottomText = articleViewCount.toString()
+                        bottomText = articleViewCount.toLong().formatWithUnit()
                     )
                 }
                 if (likeCount > 0) {
@@ -162,29 +178,60 @@ fun UserScreenContent(
                         UserActivityItem(
                             modifier = Modifier.padding(vertical = 16.dp),
                             imageUrl = data.author.avatar,
-                            actionString = data.action,
-                            type = stringResource(R.string.type_obj_1),
-                            title = data.data.title,
-                            onCardClick = {},
-                            banner = data.data.banner.takeIf { x -> x.isNotEmpty() && x.isNotBlank() }
-                        )
+                            actionString = data.action
+                        ) {
+                            UserActivityNormalItem(
+                                title = data.data.title,
+                                banner = data.data.banner.takeIf { x -> x.isNotEmpty() }
+                            ) {
+                                onArticleClick(data.data.id)
+                            }
+                        }
                     }
 
                     is DataActivityAuthors -> {
-                        //TODO
+                        UserActivityItem(
+                            imageUrl = data.author.avatar,
+                            actionString = data.action
+                        ) {
+                            data.data[0].let {
+                                UserActionFollowUser(
+                                    otherUserAvatarUrl = it.avatar,
+                                    name = it.nickname,
+                                    description = it.bio
+                                )
+                            }
+                        }
                     }
 
                     is DataActivityColumns -> {
-                        //TODO
+                        UserActivityItem(
+                            imageUrl = data.author.avatar,
+                            actionString = data.action
+                        ) {
+                            data.data[0].let {
+                                UserActionFollowUser(
+                                    otherUserAvatarUrl = it.banner,
+                                    name = it.title,
+                                    description = it.intro
+                                )
+                            }
+                        }
                     }
 
                     is DataActivityComment -> {
-                        //TODO
+                        UserActionComment(
+                            avatarUrl = data.author.avatar,
+                            actionString = data.action,
+                            commentString = data.data.comment,
+                            title = data.data.articleTitle,
+                            banner = data.data.artcileBanner,
+                        ) {
+
+                        }
                     }
 
-                    is DataActivityPrimeArticle -> {
-                        //TODO
-                    }
+                    else  -> Unit // TODO:WAITING
                 }
             }
         }

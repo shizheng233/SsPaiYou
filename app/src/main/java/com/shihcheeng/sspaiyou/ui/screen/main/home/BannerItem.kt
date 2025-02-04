@@ -10,12 +10,16 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.shihcheeng.sspaiyou.utils.imageUrlFor
@@ -28,9 +32,13 @@ fun BannerItem(
     title: String,
     onClick: () -> Unit
 ) {
+    var mutableWidthOfCard by remember { mutableIntStateOf(0) }
     OutlinedCard(
         shape = shape,
-        onClick = onClick
+        onClick = onClick,
+        modifier = Modifier.onSizeChanged {
+            mutableWidthOfCard = it.width
+        }
     ) {
         Box(
             modifier = Modifier
@@ -48,30 +56,18 @@ fun BannerItem(
             Surface(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .padding(16.dp)
-                    .align(Alignment.BottomStart),
+                    .padding(8.dp)
+                    .align(Alignment.TopStart),
                 shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.secondaryContainer
+                color = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun BannerPreview() {
-    BannerItem(
-        shape = MaterialTheme.shapes.medium,
-        image = "",
-        title = "HAHA"
-    ){
-
     }
 }

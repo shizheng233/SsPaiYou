@@ -1,7 +1,6 @@
 package com.shihcheeng.sspaiyou.ui.compoents
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,13 +23,14 @@ fun WithTooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
             Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.tertiaryContainer
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                shadowElevation = 6.dp
             ) {
                 Text(
                     text = tooltipText,
                     style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier.padding(6.dp)
                 )
             }
         },

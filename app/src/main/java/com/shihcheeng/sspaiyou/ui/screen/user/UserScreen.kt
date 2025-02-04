@@ -23,12 +23,15 @@ import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.WithTooltipBox
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
+import soup.compose.material.motion.animation.materialFadeIn
+import soup.compose.material.motion.animation.materialFadeOut
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserScreen(
     viewModel: UserViewModel = hiltViewModel(),
-    onNavUp: () -> Unit
+    onNavUp: () -> Unit,
+    onArticleClick: (Int) -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
     val user by viewModel.dataOfUser.collectAsStateWithLifecycle()
@@ -40,7 +43,11 @@ fun UserScreen(
             TopAppBar(
                 title = {
                     val indexOfList by remember { derivedStateOf { list.firstVisibleItemIndex } }
-                    AnimatedVisibility(visible = indexOfList != 0) {
+                    AnimatedVisibility(
+                        visible = indexOfList != 0,
+                        enter = materialFadeIn(),
+                        exit = materialFadeOut()
+                    ) {
                         Text(text = title)
                     }
                 },
@@ -62,7 +69,9 @@ fun UserScreen(
         }
     ) { padding ->
         TriStateScreen(
-            padding = padding,
+            padding = PaddingValues(
+                top = padding.calculateTopPadding()
+            ),
             onError = {
                 Error(error = it.localizedMessage, onClick = viewModel::load)
             },
@@ -93,6 +102,8 @@ fun UserScreen(
                 articleViewCount = it.data.articleViewCount,
                 likeCount = it.data.likedCount,
                 haveBeenSSPai = it.data.createdAt,
+                isMine = viewModel.localTokenManager.getSlug() == it.data.slug,
+                onArticleClick = onArticleClick
             )
         }
     }

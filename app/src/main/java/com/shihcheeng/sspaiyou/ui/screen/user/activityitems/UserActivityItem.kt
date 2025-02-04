@@ -1,13 +1,11 @@
-package com.shihcheeng.sspaiyou.ui.screen.user
+package com.shihcheeng.sspaiyou.ui.screen.user.activityitems
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,10 +23,7 @@ fun UserActivityItem(
     modifier: Modifier = Modifier,
     imageUrl: String,
     actionString: String,
-    banner: String?,
-    type: String,
-    title: String,
-    onCardClick: () -> Unit
+    actionContent: @Composable () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -58,41 +53,7 @@ fun UserActivityItem(
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onCardClick
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(
-                            text = type,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleSmall
-                        )
-
-                        Text(
-                            text = title,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                        )
-                        banner?.let {
-                            AsyncImage(
-                                model = imageUrlFor(it),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .aspectRatio(2f / 1f)
-                                    .padding(vertical = 8.dp)
-                                    .padding(end = 8.dp)
-                                    .clip(MaterialTheme.shapes.medium),
-                                placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer),
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
-                    }
-                }
+                actionContent()
             }
         }
         HorizontalDivider(modifier = Modifier.padding(top = 16.dp))

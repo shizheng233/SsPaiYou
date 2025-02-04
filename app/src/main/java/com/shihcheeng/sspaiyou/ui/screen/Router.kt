@@ -74,7 +74,12 @@ fun Router(
 
         }
         composable(Router.UserInfo.name) {
-            UserScreen(onNavUp = navHostController::popBackStack)
+            UserScreen(
+                onNavUp = navHostController::popBackStack,
+                onArticleClick = {
+                    navHostController.proceedToDetail(it.toString())
+                }
+            )
         }
     }
 

@@ -21,6 +21,8 @@ object DataInteraction : JsonContentPolymorphicSerializer<IBaseData>(IBaseData::
             "follow_user" -> DataActivityAuthors.serializer()
             "follow_special_column" -> DataActivityColumns.serializer()
             "comment_article" -> DataActivityComment.serializer()
+            "community_release_topic" -> DataActivityPrimeArticle.serializer()
+            "community_status_topic_comment_reply" -> DataActivityCommentAndReply.serializer()
             else -> DataActivityArticle.serializer()
         }
     }
