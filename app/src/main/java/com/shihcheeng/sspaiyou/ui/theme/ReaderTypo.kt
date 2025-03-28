@@ -2,18 +2,40 @@ package com.shihcheeng.sspaiyou.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 private val DefaultTextStyle = TextStyle.Default
 
-val ReaderBodyMedium = DefaultTextStyle.copy(
-    fontFamily = ReaderDefTypeToken.BodyMediumFont,
-    fontWeight = ReaderDefTypeToken.BodyMediumWeight,
+val ReaderBodyMedium = TextStyle(
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight.Normal,
     fontSize = 17.sp,
-    lineHeight = ReaderDefTypeToken.BodyMediumLineHeight,
-    letterSpacing = ReaderDefTypeToken.BodyMediumTracking
+    lineHeight = (18 * 1.5).sp,
+    letterSpacing = 0.1.sp,
+    fontStyle = FontStyle.Normal,
+)
+
+val ReaderCodeMedium = TextStyle(
+    fontFamily = FontFamily.Monospace,
+    fontWeight = FontWeight.Normal,
+    fontSize = 17.sp,
+    lineHeight = 1.5.em,
+    letterSpacing = 0.1.sp,
+    fontStyle = FontStyle.Normal,
+)
+
+val ReaderCode = TextStyle(
+    fontFamily = FontFamily.Monospace,
+    fontWeight = FontWeight.Normal,
+    fontSize = 15.sp,
+    lineHeight = 1.5.em,
+    letterSpacing = 0.1.sp,
+    fontStyle = FontStyle.Normal,
 )
 
 val ReaderBodySmall = DefaultTextStyle.copy(

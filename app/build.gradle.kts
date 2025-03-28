@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "com.shihcheeng.sspaiyou"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         val file = project.rootProject.file("version.code.properties")
@@ -22,7 +22,7 @@ android {
         codeProperties["VERSION_CODE"] = codeOfVersion.toString()
         applicationId = "com.shihcheeng.sspaiyou"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = codeOfVersion
         versionName = nameOfVersion
         codeProperties.store(file.writer(), null)
@@ -51,6 +51,14 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    packaging {
+        resources {
+            excludes.add("META-INF/LICENSE-LGPL-2.1.txt")
+            excludes.add("META-INF/LICENSE-LGPL-3.txt")
+            excludes.add("META-INF/LICENSE-W3C-TEST")
+            excludes.add("META-INF/DEPENDENCIES")
+        }
     }
 }
 
@@ -84,6 +92,10 @@ dependencies {
     implementation(libs.compose.webview)
     implementation(libs.agentweb.core)
     implementation(common.tools.materialKolor)
+    implementation(libs.flexmark.all)
+    implementation(libs.multiplatform.markdown.renderer)
+    implementation(libs.multiplatform.markdown.renderer.android)
+    implementation(libs.multiplatform.markdown.renderer.coil2)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -2,6 +2,7 @@ package com.shihcheeng.sspaiyou.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -11,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.mikepenz.markdown.model.DefaultMarkdownColors
+import com.mikepenz.markdown.model.MarkdownColors
 
 
 @Immutable
@@ -336,3 +339,17 @@ fun AppTheme(
     )
 }
 
+
+fun ColorScheme.toMarkDownColors(): MarkdownColors {
+    return DefaultMarkdownColors(
+        text = onSurface,
+        codeText = onSurfaceVariant,
+        inlineCodeText = onSurfaceVariant,
+        linkText = primary,
+        codeBackground = surfaceContainer,
+        inlineCodeBackground = surface,
+        dividerColor = outline,
+        tableText = onSurface,
+        tableBackground = surfaceContainer,
+    )
+}
