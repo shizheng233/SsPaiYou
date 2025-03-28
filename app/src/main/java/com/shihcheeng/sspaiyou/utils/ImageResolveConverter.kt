@@ -11,6 +11,6 @@ object ImageResolveConverter : FlexmarkHtmlConverter.HtmlConverterExtension {
     }
 
     override fun extend(builder: FlexmarkHtmlConverter.Builder) {
-        builder.htmlNodeRendererFactory(ImageNodeResolve.Companion.Factory)
+        builder.htmlNodeRendererFactory(ImageNodeResolve.create())
     }
 }

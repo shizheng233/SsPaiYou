@@ -28,7 +28,7 @@ fun DetailMarkdownParagraph(
     }
 
     MarkdownText(
-        styledText,
+        content = styledText,
         modifier = modifier,
         style = style,
     )

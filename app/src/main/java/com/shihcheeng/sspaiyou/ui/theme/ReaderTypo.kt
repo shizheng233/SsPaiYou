@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 private val DefaultTextStyle = TextStyle.Default
 
 val ReaderBodyMedium = TextStyle(
-    fontFamily = FontFamily.SansSerif,
+    fontFamily = FontFamily.Default,
     fontWeight = FontWeight.Normal,
     fontSize = 17.sp,
     lineHeight = (18 * 1.5).sp,
