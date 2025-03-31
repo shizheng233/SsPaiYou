@@ -134,6 +134,6 @@ data class Data(
     val videoPlatformType: Int = 0,
     @SerialName("words")
     val words: Int = 0
-)
+) : IActData
 
 typealias ArticleData = Data

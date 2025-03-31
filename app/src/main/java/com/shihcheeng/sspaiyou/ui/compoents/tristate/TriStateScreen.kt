@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import com.shihcheeng.sspaiyou.ui.compoents.Loading
 import com.shihcheeng.sspaiyou.utils.NetState
 
@@ -29,6 +30,29 @@ fun <T> TriStateScreen(
             is NetState.Error -> onError(triState.throwable)
             NetState.Loading -> onLoading()
             is NetState.Success -> onSuccess(triState.content)
+        }
+    }
+}
+
+@Composable
+fun TriStateScreen(
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(0.dp),
+    triState: LoadState,
+    onError: @Composable (Throwable) -> Unit,
+    onLoading: @Composable () -> Unit = { Loading() },
+    onSuccess: @Composable () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .then(modifier),
+    ) {
+        when (triState) {
+            is LoadState.Error -> onError(triState.error)
+            LoadState.Loading -> onLoading()
+            is LoadState.NotLoading -> onSuccess()
         }
     }
 }

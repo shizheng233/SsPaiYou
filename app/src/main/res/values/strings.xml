@@ -44,4 +44,10 @@
     <string name="type_obj_4">专栏</string>
     <string name="some_day">%d天</string>
     <string name="no_desc">没有简介</string>
+    <string name="rec">推荐</string>
+    <string name="flow">关注</string>
+    <string name="hot_r">最热</string>
+    <string name="app_rec">应用推荐</string>
+    <string name="life_sty">生活方式</string>
+    <string name="tech">效率技巧</string>
 </resources>

@@ -8,7 +8,6 @@ import androidx.navigation.compose.rememberNavController
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.UserInfo.proceedToUserInfo
-import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
@@ -19,7 +18,8 @@ import soup.compose.material.motion.animation.rememberSlideDistance
 @Composable
 fun Router(
     navHostController: NavHostController = rememberNavController(),
-    slider: Int = rememberSlideDistance()
+    slider: Int = rememberSlideDistance(),
+    toDetail: (String) -> Unit
 ) {
 
     NavHost(
@@ -40,9 +40,7 @@ fun Router(
     ) {
         composable(Router.Main.name) {
             MainScreen(
-                onClick = {
-                    navHostController.proceedToDetail(it)
-                },
+                onClick = toDetail,
                 onSetting = {
                     navHostController proceedTo Router.Setting
                 },
@@ -55,14 +53,6 @@ fun Router(
             ) {
                 navHostController proceedTo Router.Login
             }
-        }
-        composable(Router.Detail.name) {
-            DetailScreen(
-                onNavBack = navHostController::popBackStack,
-                onAvatarClick = {
-                    navHostController.proceedToUserInfo(it)
-                }
-            )
         }
         composable(Router.Login.name) {
             WebLoginScreen(onNavUp = navHostController::popBackStack)

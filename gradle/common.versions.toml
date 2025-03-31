@@ -23,6 +23,8 @@ aboutPluginVersion = "11.2.3"
 aboutLibrariesVersion = "11.2.3"
 appCenterSdkVersion = '5.0.4'
 materialKolor = "2.0.0"
+appcompatVersion = "1.7.0"
+markwonVersion = "4.6.2"
 
 [libraries]
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
@@ -63,6 +65,12 @@ tools-about-compose = { group = "com.mikepenz", name = "aboutlibraries-compose-m
 tools-app-center = { group = "com.microsoft.appcenter", name = "appcenter-analytics", version.ref = "appCenterSdkVersion" }
 tools-app-crashes = { group = "com.microsoft.appcenter", name = "appcenter-crashes", version.ref = "appCenterSdkVersion" }
 tools-materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
+markwon = { module = "io.noties.markwon:core", version.ref = "markwonVersion" }
+markwon-image = { module = "io.noties.markwon:image", version.ref = "markwonVersion" }
+markwon-image-coil = { module = "io.noties.markwon:image-coil", version.ref = "markwonVersion" }
+markwon-tables = { module = "io.noties.markwon:ext-tables", version.ref = "markwonVersion" }
+markwon-html = { module = "io.noties.markwon:html", version.ref = "markwonVersion" }
 
 
 [plugins]

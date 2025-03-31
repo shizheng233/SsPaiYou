@@ -54,7 +54,9 @@ fun ErrorItem(
             .then(modifier),
         contentAlignment = Alignment.Center
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = error ?: stringResource(R.string.unknown_error),
                 textAlign = TextAlign.Center

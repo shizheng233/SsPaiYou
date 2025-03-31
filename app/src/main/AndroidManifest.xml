@@ -9,6 +9,7 @@
         android:name=".SSPaiYouApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_app_pi"
         android:label="@string/app_name"
@@ -16,7 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SsPaiYou"
         android:usesCleartextTraffic="true"
-        android:enableOnBackInvokedCallback="true"
         tools:targetApi="tiramisu">
         <activity
             android:name=".MainActivity"
@@ -28,6 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.detail.DetailActivity" />
     </application>
 
 </manifest>

@@ -51,6 +51,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        viewBinding = true
     }
     packaging {
         resources {
@@ -96,6 +97,13 @@ dependencies {
     implementation(libs.multiplatform.markdown.renderer)
     implementation(libs.multiplatform.markdown.renderer.android)
     implementation(libs.multiplatform.markdown.renderer.coil2)
+    implementation(common.androidx.appcompat)
+    implementation(libs.material)
+    implementation(common.markwon)
+    implementation(common.markwon.tables)
+    implementation(common.markwon.image)
+    implementation(common.markwon.image.coil)
+    implementation(common.markwon.html)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

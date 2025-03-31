@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou.ui.screen.main.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -8,6 +9,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -24,7 +28,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.LoadingItem
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.triStateItem
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -82,6 +86,25 @@ fun HomeScreen(
                 }
             }
         )
+        stickyHeader(
+            key = "KEY_THE_ROW_"
+        ) {
+            PrimaryScrollableTabRow(
+                selectedTabIndex = 0
+            ) {
+                listOf("a", "b", "c").forEach {
+                    Tab(
+                        selected = false,
+                        text = {
+                            Text(text = it)
+                        },
+                        onClick = {
+
+                        }
+                    )
+                }
+            }
+        }
         pagingTriState(
             paging = data.loadState.source.refresh,
             onLoading = {
@@ -105,7 +128,11 @@ fun HomeScreen(
                                     summary = it.summary,
                                     timeStamp = it.releasedTime.toLong()
                                 ) {
-                                    onClick(it.id.toString())
+                                    if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
+                                        onClick(it.slug)
+                                    } else {
+                                        onClick(it.id.toString())
+                                    }
                                 }
                             }
 
@@ -127,7 +154,11 @@ fun HomeScreen(
                                         summary = it.summary,
                                         timeStamp = it.releasedTime.toLong()
                                     ) {
-                                        onClick(it.id.toString())
+                                        if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
+                                            onClick(it.slug)
+                                        } else {
+                                            onClick(it.id.toString())
+                                        }
                                     }
                                 }
                             }
@@ -137,7 +168,7 @@ fun HomeScreen(
             }
         )
         pagingTriState(
-            paging = data.loadState.source.append,
+            paging = data.loadState.append,
             onError = {
                 ErrorItem(error = it.localizedMessage) {
                     data.retry()

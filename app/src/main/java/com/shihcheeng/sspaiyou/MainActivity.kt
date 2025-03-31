@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import com.shihcheeng.sspaiyou.activities.detail.DetailActivity.Companion.toDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router
 import com.shihcheeng.sspaiyou.ui.theme.AppTheme
 import com.shihcheeng.sspaiyou.utils.LocalComposeTokenManager
@@ -42,7 +43,11 @@ class MainActivity : ComponentActivity() {
                     CompositionLocalProvider(
                         LocalComposeTokenManager provides tokenManager
                     ) {
-                        Router()
+                        Router(
+                            toDetail = {
+                                toDetail(it)
+                            }
+                        )
                     }
                 }
             }

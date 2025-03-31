@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shihcheeng.sspaiyou.R
+import com.shihcheeng.sspaiyou.activities.detail.DetailViewModel
 import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.utils.NetState
@@ -83,11 +84,11 @@ fun DetailScreen(
             }
         ) {
             DetailScreenContent(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                state = state,
                 title = it.title,
                 author = it.author,
                 content = it.body.trimIndent(),
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                state = state,
                 onAvatarClick = onAvatarClick
             )
         }

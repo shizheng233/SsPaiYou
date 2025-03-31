@@ -14,4 +14,11 @@ interface ArticleService {
         @Query("support_webp") supportWebp: Boolean = true
     ): ArticleDataModel
 
+    @GET(SSPaiUrl.ARTICLE_MEMBER)
+    suspend fun getMemberArticleDetail(
+        @Query("slug") slug: String,
+        @Query("view") view: String = "second",
+        @Query("support_webp") supportWebp: Boolean = true
+    ): ArticleDataModel
+
 }

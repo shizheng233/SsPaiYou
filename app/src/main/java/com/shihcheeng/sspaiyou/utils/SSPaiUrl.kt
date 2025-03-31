@@ -12,6 +12,7 @@ object SSPaiUrl {
     const val COLUMN_URL = "special/column/search/page/get"
     const val BULLET = "bullet/search/page/get?limit=10&offset=0&created_at=1731226804"
     const val ARTICLE_DETAIL = "article/info/get"
+    const val ARTICLE_MEMBER = "member/article/single/info/get"
     const val USER_INFO = "user/info/get"
     const val USER_ACTIVITY = "information/user/activity/page/get"
     const val USER_SLUG_INFO = "user/slug/info/get"

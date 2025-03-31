@@ -1,4 +1,4 @@
-package com.shihcheeng.sspaiyou.ui.screen.detail
+package com.shihcheeng.sspaiyou.activities.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -19,7 +19,7 @@ class DetailViewModel @Inject constructor(
     private val repository: DetailRepository
 ) : ViewModel() {
 
-    val id = savedStateHandle.get<String>("id")
+    val id = savedStateHandle.get<String>(DetailActivity.INTENT_ID_STRING)
 
     private val _data = MutableStateFlow<NetState<ArticleData>>(NetState.Loading)
     val data = _data.asStateFlow()

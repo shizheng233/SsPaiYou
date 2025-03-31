@@ -7,12 +7,12 @@ import com.vladsch.flexmark.html2md.converter.HtmlNodeRenderer
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererFactory
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererHandler
 import org.jsoup.nodes.Element
+import kotlin.math.roundToInt
 
 
 class ImageNodeResolve : HtmlNodeRenderer {
 
     override fun getHtmlNodeRendererHandlers(): MutableSet<HtmlNodeRendererHandler<*>> {
-        //Log.d("a", "getHtmlNodeRendererHandlers: ")
         return mutableSetOf(
             HtmlNodeRendererHandler(
                 /* tagName = */ "figure",
@@ -29,15 +29,26 @@ class ImageNodeResolve : HtmlNodeRenderer {
             context: HtmlNodeConverterContext,
             markdown: HtmlMarkdownWriter
         ) {
-            val imageUrl = node.getElementsByTag("img")
-                .first()?.attr("src")
-            val caption = node.attr("figcaption")
-            markdown.appendLine()
-            markdown.append("![${caption.takeIf { x -> x.isNotEmpty() } ?: "图片"}]")
-            markdown.append("($imageUrl)")
-            markdown.appendLine()
+            val images = node.getElementsByTag("img")
+            if (images.size == 1) {
+                val imageUrl = images.first()?.attr("data-original")
+                val caption = node.attr("figcaption").takeIf { x ->
+                    x.isNotEmpty() && x.isNotBlank()
+                } ?: images.first()?.attr("alt")
+                markdown.appendLine()
+                markdown.append("<img width=\"100%\" src=\"${imageUrl}\" alt=\"${caption}\"/><br/>")
+                markdown.appendLine()
+            } else {
+                val ratio = (100f / images.size).roundToInt()
+                markdown.appendLine()
+                images.forEach {
+                    val imageUrl = it.attr("data-original")
+                    val caption = it.attr("alt")
+                    markdown.append("<img width=\"${ratio}%\" src=\"${imageUrl}\" alt=\"${caption}\"/>")
+                }
+                markdown.append("<br/>")
+            }
         }
-
 
     }
 

@@ -12,7 +12,17 @@ class DetailRepository @Inject constructor(
 ) {
 
     suspend fun getArticleDetail(id: String) = withContext(Dispatchers.Default) {
-        service.getArticleDetail(id = id).data
+        runCatching {
+            if (id.toIntOrNull() == null) {
+                service.getMemberArticleDetail(slug = id)
+            } else {
+                service.getArticleDetail(id = id)
+            }
+        }.onSuccess {
+            if (it.error != 0) {
+                throw Exception("错误：${it.error}")
+            }
+        }.getOrThrow().data
     }
 
 }
