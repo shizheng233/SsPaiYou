@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -20,7 +19,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.just.agentweb.AgentWeb
 import com.shihcheeng.sspaiyou.R
@@ -28,17 +26,16 @@ import com.shihcheeng.sspaiyou.utils.Constants
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
 
 @SuppressLint("SetJavaScriptEnabled")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WebLoginScreen(
-    viewModel: WebLoginViewModel = hiltViewModel(),
+    viewModel: WebLoginViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
     onNavUp: () -> Unit,
 ) {
 
     val activity = LocalView.current
     val saveAccomplish by viewModel.saveAccomplish.collectAsStateWithLifecycle()
 
-    LaunchedEffect(saveAccomplish){
+    LaunchedEffect(saveAccomplish) {
         if (saveAccomplish) {
             onNavUp()
         }

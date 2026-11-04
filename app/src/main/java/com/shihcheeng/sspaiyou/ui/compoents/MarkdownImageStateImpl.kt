@@ -8,8 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toSize
 import com.mikepenz.markdown.model.MarkdownImageState
 
 internal class MarkdownImageStateImpl(override val density: Density) : MarkdownImageState {
@@ -18,15 +16,6 @@ internal class MarkdownImageStateImpl(override val density: Density) : MarkdownI
 
     override var intrinsicImageSize by mutableStateOf(Size.Unspecified)
 
-    @Deprecated(
-        "Use updateContainerSize instead",
-        replaceWith = ReplaceWith("updateContainerSize(size)")
-    )
-    override fun setContainerSize(intSize: IntSize) = updateContainerSize(intSize.toSize())
-
-    @Deprecated("Use updateImageSize instead", replaceWith = ReplaceWith("updateImageSize(size)"))
-    override fun setImageSize(size: Size) = updateImageSize(size)
-
     override fun updateContainerSize(size: Size) {
         containerSize = size
     }
@@ -34,6 +23,8 @@ internal class MarkdownImageStateImpl(override val density: Density) : MarkdownI
     override fun updateImageSize(size: Size) {
         intrinsicImageSize = size
     }
+
+
 }
 
 @Composable

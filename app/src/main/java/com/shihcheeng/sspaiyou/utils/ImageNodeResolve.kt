@@ -31,20 +31,21 @@ class ImageNodeResolve : HtmlNodeRenderer {
         ) {
             val images = node.getElementsByTag("img")
             if (images.size == 1) {
-                val imageUrl = images.first()?.attr("data-original")
+                val imageUrl = images.first()?.let { it.attr("data-original").ifBlank { it.attr("src") } }
                 val caption = node.attr("figcaption").takeIf { x ->
                     x.isNotEmpty() && x.isNotBlank()
                 } ?: images.first()?.attr("alt")
                 markdown.appendLine()
-                markdown.append("<img width=\"100%\" src=\"${imageUrl}\" alt=\"${caption}\"/><br/>")
+                markdown.append(Element("img").attr("src", imageUrl.orEmpty()).attr("alt", caption.orEmpty()).outerHtml())
+                markdown.append("<br/>")
                 markdown.appendLine()
             } else {
                 val ratio = (100f / images.size).roundToInt()
                 markdown.appendLine()
                 images.forEach {
-                    val imageUrl = it.attr("data-original")
+                    val imageUrl = it.attr("data-original").ifBlank { it.attr("src") }
                     val caption = it.attr("alt")
-                    markdown.append("<img width=\"${ratio}%\" src=\"${imageUrl}\" alt=\"${caption}\"/>")
+                    markdown.append(Element("img").attr("width", "$ratio%").attr("src", imageUrl).attr("alt", caption).outerHtml())
                 }
                 markdown.append("<br/>")
             }

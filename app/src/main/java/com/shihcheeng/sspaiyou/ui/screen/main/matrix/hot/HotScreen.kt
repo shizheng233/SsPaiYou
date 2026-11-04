@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.shihcheeng.sspaiyou.ui.compoents.ErrorItem
 import com.shihcheeng.sspaiyou.ui.compoents.LoadingItem
@@ -18,7 +17,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.Error as ErrorScreen
 
 @Composable
 fun HotScreen(
-    viewModel: MatrixHotViewModel = hiltViewModel(),
+    viewModel: MatrixHotViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
     onClick: (String) -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()

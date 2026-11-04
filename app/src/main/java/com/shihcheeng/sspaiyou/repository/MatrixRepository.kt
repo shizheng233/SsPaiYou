@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import com.shihcheeng.sspaiyou.api.service.MatrixService
 import com.shihcheeng.sspaiyou.paging.MatrixHotPaging
 import com.shihcheeng.sspaiyou.paging.MatrixPaging
+import com.shihcheeng.sspaiyou.paging.BulletPaging
 import com.shihcheeng.sspaiyou.utils.extra.IGNORE_PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,6 +25,13 @@ class MatrixRepository @Inject constructor(
     val hostData
         get() = Pager(config = PagingConfig(pageSize = PagingConfig.IGNORE_PAGE_SIZE)) {
             MatrixHotPaging(service)
+        }.flow
+
+    val bulletData
+        get() = Pager(
+            config = PagingConfig(pageSize = 10, initialLoadSize = 10, enablePlaceholders = false)
+        ) {
+            BulletPaging(service)
         }.flow
 
     suspend fun getLookData() = withContext(Dispatchers.Default) {

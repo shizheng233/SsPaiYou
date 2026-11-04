@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.ErrorItem
@@ -16,7 +15,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
 
 @Composable
 fun ColumnScreen(
-    viewModel: ColumnViewModel = hiltViewModel()
+    viewModel: ColumnViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
 ) {
 
     val data = viewModel.data.collectAsLazyPagingItems()

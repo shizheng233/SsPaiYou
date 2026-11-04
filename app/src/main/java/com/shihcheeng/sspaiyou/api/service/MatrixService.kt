@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou.api.service
 
+import com.shihcheeng.sspaiyou.api.data.bullet.BulletDataModel
 import com.shihcheeng.sspaiyou.api.data.matrix.host.MatrixHostDataModel
 import com.shihcheeng.sspaiyou.api.data.matrix.look.MatrixLookDataModel
 import com.shihcheeng.sspaiyou.api.data.matrix.normal.MatrixNormalDataModel
@@ -26,5 +27,12 @@ interface MatrixService {
 
     @GET(SSPaiUrl.MATRIX_URL_LOOK)
     suspend fun getMatrixLook(): MatrixLookDataModel
+
+    @GET(SSPaiUrl.BULLET)
+    suspend fun getBullet(
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int,
+        @Query("created_at") createdAt: Long
+    ): BulletDataModel
 
 }

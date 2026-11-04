@@ -3,7 +3,9 @@ package com.shihcheeng.sspaiyou.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -12,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.materialkolor.PaletteStyle
+import com.materialkolor.material3.DynamicMaterialExpressiveTheme
 import com.mikepenz.markdown.model.DefaultMarkdownColors
 import com.mikepenz.markdown.model.MarkdownColors
 
@@ -332,9 +336,10 @@ fun AppTheme(
     }
 
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
+        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }
@@ -343,13 +348,29 @@ fun AppTheme(
 fun ColorScheme.toMarkDownColors(): MarkdownColors {
     return DefaultMarkdownColors(
         text = onSurface,
-        codeText = onSurfaceVariant,
-        inlineCodeText = onSurfaceVariant,
-        linkText = primary,
         codeBackground = surfaceContainer,
         inlineCodeBackground = surface,
         dividerColor = outline,
-        tableText = onSurface,
         tableBackground = surfaceContainer,
+        highlightText = primary,
+        highlightBackground = surface,
     )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun SwitchableDynamicMaterialExpressiveTheme(
+    enable: Boolean,
+    seedColor: Color,
+    content: @Composable () -> Unit
+) {
+    when (enable) {
+        true -> DynamicMaterialExpressiveTheme(
+            seedColor = seedColor,
+            content = content,
+            style = PaletteStyle.Expressive
+        )
+
+        false -> content()
+    }
 }

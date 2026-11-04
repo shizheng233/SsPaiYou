@@ -77,7 +77,9 @@ data class Data(
     @SerialName("user_member_card_show_on")
     val userMemberCardShowOn: Boolean = false,
     @SerialName("view_count")
-    val viewCount: Int = 0
+    val viewCount: Int = 0,
+    @SerialName("theme_color")
+    val themeColor: String = "#495759"
 )
 
 typealias MainData = Data

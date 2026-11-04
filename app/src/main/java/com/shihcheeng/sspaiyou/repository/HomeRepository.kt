@@ -2,7 +2,7 @@ package com.shihcheeng.sspaiyou.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import com.shihcheeng.sspaiyou.api.data.home.sub.BannerData
+import com.shihcheeng.sspaiyou.api.data.home.second.MainsItem
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.paging.HomePaging
 import kotlinx.coroutines.Dispatchers
@@ -19,8 +19,8 @@ class HomeRepository @Inject constructor(
         HomePaging(homeService)
     }.flow
 
-    suspend fun getHomeBanner(): List<BannerData> = withContext(Dispatchers.Default) {
-        homeService.getHomeSub().data
+    suspend fun getHomeBanner(): List<MainsItem> = withContext(Dispatchers.Default) {
+        homeService.getHomeSecond().data.mains
     }
 
 }

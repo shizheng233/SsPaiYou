@@ -13,7 +13,7 @@ data class SocialNetwork(
     @SerialName("nickname")
     val nickname: String = "",
     @SerialName("type")
-    val type: Int = 0,
+    val type: String = "",
     @SerialName("uid")
     val uid: String = "",
     @SerialName("user_slug")

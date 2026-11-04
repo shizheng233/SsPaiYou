@@ -3,7 +3,6 @@ package com.shihcheeng.sspaiyou.ui.screen.user
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -16,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.shihcheeng.sspaiyou.R
@@ -26,10 +24,9 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import soup.compose.material.motion.animation.materialFadeIn
 import soup.compose.material.motion.animation.materialFadeOut
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserScreen(
-    viewModel: UserViewModel = hiltViewModel(),
+    viewModel: UserViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
     onNavUp: () -> Unit,
     onArticleClick: (Int) -> Unit
 ) {

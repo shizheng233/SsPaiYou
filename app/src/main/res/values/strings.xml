@@ -50,4 +50,14 @@
     <string name="app_rec">应用推荐</string>
     <string name="life_sty">生活方式</string>
     <string name="tech">效率技巧</string>
+    <string name="bullet_discussion">话题讨论</string>
+    <string name="bullet_vote">投票话题</string>
+    <string name="bullet_volume">第 %1$s 期</string>
+    <string name="bullet_participations">%1$d 人参与</string>
+    <string name="bullet_threads">%1$d 条讨论</string>
+    <string name="bullet_expand">展开话题</string>
+    <string name="bullet_collapse">收起话题</string>
+    <string name="bullet_voted">已参与投票</string>
+    <string name="bullet_vote_deadline">投票截止：%1$s</string>
+    <string name="bullet_empty">暂无话题</string>
 </resources>

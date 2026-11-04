@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ArticleDataModel(
     @SerialName("data")
-    val `data`: Data = Data(),
+    val `data`: Data = ArticleData(bodyExtends = emptyList()),
     @SerialName("error")
     val error: Int = 0
 )

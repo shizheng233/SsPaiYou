@@ -1,6 +1,8 @@
 package com.shihcheeng.sspaiyou.ui.screen
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,11 +10,13 @@ import androidx.navigation.compose.rememberNavController
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.UserInfo.proceedToUserInfo
+import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
+import com.shihcheeng.sspaiyou.ui.screen.favourite.FavouritemScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
+import com.shihcheeng.sspaiyou.ui.screen.setting.SettingScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
-import soup.compose.material.motion.animation.materialSharedAxisXIn
-import soup.compose.material.motion.animation.materialSharedAxisXOut
+import com.shihcheeng.sspaiyou.ui.theme.MaterialMotions
 import soup.compose.material.motion.animation.rememberSlideDistance
 
 @Composable
@@ -21,26 +25,35 @@ fun Router(
     slider: Int = rememberSlideDistance(),
     toDetail: (String) -> Unit
 ) {
+    val slideDistance = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -slider else slider
 
     NavHost(
         navController = navHostController,
         startDestination = Router.Main.name,
         enterTransition = {
-            materialSharedAxisXIn(forward = true, slideDistance = slider)
+            MaterialMotions.screenEnter(forward = true, slideDistance = slideDistance)
         },
         popEnterTransition = {
-            materialSharedAxisXIn(forward = false, slideDistance = slider)
+            MaterialMotions.screenEnter(forward = false, slideDistance = slideDistance)
         },
         popExitTransition = {
-            materialSharedAxisXOut(forward = false, slideDistance = slider)
+            MaterialMotions.screenExit(forward = false, slideDistance = slideDistance)
         },
         exitTransition = {
-            materialSharedAxisXOut(forward = true, slideDistance = slider)
+            MaterialMotions.screenExit(forward = true, slideDistance = slideDistance)
+        },
+        predictivePopEnterTransition = {
+            MaterialMotions.predictivePopEnter()
+        },
+        predictivePopExitTransition = { swipeEdge ->
+            MaterialMotions.predictivePopExit(swipeEdge = swipeEdge, slideDistance = slider)
         }
     ) {
         composable(Router.Main.name) {
             MainScreen(
-                onClick = toDetail,
+                onClick = { x ->
+                    navHostController.proceedToDetail(x)
+                },
                 onSetting = {
                     navHostController proceedTo Router.Setting
                 },
@@ -58,10 +71,10 @@ fun Router(
             WebLoginScreen(onNavUp = navHostController::popBackStack)
         }
         composable(Router.Favourite.name) {
-
+            FavouritemScreen()
         }
         composable(Router.Setting.name) {
-
+            SettingScreen()
         }
         composable(Router.UserInfo.name) {
             UserScreen(
@@ -70,6 +83,15 @@ fun Router(
                     navHostController.proceedToDetail(it.toString())
                 }
             )
+        }
+        composable(Router.Detail.name) {
+            DetailScreen(
+                onAvatarClick = {
+                    navHostController.proceedToUserInfo(it)
+                }
+            ) {
+                navHostController.popBackStack()
+            }
         }
     }
 

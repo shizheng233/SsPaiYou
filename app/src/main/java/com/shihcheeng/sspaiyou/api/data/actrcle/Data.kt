@@ -38,6 +38,8 @@ data class Data(
     val benefitsStatement: BenefitsStatement = BenefitsStatement(),
     @SerialName("body")
     val body: String = "",
+    @SerialName("body_extends")
+    val bodyExtends: List<BodyExtendsBody>,
     @SerialName("column_author")
     val columnAuthor: Boolean = false,
     @SerialName("comment_file_on")

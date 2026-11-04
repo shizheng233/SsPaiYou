@@ -1,37 +1,28 @@
 package com.shihcheeng.sspaiyou.ui.screen.main.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.carousel.CarouselDefaults
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import androidx.paging.compose.itemContentType
 import com.shihcheeng.sspaiyou.ui.compoents.ErrorItem
 import com.shihcheeng.sspaiyou.ui.compoents.Loading
 import com.shihcheeng.sspaiyou.ui.compoents.LoadingItem
+import com.shihcheeng.sspaiyou.ui.compoents.bannerz.BannerCarousel
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.triStateItem
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
     onClick: (String) -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
@@ -40,43 +31,38 @@ fun HomeScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         triStateItem(
             triState = banner,
             onLoading = {
                 Loading(
                     modifier = Modifier
-                        .width(CarouselWidth)
-                        .aspectRatio(11f / 6f)
+                        .fillMaxWidth()
+                        .aspectRatio(360f / 274f)
                 )
             },
             onError = {
                 ErrorItem(
                     error = it.localizedMessage,
                     modifier = Modifier
-                        .width(CarouselWidth)
-                        .aspectRatio(11f / 6f)
+                        .fillMaxWidth()
+                        .aspectRatio(360f / 274f)
                 ) {
                     viewModel.loadBanner()
                 }
             },
             onSuccess = {
-                item(key = HomeScreenKey.BANNER) {
-                    val state = rememberCarouselState { it.size }
-                    HorizontalMultiBrowseCarousel(
-                        state = state,
-                        modifier = Modifier,
-                        preferredItemWidth = CarouselWidth,
-                        itemSpacing = 8.dp,
-                        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state = state)
-                    ) { index ->
+                item(
+                    key = HomeScreenKey.BANNER,
+                    contentType = HomeScreenKey.BANNER
+                ) {
+                    BannerCarousel(items = it) { banner ->
                         BannerItem(
-                            image = it[index].image,
-                            title = it[index].title,
-                            shape = rememberMaskShape(MaterialTheme.shapes.medium),
+                            image = banner.image,
+                            title = banner.title,
+                            onlyImage = banner.onlyImage
                         ) {
-                            it[index].url.detectiveUrlTypeOp { bannerType, s ->
+                            banner.url.detectiveUrlTypeOp { bannerType, s ->
                                 if (bannerType == BannerType.POST) {
                                     onClick(s)
                                 }
@@ -86,25 +72,6 @@ fun HomeScreen(
                 }
             }
         )
-        stickyHeader(
-            key = "KEY_THE_ROW_"
-        ) {
-            PrimaryScrollableTabRow(
-                selectedTabIndex = 0
-            ) {
-                listOf("a", "b", "c").forEach {
-                    Tab(
-                        selected = false,
-                        text = {
-                            Text(text = it)
-                        },
-                        onClick = {
-
-                        }
-                    )
-                }
-            }
-        }
         pagingTriState(
             paging = data.loadState.source.refresh,
             onLoading = {
@@ -116,17 +83,30 @@ fun HomeScreen(
                 }
             },
             onNotLoading = {
-                items(data.itemCount) { ii ->
+                items(
+                    count = data.itemCount,
+                    key = data.itemKey { it.id },
+                    contentType = data.itemContentType {
+                        when {
+                            it.important == 2 -> HomeScreenKey.SUPER_ITEM
+                            it.morningPaperTitle.isNotEmpty() -> HomeScreenKey.PAPER_ITEM
+                            else -> HomeScreenKey.ITEM
+                        }
+                    }
+                ) { ii ->
                     data[ii]?.let {
                         when (it.important) {
                             2 -> {
-                                HomeItemSpc(
+                                HomeItemLarge(
                                     image = it.banner,
+                                    timeColor = it.themeColor,
                                     author = it.author.nickname,
                                     avatar = it.author.avatar,
                                     title = it.title,
                                     summary = it.summary,
-                                    timeStamp = it.releasedTime.toLong()
+                                    timeStamp = it.releasedTime.toLong(),
+                                    commentCount = it.commentCount,
+                                    thunderCount = it.likeCount
                                 ) {
                                     if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
                                         onClick(it.slug)
@@ -146,12 +126,9 @@ fun HomeScreen(
                                         }
                                     )
                                 } else {
-                                    HomeItem(
+                                    HomeItemAlt(
                                         image = it.banner,
                                         title = it.title,
-                                        author = it.author.nickname,
-                                        avatar = it.author.avatar,
-                                        summary = it.summary,
                                         timeStamp = it.releasedTime.toLong()
                                     ) {
                                         if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
@@ -183,8 +160,6 @@ fun HomeScreen(
     }
 
 }
-
-val CarouselWidth = 340.dp
 
 private fun String.detectiveUrlTypeOp(
     onEach: (BannerType, String) -> Unit

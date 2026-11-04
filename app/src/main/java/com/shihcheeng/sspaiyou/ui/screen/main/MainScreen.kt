@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -24,7 +23,6 @@ import com.shihcheeng.sspaiyou.ui.screen.main.home.HomeScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.MatrixScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.personal.PersonalScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     onClick: (String) -> Unit,

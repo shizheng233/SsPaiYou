@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -67,7 +68,10 @@ fun ColumnItem(
                 )
                 Spacer(Modifier.weight(1f))
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                        positioning = TooltipAnchorPosition.Above,
+                        spacingBetweenTooltipAndAnchor = 4.dp
+                    ),
                     tooltip = {
                         Surface(
                             shape = MaterialTheme.shapes.medium,

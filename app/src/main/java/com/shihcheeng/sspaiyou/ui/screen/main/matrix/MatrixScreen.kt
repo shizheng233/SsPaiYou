@@ -1,6 +1,7 @@
 package com.shihcheeng.sspaiyou.ui.screen.main.matrix
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
@@ -16,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.column.ColumnScreen
+import com.shihcheeng.sspaiyou.ui.screen.main.matrix.bullet.BulletInnerScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.hot.HotScreen
+import com.shihcheeng.sspaiyou.ui.theme.materialPagerMotion
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,10 +57,12 @@ fun MatrixScreen(
         HorizontalPager(
             state = state
         ) { indexx ->
-            when (indexx) {
-                0 -> HotScreen(onClick = onClick)
-                1 -> ColumnScreen()
-                2 -> {}
+            Box(Modifier.fillMaxSize().materialPagerMotion(state, indexx)) {
+                when (indexx) {
+                    0 -> HotScreen(onClick = onClick)
+                    1 -> ColumnScreen()
+                    2 -> BulletInnerScreen()
+                }
             }
         }
     }

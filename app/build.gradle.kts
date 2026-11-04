@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -9,9 +10,15 @@ plugins {
     kotlin("plugin.serialization") version "2.0.21"
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+    }
+}
+
 android {
     namespace = "com.shihcheeng.sspaiyou"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         val file = project.rootProject.file("version.code.properties")
@@ -22,7 +29,7 @@ android {
         codeProperties["VERSION_CODE"] = codeOfVersion.toString()
         applicationId = "com.shihcheeng.sspaiyou"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = codeOfVersion
         versionName = nameOfVersion
         codeProperties.store(file.writer(), null)
@@ -42,11 +49,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     buildFeatures {
         compose = true
@@ -105,9 +109,9 @@ dependencies {
     implementation(common.markwon.image.coil)
     implementation(common.markwon.html)
     testImplementation(libs.junit)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

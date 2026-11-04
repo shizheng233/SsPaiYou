@@ -24,14 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import androidx.paging.compose.LazyPagingItems
-import com.materialkolor.rememberDynamicColorScheme
+import com.materialkolor.material3.rememberDynamicColorScheme
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityArticle
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityAuthors
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityColumns
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityComment
-import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityPrimeArticle
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.IBaseData
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserFlag
 import com.shihcheeng.sspaiyou.api.data.user.third.UserBadge
@@ -42,7 +42,6 @@ import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityItem
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityNormalItem
 import com.shihcheeng.sspaiyou.utils.extra.formatWithUnit
 import com.shihcheeng.sspaiyou.utils.extra.untilToDay
-import android.graphics.Color as xmlColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,13 +65,13 @@ fun UserScreenContent(
     likeCount: Int,
     haveBeenSSPai: Int,
     isMine: Boolean,
-    onArticleClick:(Int) -> Unit
+    onArticleClick: (Int) -> Unit
 ) {
 
     val primary = color?.let {
         rememberDynamicColorScheme(
             isDark = isSystemInDarkTheme(),
-            seedColor = Color(xmlColor.parseColor(color)),
+            seedColor = Color(color.toColorInt()),
             primary = MaterialTheme.colorScheme.primary,
             isAmoled = false,
         )
@@ -231,7 +230,7 @@ fun UserScreenContent(
                         }
                     }
 
-                    else  -> Unit // TODO:WAITING
+                    else -> Unit // TODO:WAITING
                 }
             }
         }

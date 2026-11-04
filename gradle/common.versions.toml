@@ -1,29 +1,29 @@
 [versions]
-kspVersion = "2.0.21-1.0.27"
-lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.9.3"
-composeBom = "2024.10.01"
-hiltVersion = "2.52"
-retrofitVersion = "2.11.0"
-okhttpBom = "4.12.0"
-formatVersion = "1.7.1"
-hiltViewModel = "1.2.0"
-navVersion = "2.8.3"
+kspVersion = "2.3.12"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.09.00"
+hiltVersion = "2.60.1"
+retrofitVersion = "3.0.0"
+okhttpBom = "5.5.0"
+formatVersion = "1.11.0"
+hiltViewModel = "1.4.0"
+navVersion = "2.10.2"
 coilVersion = "2.7.0"
-mdcMaterial = "1.12.0"
+mdcMaterial = "1.14.0"
 motionVersion = "2.0.1"
-pagingVersion = "3.3.2"
+pagingVersion = "3.5.3"
 cascadeVersion = "2.3.0"
-roomVersion = "2.6.1"
-composeMaterial3Version = "1.3.1"
-textUiVersion = "1.7.5"
+roomVersion = "2.8.5"
+composeMaterial3Version = "1.4.0"
+textUiVersion = "1.12.1"
 subsamplingVersion = "4ec7176962"
 diskCacheVersion = "1.4"
-aboutPluginVersion = "11.2.3"
-aboutLibrariesVersion = "11.2.3"
-appCenterSdkVersion = '5.0.4'
-materialKolor = "2.0.0"
-appcompatVersion = "1.7.0"
+aboutPluginVersion = "15.3.0"
+aboutLibrariesVersion = "15.3.0"
+appCenterSdkVersion = '5.0.6'
+materialKolor = "6.0.0"
+appcompatVersion = "1.8.0"
 markwonVersion = "4.6.2"
 
 [libraries]
@@ -64,7 +64,7 @@ tools-about-core = { group = "com.mikepenz", name = "aboutlibraries-core", versi
 tools-about-compose = { group = "com.mikepenz", name = "aboutlibraries-compose-m3", version.ref = "aboutLibrariesVersion" }
 tools-app-center = { group = "com.microsoft.appcenter", name = "appcenter-analytics", version.ref = "appCenterSdkVersion" }
 tools-app-crashes = { group = "com.microsoft.appcenter", name = "appcenter-crashes", version.ref = "appCenterSdkVersion" }
-tools-materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
+tools-materialKolor = { module = "com.materialkolor:material-kolor-material3", version.ref = "materialKolor" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 markwon = { module = "io.noties.markwon:core", version.ref = "markwonVersion" }
 markwon-image = { module = "io.noties.markwon:image", version.ref = "markwonVersion" }

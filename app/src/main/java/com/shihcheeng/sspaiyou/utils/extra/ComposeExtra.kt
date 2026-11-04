@@ -5,7 +5,6 @@ import androidx.activity.SystemBarStyle
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -19,9 +18,8 @@ val SystemBarStyle.Companion.TRANSPARENT: SystemBarStyle
 fun Modifier.click(
     enabled: Boolean = true,
     onClick: () -> Unit
-) = composed {
-    clickable(enabled = enabled, onClick = onClick, indication = null, interactionSource = null)
-}
+) = clickable(enabled = enabled, onClick = onClick, indication = null, interactionSource = null)
+
 
 @Composable
 fun TextUnit.toDp(): Dp {

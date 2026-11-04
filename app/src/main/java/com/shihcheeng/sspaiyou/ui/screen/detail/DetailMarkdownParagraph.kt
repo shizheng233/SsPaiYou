@@ -7,6 +7,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import com.mikepenz.markdown.annotator.annotatorSettings
 import com.mikepenz.markdown.annotator.buildMarkdownAnnotatedString
 import com.mikepenz.markdown.compose.LocalMarkdownTypography
+import com.mikepenz.markdown.compose.elements.MarkdownText
 import org.intellij.markdown.ast.ASTNode
 
 @Composable
@@ -31,5 +32,7 @@ fun DetailMarkdownParagraph(
         content = styledText,
         modifier = modifier,
         style = style,
+        node = node,
+        sourceContent = content,
     )
 }

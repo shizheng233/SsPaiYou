@@ -5,7 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -21,7 +20,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.activities.detail.DetailViewModel
@@ -29,14 +27,15 @@ import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.utils.NetState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
-    viewModel: DetailViewModel = hiltViewModel(),
+    viewModel: DetailViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel<DetailViewModel>(),
     onAvatarClick: (String) -> Unit,
     onNavBack: () -> Unit
 ) {
     val data by viewModel.data.collectAsStateWithLifecycle()
+    val contentBlocks by viewModel.contentBlocks.collectAsStateWithLifecycle()
+    val bodyExtendsBodys by viewModel.bodyExtendsBlocks.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = rememberLazyListState()
 
@@ -44,9 +43,9 @@ fun DetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val index by remember { derivedStateOf { state.firstVisibleItemIndex } }
+                    val showTitle by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
                     AnimatedVisibility(
-                        visible = index != 0 && data is NetState.Success,
+                        visible = showTitle && data is NetState.Success,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
@@ -88,7 +87,8 @@ fun DetailScreen(
                 state = state,
                 title = it.title,
                 author = it.author,
-                content = it.body.trimIndent(),
+                blocks = contentBlocks,
+                extendsBodys = bodyExtendsBodys,
                 onAvatarClick = onAvatarClick
             )
         }
