@@ -2,6 +2,7 @@ package com.shihcheeng.sspaiyou.ui.screen.main.home
 
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -116,6 +117,8 @@ fun HomeItemAlt(
     image: String,
     title: String,
     timeStamp: Long,
+    author: String,
+    avatar: String,
     onClick: () -> Unit
 ) {
     Row(
@@ -139,12 +142,33 @@ fun HomeItemAlt(
             modifier = Modifier
                 .padding(top = 17.dp)
         ) {
-            Text(
-                text = "${timeStamp.calculateDay()} ${timeStamp.timestampToChinese()}",
-                style = MaterialTheme.typography.labelMedium
-                    .copy(fontSize = 12.sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                AsyncImage(
+                    model = imageUrlFor(avatar),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(CircleShape),
+                    placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer)
+                )
+                Text(
+                    text = author,
+                    style = MaterialTheme.typography.labelMedium
+                        .copy(fontSize = 10.sp),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.padding(start = 4.dp, end = 6.dp)
+                )
+                Text(
+                    text = "${timeStamp.calculateDay()} ${timeStamp.timestampToChinese()}",
+                    style = MaterialTheme.typography.labelMedium
+                        .copy(fontSize = 12.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium
@@ -181,7 +205,9 @@ fun HomeItemViewAltPreview() {
     HomeItemAlt(
         image = "",
         title = "hahahaah",
-        timeStamp = 0L
+        timeStamp = 0L,
+        author = "你好",
+        avatar = ""
     ) {
 
     }

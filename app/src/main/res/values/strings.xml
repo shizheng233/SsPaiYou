@@ -24,6 +24,15 @@
     <string name="fav">我的收藏</string>
     <string name="setting">设置</string>
     <string name="log_out">退出登录</string>
+    <string name="personal_view_profile">个人主页</string>
+    <string name="personal_joined_days">已加入少数派 %1$d 天</string>
+    <string name="personal_following">关注</string>
+    <string name="personal_followers">粉丝</string>
+    <string name="personal_shortcuts">常用功能</string>
+    <string name="personal_favourites_description">重温收藏的好内容</string>
+    <string name="personal_settings_description">管理应用偏好</string>
+    <string name="personal_welcome_title">你的个人空间</string>
+    <string name="personal_welcome_description">登录少数派，收藏喜欢的内容，关注感兴趣的人。</string>
     <string name="had_been_sspai"> %d 天</string>
     <string name="had_been_sspai_spc">成为少数派</string>
     <string name="followed">已关注%1$s人</string>
@@ -54,6 +63,7 @@
     <string name="bullet_vote">投票话题</string>
     <string name="bullet_volume">第 %1$s 期</string>
     <string name="bullet_participations">%1$d 人参与</string>
+    <string name="bullet_join_discussion">参与讨论</string>
     <string name="bullet_threads">%1$d 条讨论</string>
     <string name="bullet_expand">展开话题</string>
     <string name="bullet_collapse">收起话题</string>

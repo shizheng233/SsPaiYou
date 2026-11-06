@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.shihcheeng.sspaiyou.ui.compoents.ErrorItem
 import com.shihcheeng.sspaiyou.ui.compoents.Loading
 import com.shihcheeng.sspaiyou.ui.compoents.LoadingItem
@@ -129,7 +129,9 @@ fun HomeScreen(
                                     HomeItemAlt(
                                         image = it.banner,
                                         title = it.title,
-                                        timeStamp = it.releasedTime.toLong()
+                                        timeStamp = it.releasedTime.toLong(),
+                                        avatar = it.author.avatar,
+                                        author = it.author.nickname
                                     ) {
                                         if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
                                             onClick(it.slug)

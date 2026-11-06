@@ -32,7 +32,9 @@ fun PersonalScreen(
             PersonalScreenContent(
                 username = model.data.nickname,
                 followingCount = model.data.followingCount,
-                beingDays = model.data.createdAt.toLong().untilToDay(),
+                followerCount = model.data.followedCount,
+                beingDays = model.data.createdAt.takeIf { it > 0 }
+                    ?.toLong()?.untilToDay()?.coerceAtLeast(0),
                 imageUrl = model.data.avatar,
                 onSetting = onSetting,
                 onFavourite = onFavourite,
