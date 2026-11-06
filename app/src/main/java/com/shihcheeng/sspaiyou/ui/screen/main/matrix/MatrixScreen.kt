@@ -1,7 +1,7 @@
 package com.shihcheeng.sspaiyou.ui.screen.main.matrix
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
@@ -16,17 +16,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.shihcheeng.sspaiyou.R
-import com.shihcheeng.sspaiyou.ui.screen.main.matrix.column.ColumnScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.bullet.BulletInnerScreen
+import com.shihcheeng.sspaiyou.ui.screen.main.matrix.column.ColumnScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.hot.HotScreen
 import com.shihcheeng.sspaiyou.ui.theme.materialPagerMotion
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatrixScreen(
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    onColumnClick: (Int) -> Unit,
+    onBulletClick: (Long) -> Unit
 ) {
     val tabStrings = MatrixScreenItem.tabStringInCompose()
     val state = rememberPagerState(initialPage = 0, pageCount = tabStrings::size)
@@ -57,11 +58,15 @@ fun MatrixScreen(
         HorizontalPager(
             state = state
         ) { indexx ->
-            Box(Modifier.fillMaxSize().materialPagerMotion(state, indexx)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .materialPagerMotion(state, indexx)
+            ) {
                 when (indexx) {
                     0 -> HotScreen(onClick = onClick)
-                    1 -> ColumnScreen()
-                    2 -> BulletInnerScreen()
+                    1 -> ColumnScreen(onColumnClick = onColumnClick)
+                    2 -> BulletInnerScreen(onBulletClick = onBulletClick)
                 }
             }
         }

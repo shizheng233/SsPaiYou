@@ -1,0 +1,9 @@
+<resources>
+    <string name="bullet_comments_newest">按最新发布排序</string>
+    <string name="bullet_refresh_comments">刷新讨论</string>
+    <string name="bullet_comments_empty">暂无讨论</string>
+    <string name="bullet_vote_results">投票结果</string>
+    <string name="bullet_vote_count">%1$d 票 · %2$.0f%%</string>
+    <string name="bullet_vote_selected">你选择的选项</string>
+    <string name="bullet_vote_read_only">当前仅展示投票结果，暂不支持提交投票。</string>
+</resources>

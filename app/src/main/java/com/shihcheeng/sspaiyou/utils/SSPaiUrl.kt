@@ -11,11 +11,14 @@ object SSPaiUrl {
     const val MATRIX_URL_HOT = "article/matrix/hot/page/get"
     const val MATRIX_URL_LOOK = "article/matrix/look/page/get"
     const val COLUMN_URL = "special/column/search/page/get"
+    const val COLUMN_SINGLE = "special/column/single/info/get"
+    const val COLUMN_SINGLE_ARTICLE = "article/special/column/page/get"
     const val BULLET = "bullet/search/page/get"
     const val ARTICLE_DETAIL = "article/info/get"
     const val ARTICLE_MEMBER = "member/article/single/info/get"
     const val USER_INFO = "user/info/get"
     const val USER_ACTIVITY = "information/user/activity/page/get"
     const val USER_SLUG_INFO = "user/slug/info/get"
-
+    const val BULLET_SINGE = "bullet/single/info/get"
+    const val BULLET_COMMENT = "bullet/thread/page/get"
 }

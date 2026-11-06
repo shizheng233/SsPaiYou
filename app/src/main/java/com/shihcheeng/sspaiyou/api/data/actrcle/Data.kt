@@ -13,7 +13,7 @@ data class Data(
     @SerialName("article_advertisement")
     val articleAdvertisement: String? = null,
     @SerialName("article_column")
-    val articleColumn: String? = null,
+    val articleColumn: ArticleColumn? = ArticleColumn(),
     @SerialName("article_count")
     val articleCount: ArticleCount = ArticleCount(),
     @SerialName("article_follow_up_admin")

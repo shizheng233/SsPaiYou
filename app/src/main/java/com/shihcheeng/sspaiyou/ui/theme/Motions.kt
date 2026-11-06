@@ -2,10 +2,14 @@ package com.shihcheeng.sspaiyou.ui.theme
 
 import androidx.activity.BackEventCompat
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,9 +18,20 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import kotlin.math.absoluteValue
 
 /** Material 3 duration/easing values; distances supplied by callers are in pixels. */
@@ -26,6 +41,24 @@ object MaterialMotions {
     private const val Short4 = 200
     private val EmphasizedDecelerate = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
     private val EmphasizedAccelerate = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
+    private val Standard = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+
+    /** Shared axis Z for parent/child navigation, with a 30% fade-through threshold. */
+    fun navigationEnter(forward: Boolean): EnterTransition =
+        scaleIn(
+            animationSpec = tween(Medium2, easing = Standard),
+            initialScale = if (forward) 0.92f else 1.04f
+        ) + fadeIn(
+            animationSpec = tween(210, delayMillis = 90, easing = EmphasizedDecelerate)
+        )
+
+    fun navigationExit(forward: Boolean): ExitTransition =
+        scaleOut(
+            animationSpec = tween(Medium2, easing = Standard),
+            targetScale = if (forward) 1.04f else 0.92f
+        ) + fadeOut(
+            animationSpec = tween(90, easing = EmphasizedAccelerate)
+        )
 
     /** Shared X axis for related destinations. Pass a negative distance in RTL layouts. */
     fun screenEnter(forward: Boolean, slideDistance: Int): EnterTransition =
@@ -74,22 +107,69 @@ object MaterialMotions {
         sizeTransform = null
     )
 
-    /** NavHost seeks these transitions and restores them automatically on gesture cancellation. */
+    /** Linear, equal-length specs let NavHost seek every property directly with the gesture. */
     fun predictivePopEnter(): EnterTransition =
         scaleIn(tween(Medium2, easing = LinearEasing), initialScale = 0.96f) +
             fadeIn(tween(Medium2, easing = LinearEasing))
 
-    /** swipeEdge is a physical screen edge, so it must not be reversed for RTL. */
+    /** Use a small physical-edge translation; slideDistance is supplied in pixels, not RTL-adjusted. */
     fun predictivePopExit(swipeEdge: Int, slideDistance: Int): ExitTransition {
         val fromLeft = swipeEdge == BackEventCompat.EDGE_LEFT
         return scaleOut(
-            animationSpec = tween(Medium2, easing = LinearEasing),
+            animationSpec = keyframes {
+                durationMillis = Medium2
+                1f at 0 using LinearEasing
+                0.92f at 210 using LinearEasing
+                0.9f at Medium2
+            },
             targetScale = 0.9f,
-            transformOrigin = TransformOrigin(if (fromLeft) 1f else 0f, 0.5f)
+            transformOrigin = TransformOrigin.Center
         ) + slideOutHorizontally(
-            animationSpec = tween(Medium2, easing = LinearEasing),
-            targetOffsetX = { if (fromLeft) slideDistance.absoluteValue else -slideDistance.absoluteValue }
-        )
+            animationSpec = keyframes {
+                durationMillis = Medium2
+                IntOffset.Zero at 0 using LinearEasing
+                IntOffset(if (fromLeft) slideDistance.absoluteValue else -slideDistance.absoluteValue, 0) at
+                    210 using Standard
+            },
+            targetOffsetX = { width -> if (fromLeft) width else -width }
+        ) + fadeOut(keyframes {
+            durationMillis = Medium2
+            1f at 0 using LinearEasing
+            1f at 210 using LinearEasing
+            0f at Medium2
+        })
+    }
+}
+
+/** The destination surface shares NavHost's seekable timeline, including cancellation. */
+@Composable
+private fun AnimatedContentScope.NavigationSurface(content: @Composable () -> Unit) {
+    val departure = transition.animateFloat(
+        transitionSpec = { tween(300, easing = LinearEasing) },
+        label = "navigation_surface_departure"
+    ) { state -> if (state == EnterExitState.PostExit) 1f else 0f }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                val progress = departure.value.coerceIn(0f, 1f)
+                val lift = (progress / 0.25f).coerceIn(0f, 1f)
+                shape = RoundedCornerShape(28.dp * lift)
+                clip = lift > 0f
+                shadowElevation = 20.dp.toPx() * lift * (1f - progress)
+            }
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        content()
+    }
+}
+
+fun NavGraphBuilder.motionComposable(
+    route: String,
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+) {
+    composable(route) { entry ->
+        NavigationSurface { content(entry) }
     }
 }
 

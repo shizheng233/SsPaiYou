@@ -11,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -32,7 +33,8 @@ fun ReaderImage(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     aspectRatio: Float? = null,
-    imageLoader: ImageLoader = LocalContext.current.imageLoader
+    imageLoader: ImageLoader = LocalContext.current.imageLoader,
+    shape: Shape = MaterialTheme.shapes.medium
 ) {
     val context = LocalContext.current
     var decodedRatio by rememberSaveable(url) { mutableFloatStateOf(0f) }
@@ -59,7 +61,7 @@ fun ReaderImage(
             .fillMaxWidth()
             .aspectRatio(ratio)
             .onSizeChanged { width.value = it.width }
-            .clip(MaterialTheme.shapes.medium),
+            .clip(shape),
         onSuccess = { state ->
             val drawable = state.result.drawable
             if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {

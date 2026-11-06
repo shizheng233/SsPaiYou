@@ -3,6 +3,7 @@ package com.shihcheeng.sspaiyou.ui.compoents.bannerz
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -16,14 +17,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 基于 [HorizontalPager] 的全宽 Banner 轮播组件，右上角点状指示器，支持自动轮播。
@@ -31,7 +35,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * 内部通过超大 pageCount 实现无限循环，自动轮播到末尾时不会出现回滚动画。
  *
  * @param items 轮播数据
- * @param autoPlay 是否自动轮播（用户拖动时暂停当前这一拍）
+ * @param autoPlay 是否自动轮播（拖动时暂停，页面停稳后重新计时，仅前台播放）
  * @param autoPlayIntervalMillis 自动轮播间隔
  * @param showIndicator 是否显示右上角点状指示器（单页时自动隐藏）
  * @param itemContent 每一页的内容，通常使用 BannerItem
@@ -50,24 +54,35 @@ fun <T> BannerCarousel(
     val loop = items.size > 1
     // 起始页对齐到 items.size 的整数倍，保证 currentPage % size 始终映射到正确的数据下标
     val startPage = if (loop) Int.MAX_VALUE / 2 - (Int.MAX_VALUE / 2) % items.size else 0
-    val pagerState = rememberPagerState(
-        initialPage = startPage,
-        pageCount = { if (loop) Int.MAX_VALUE else 1 }
-    )
+    val pagerState = key(items.size) {
+        rememberPagerState(
+            initialPage = startPage,
+            pageCount = { if (loop) Int.MAX_VALUE else 1 }
+        )
+    }
+    val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    if (autoPlay && loop) {
-        LaunchedEffect(items.size, autoPlayIntervalMillis) {
-            while (isActive) {
-                delay(autoPlayIntervalMillis.milliseconds)
-                if (!pagerState.isScrollInProgress) {
-                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+    if (autoPlay && loop && !isDragged) {
+        LaunchedEffect(pagerState, lifecycleOwner, autoPlayIntervalMillis, pagerState.settledPage) {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (isActive) {
+                    delay(autoPlayIntervalMillis.coerceAtLeast(1L))
+                    if (!pagerState.isScrollInProgress) {
+                        if (pagerState.currentPage == Int.MAX_VALUE - 1) {
+                            pagerState.scrollToPage(
+                                startPage + pagerState.currentPage % items.size
+                            )
+                        }
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
                 }
             }
         }
     }
 
     Box(modifier = modifier.fillMaxWidth()) {
-        HorizontalPager(state = pagerState) { page ->
+        HorizontalPager(state = pagerState, userScrollEnabled = loop) { page ->
             itemContent(items[page % items.size])
         }
 

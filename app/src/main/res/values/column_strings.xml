@@ -1,0 +1,13 @@
+<resources>
+    <string name="column_info">专栏信息</string>
+    <string name="column_close_info">关闭专栏信息</string>
+    <string name="column_refresh">刷新专栏</string>
+    <string name="column_articles_empty">这个专栏还没有文章</string>
+    <string name="column_chief_editor">主编</string>
+    <string name="column_follow_users">他们也在关注</string>
+    <string name="column_stat_articles">篇文章</string>
+    <string name="column_stat_followers">人关注</string>
+    <string name="column_stat_authors">位作者</string>
+    <string name="column_article_likes">%1$d 次充电</string>
+    <string name="column_article_comments">%1$d 条评论</string>
+</resources>

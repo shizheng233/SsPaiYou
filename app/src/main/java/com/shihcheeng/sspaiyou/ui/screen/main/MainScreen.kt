@@ -29,6 +29,8 @@ fun MainScreen(
     onFavourite: () -> Unit,
     onSetting: () -> Unit,
     onMineClick: (String) -> Unit,
+    onBulletClick: (Long) -> Unit,
+    onColumnClick: (Int) -> Unit,
     onLoginClick: () -> Unit
 ) {
 
@@ -77,7 +79,12 @@ fun MainScreen(
         ) { selectedIndex ->
             when (selectedIndex) {
                 0 -> HomeScreen(onClick = onClick)
-                1 -> MatrixScreen(onClick = onClick)
+                1 -> MatrixScreen(
+                    onClick = onClick,
+                    onBulletClick = onBulletClick,
+                    onColumnClick = onColumnClick
+                )
+
                 2 -> PersonalScreen(
                     onLoginClick = onLoginClick,
                     onFavourite = onFavourite,

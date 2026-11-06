@@ -22,6 +22,10 @@ class ImageNodeResolve : HtmlNodeRenderer {
         )
     }
 
+    //<figure class=\"image ss-img-wrapper\">
+    // <img src=\"https://cdnfile.sspai.com/2026/11/03/25d27bb07be96a78bb3bc0430fcef2a5.jpg?imageView2/2/w/1120/q/90/interlace/1/ignore-error/1/format/webp\" data-original=\"https://cdnfile.sspai.com/2026/11/03/25d27bb07be96a78bb3bc0430fcef2a5.jpg?imageView2/2/format/webp\"/>
+    // <figcaption>熊掌记 1.0</figcaption>
+    // </figure>
 
     private object FigureProcessor : CustomHtmlNodeRenderer<Element> {
         override fun render(
@@ -30,13 +34,25 @@ class ImageNodeResolve : HtmlNodeRenderer {
             markdown: HtmlMarkdownWriter
         ) {
             val images = node.getElementsByTag("img")
+            val figcaption = node.getElementsByTag("figcaption")
             if (images.size == 1) {
-                val imageUrl = images.first()?.let { it.attr("data-original").ifBlank { it.attr("src") } }
-                val caption = node.attr("figcaption").takeIf { x ->
-                    x.isNotEmpty() && x.isNotBlank()
-                } ?: images.first()?.attr("alt")
+                val imageUrl = images.first()?.let {
+                    it.attr("data-original").ifBlank {
+                        it.attr("src")
+                    }
+                }
+                val caption = node.attr("figcaption")
+                    .takeIf { x ->
+                        x.isNotEmpty() && x.isNotBlank()
+                    } ?: figcaption.first()?.text()
+                ?: images.first()?.attr("alt")
                 markdown.appendLine()
-                markdown.append(Element("img").attr("src", imageUrl.orEmpty()).attr("alt", caption.orEmpty()).outerHtml())
+                markdown.append(
+                    Element("img")
+                        .attr("src", imageUrl.orEmpty())
+                        .attr("alt", caption.orEmpty())
+                        .outerHtml()
+                )
                 markdown.append("<br/>")
                 markdown.appendLine()
             } else {
@@ -45,7 +61,10 @@ class ImageNodeResolve : HtmlNodeRenderer {
                 images.forEach {
                     val imageUrl = it.attr("data-original").ifBlank { it.attr("src") }
                     val caption = it.attr("alt")
-                    markdown.append(Element("img").attr("width", "$ratio%").attr("src", imageUrl).attr("alt", caption).outerHtml())
+                    markdown.append(
+                        Element("img").attr("width", "$ratio%").attr("src", imageUrl)
+                            .attr("alt", caption).outerHtml()
+                    )
                 }
                 markdown.append("<br/>")
             }

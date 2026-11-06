@@ -2,6 +2,7 @@ package com.shihcheeng.sspaiyou.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -29,7 +30,7 @@ fun Typography.toMarkdownTypo(): MarkdownTypography {
         bullet = ReaderBodyMedium,
         list = ReaderBodyMedium,
         textLink = TextLinkStyles(
-            style = ReaderBodyMedium.toSpanStyle().copy(textDecoration = TextDecoration.Underline)
+            style = SpanStyle(textDecoration = TextDecoration.Underline)
         ),
         table = bodyMedium
     )
@@ -77,7 +78,7 @@ fun sspaiReaderTypo(fontScale: Float = 1f): MarkdownTypography {
             get() = body
         override val textLink: TextLinkStyles
             get() = TextLinkStyles(
-                style = body.toSpanStyle().copy(textDecoration = TextDecoration.Underline)
+                style = SpanStyle(textDecoration = TextDecoration.Underline)
             )
         override val table: TextStyle
             get() = body

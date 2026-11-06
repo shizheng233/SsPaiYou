@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -39,13 +40,13 @@ fun UserScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val indexOfList by remember { derivedStateOf { list.firstVisibleItemIndex } }
+                    val showTitle by remember { derivedStateOf { list.firstVisibleItemIndex > 0 } }
                     AnimatedVisibility(
-                        visible = indexOfList != 0,
+                        visible = showTitle,
                         enter = materialFadeIn(),
                         exit = materialFadeOut()
                     ) {
-                        Text(text = title)
+                        Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 },
                 navigationIcon = {
@@ -67,7 +68,8 @@ fun UserScreen(
     ) { padding ->
         TriStateScreen(
             padding = PaddingValues(
-                top = padding.calculateTopPadding()
+                top = padding.calculateTopPadding(),
+                bottom = padding.calculateBottomPadding()
             ),
             onError = {
                 Error(error = it.localizedMessage, onClick = viewModel::load)
@@ -75,7 +77,7 @@ fun UserScreen(
             triState = user,
         ) {
             UserScreenContent(
-                contentPaddingValues = PaddingValues(horizontal = 16.dp),
+                contentPaddingValues = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
                 listState = list,
                 data = data,
                 followed = it.data.followed,

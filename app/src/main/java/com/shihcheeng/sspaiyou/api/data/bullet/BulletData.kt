@@ -77,7 +77,7 @@ data class BulletData(
     @SerialName("tags")
     val tags: List<JsonElement> = emptyList(),
     @SerialName("votes")
-    val votes: List<JsonElement> = emptyList(),
+    val votes: List<BulletVote> = emptyList(),
     @SerialName("participation_users")
     val participationUsers: List<BulletUser> = emptyList(),
     @SerialName("participations_count")

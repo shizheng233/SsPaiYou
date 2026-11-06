@@ -1,6 +1,7 @@
 package com.shihcheeng.sspaiyou.modula
 
 import com.shihcheeng.sspaiyou.api.service.ArticleService
+import com.shihcheeng.sspaiyou.api.service.BulletService
 import com.shihcheeng.sspaiyou.api.service.ColumnService
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.api.service.MatrixService
@@ -15,6 +16,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ServiceModula {
+
+    @Singleton
+    @Provides
+    fun provideBulletService(
+        retrofit: Retrofit
+    ): BulletService = retrofit.create(BulletService::class.java)
 
     @Singleton
     @Provides

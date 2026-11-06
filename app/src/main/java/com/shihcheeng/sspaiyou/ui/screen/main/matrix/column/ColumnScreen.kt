@@ -15,7 +15,8 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
 
 @Composable
 fun ColumnScreen(
-    viewModel: ColumnViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
+    viewModel: ColumnViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
+    onColumnClick: (Int) -> Unit,
 ) {
 
     val data = viewModel.data.collectAsLazyPagingItems()
@@ -43,10 +44,11 @@ fun ColumnScreen(
                         imageUrl = it.banner,
                         followCount = it.followCount,
                         onCheckedChange = {},
-                        checkValue = it.followed
-                    ) {
-                        it.id
-                    }
+                        checkValue = it.followed,
+                        onClick = {
+                            onColumnClick(it.id)
+                        }
+                    )
                 }
             }
             pagingTriState(
@@ -61,9 +63,7 @@ fun ColumnScreen(
                         data.retry()
                     }
                 },
-            ) {
-
-            }
+            ) {}
         }
     }
 

@@ -2,9 +2,14 @@ package com.shihcheeng.sspaiyou.ui.screen.detail
 
 import com.shihcheeng.sspaiyou.utils.ImageResolveConverter
 import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter
+import com.vladsch.flexmark.html2md.converter.ExtensionConversion
+import com.vladsch.flexmark.html2md.converter.HtmlConverterCoreNodeRendererFactory
+import com.vladsch.flexmark.html2md.converter.HtmlNodeRenderer
+import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererHandler
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import javax.inject.Inject
 
 /**
@@ -12,14 +17,32 @@ import javax.inject.Inject
  * 文本段落归为 [DetailContent.Markdown]，图片归为 [DetailContent.Image]。
  *
  * 图片来源有两种形态，都需要识别：
- * 1. <figure> 经 [ImageResolveConverter] 转换后输出的原生 <img> 标签；
- * 2. 行内 <img> 经 flexmark 默认转换后输出的标准 ![](url) 语法。
+ * 1. `<figure>` 经 [ImageResolveConverter] 转换后输出的原生 `<img>` 标签；
+ * 2. 行内 `<img>` 经 flexmark 默认转换后输出的标准 `![](url)` 语法。
  */
 class DetailMarkDownParser @Inject constructor() {
 
     private val converter = FlexmarkHtmlConverter.builder(
         MutableDataSet().set(Parser.EXTENSIONS, listOf(ImageResolveConverter))
-    ).build()
+    ).htmlNodeRendererFactory { options ->
+        val handlers = HtmlConverterCoreNodeRendererFactory().apply(options)
+            .htmlNodeRendererHandlers
+            .filter { it.tagName == "strong" || it.tagName == "b" }
+            .map { original ->
+                HtmlNodeRendererHandler(original.tagName, Element::class.java) { element, context, out ->
+                    val addBoundaries = context.htmlConverterOptions.extInlineStrong == ExtensionConversion.MARKDOWN &&
+                        !out.isPreFormatted && !context.isInlineCode && element.hasText()
+                    // Comments delimit CJK punctuation without adding characters to rendered text.
+                    // Never start a paragraph/list item with a comment: it would become an HTML block.
+                    if (addBoundaries && element.previousSibling() != null && out.column() > 0) {
+                        out.append("<!-- -->")
+                    }
+                    original.render(element, context, out)
+                    if (addBoundaries) out.append("<!-- -->")
+                }
+            }.toSet()
+        HtmlNodeRenderer { handlers }
+    }.build()
 
     fun parse(html: String): List<DetailContent> {
         val imageRatios = Jsoup.parseBodyFragment(html).select("img").associate { image ->

@@ -1,0 +1,11 @@
+<resources>
+    <string name="bullet_comment_unknown_author">&#x672A;&#x77E5;&#x7528;&#x6237;</string>
+    <string name="bullet_comment_view_author">&#x67E5;&#x770B; %1$s &#x7684;&#x4E3B;&#x9875;</string>
+    <string name="bullet_comment_unknown_date">&#x65F6;&#x95F4;&#x672A;&#x77E5;</string>
+    <string name="bullet_comment_top">&#x7F6E;&#x9876;</string>
+    <string name="bullet_comment_chosen">&#x7CBE;&#x9009;</string>
+    <string name="bullet_comment_hidden">&#x8BE5;&#x8BC4;&#x8BBA;&#x5185;&#x5BB9;&#x5DF2;&#x9690;&#x85CF;</string>
+    <string name="bullet_comment_attachment">&#x8BC4;&#x8BBA;&#x914D;&#x56FE; %1$d</string>
+    <string name="bullet_comment_likes">%1$d &#x8D5E;</string>
+    <string name="bullet_comment_replies">%1$d &#x6761;&#x56DE;&#x590D;</string>
+</resources>

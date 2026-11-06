@@ -52,7 +52,8 @@ import com.shihcheeng.sspaiyou.ui.compoents.Error as ErrorScreen
 @Composable
 fun BulletInnerScreen(
     modifier: Modifier = Modifier,
-    viewModel: BulletViewModel = hiltViewModel()
+    viewModel: BulletViewModel = hiltViewModel(),
+    onBulletClick: (Long) -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
     TriStateScreen(
@@ -80,7 +81,7 @@ fun BulletInnerScreen(
                 key = data.itemKey { "${it.vol}:${it.createdAt}:${it.title}" },
                 contentType = { "bullet" }
             ) { index ->
-                data[index]?.let { BulletItem(topic = it) }
+                data[index]?.let { BulletItem(topic = it, onBulletClick = onBulletClick) }
             }
             pagingTriState(
                 paging = data.loadState.append,
@@ -92,7 +93,11 @@ fun BulletInnerScreen(
 }
 
 @Composable
-private fun BulletItem(topic: BulletData, modifier: Modifier = Modifier) {
+private fun BulletItem(
+    topic: BulletData,
+    modifier: Modifier = Modifier,
+    onBulletClick: (Long) -> Unit
+) {
     var expanded by rememberSaveable(topic.vol, topic.createdAt, topic.title) { mutableStateOf(false) }
     val body = remember(topic.body) {
         HtmlCompat.fromHtml(topic.body, HtmlCompat.FROM_HTML_MODE_COMPACT).toString().trim()
@@ -104,7 +109,10 @@ private fun BulletItem(topic: BulletData, modifier: Modifier = Modifier) {
                 .format(Instant.ofEpochSecond(topic.voteEndTime))
         } else null
     }
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(
+        onClick = { onBulletClick(topic.createdAt) },
+        modifier = modifier.fillMaxWidth()
+    ) {
         if (topic.banner.isNotBlank()) {
             AsyncImage(
                 model = imageUrlFor(topic.banner),
@@ -205,7 +213,8 @@ private fun BulletItemPreview() {
                 participationsCount = 206,
                 threadsCount = 16
             ),
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            onBulletClick = {}
         )
     }
 }

@@ -16,21 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.compose.components.markdownComponents
-import com.mikepenz.markdown.compose.extendedspans.ExtendedSpans
-import com.mikepenz.markdown.compose.extendedspans.RoundedCornerSpanPainter
-import com.mikepenz.markdown.compose.extendedspans.SquigglyUnderlineSpanPainter
 import com.mikepenz.markdown.model.markdownAnimations
-import com.mikepenz.markdown.model.markdownExtendedSpans
 import com.mikepenz.markdown.model.markdownPadding
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleAuthor
-import com.shihcheeng.sspaiyou.ui.compoents.ReaderMarkdownImage
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderImage
+import com.shihcheeng.sspaiyou.ui.compoents.ReaderMarkdownImage
 import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypoMedium
 import com.shihcheeng.sspaiyou.ui.theme.toMarkDownColors
 import com.shihcheeng.sspaiyou.utils.extra.click
@@ -46,23 +43,14 @@ fun DetailScreenContent(
     extendsBodys: List<DetailBodyExtends>,
     onAvatarClick: (String) -> Unit
 ) {
-    // Markdown 相关配置在所有内容块之间共享，避免每个块重复构建
+
     val markdownColors = MaterialTheme.colorScheme.toMarkDownColors()
     val markdownPadding = markdownPadding(
         block = 6.dp,
         blockQuoteText = PaddingValues(all = 8.dp)
     )
     val markdownAnimations = markdownAnimations()
-    val markdownExtendedSpans = markdownExtendedSpans {
-        remember {
-            ExtendedSpans(
-                RoundedCornerSpanPainter(),
-                SquigglyUnderlineSpanPainter()
-            )
-        }
-    }
-    // image 组件作为兜底保留：正常情况图片已被切分为 Image 块，
-    // 仅当存在漏网的标准图片语法时才由它渲染
+
     val markdownComponents = markdownComponents(
         image = {
             ReaderMarkdownImage(
@@ -97,7 +85,8 @@ fun DetailScreenContent(
                 style = MaterialTheme.typography.headlineMedium
                     .copy(
                         lineHeight = 30.sp * 1.2f,
-                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        fontWeight = FontWeight.Bold
                     ),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -118,7 +107,7 @@ fun DetailScreenContent(
                 item(
                     key = x.id.toString() + "_header_" + indexa,
                     contentType = DetailScreenKey.CONTENT
-                ){
+                ) {
                     Text(
                         text = x.title,
                         style = sspaiReaderTypoMedium().h2
@@ -144,8 +133,7 @@ fun DetailScreenContent(
                             typography = sspaiReaderTypoMedium(),
                             padding = markdownPadding,
                             components = markdownComponents,
-                            animations = markdownAnimations,
-                            extendedSpans = markdownExtendedSpans
+                            animations = markdownAnimations
                         )
 
                         is DetailContent.Image -> DetailContentImage(item)
@@ -173,8 +161,7 @@ fun DetailScreenContent(
                     typography = sspaiReaderTypoMedium(),
                     padding = markdownPadding,
                     components = markdownComponents,
-                    animations = markdownAnimations,
-                    extendedSpans = markdownExtendedSpans
+                    animations = markdownAnimations
                 )
 
                 is DetailContent.Image -> DetailContentImage(item)

@@ -1,15 +1,18 @@
 package com.shihcheeng.sspaiyou.ui.screen
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.shihcheeng.sspaiyou.ui.screen.Router.Bullet.proceedToBullet
+import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.UserInfo.proceedToUserInfo
+import com.shihcheeng.sspaiyou.ui.screen.bullet.single.BulletSingleScreen
+import com.shihcheeng.sspaiyou.ui.screen.column.ColumnScreen
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
 import com.shihcheeng.sspaiyou.ui.screen.favourite.FavouritemScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
@@ -17,39 +20,41 @@ import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
 import com.shihcheeng.sspaiyou.ui.screen.setting.SettingScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
 import com.shihcheeng.sspaiyou.ui.theme.MaterialMotions
-import soup.compose.material.motion.animation.rememberSlideDistance
+import com.shihcheeng.sspaiyou.ui.theme.motionComposable
 
 @Composable
 fun Router(
     navHostController: NavHostController = rememberNavController(),
-    slider: Int = rememberSlideDistance(),
     toDetail: (String) -> Unit
 ) {
-    val slideDistance = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -slider else slider
+    val backGestureDistance = with(LocalDensity.current) { 48.dp.roundToPx() }
 
     NavHost(
         navController = navHostController,
         startDestination = Router.Main.name,
         enterTransition = {
-            MaterialMotions.screenEnter(forward = true, slideDistance = slideDistance)
+            MaterialMotions.navigationEnter(forward = true)
         },
         popEnterTransition = {
-            MaterialMotions.screenEnter(forward = false, slideDistance = slideDistance)
+            MaterialMotions.navigationEnter(forward = false)
         },
         popExitTransition = {
-            MaterialMotions.screenExit(forward = false, slideDistance = slideDistance)
+            MaterialMotions.navigationExit(forward = false)
         },
         exitTransition = {
-            MaterialMotions.screenExit(forward = true, slideDistance = slideDistance)
+            MaterialMotions.navigationExit(forward = true)
         },
         predictivePopEnterTransition = {
             MaterialMotions.predictivePopEnter()
         },
         predictivePopExitTransition = { swipeEdge ->
-            MaterialMotions.predictivePopExit(swipeEdge = swipeEdge, slideDistance = slider)
+            MaterialMotions.predictivePopExit(
+                swipeEdge = swipeEdge,
+                slideDistance = backGestureDistance
+            )
         }
     ) {
-        composable(Router.Main.name) {
+        motionComposable(Router.Main.name) {
             MainScreen(
                 onClick = { x ->
                     navHostController.proceedToDetail(x)
@@ -62,21 +67,27 @@ fun Router(
                 },
                 onMineClick = {
                     navHostController.proceedToUserInfo(it)
+                },
+                onBulletClick = {
+                    navHostController.proceedToBullet(it)
+                },
+                onColumnClick = {
+                    navHostController.proceedToColumn(it)
                 }
             ) {
                 navHostController proceedTo Router.Login
             }
         }
-        composable(Router.Login.name) {
+        motionComposable(Router.Login.name) {
             WebLoginScreen(onNavUp = navHostController::popBackStack)
         }
-        composable(Router.Favourite.name) {
+        motionComposable(Router.Favourite.name) {
             FavouritemScreen()
         }
-        composable(Router.Setting.name) {
+        motionComposable(Router.Setting.name) {
             SettingScreen()
         }
-        composable(Router.UserInfo.name) {
+        motionComposable(Router.UserInfo.name) {
             UserScreen(
                 onNavUp = navHostController::popBackStack,
                 onArticleClick = {
@@ -84,7 +95,7 @@ fun Router(
                 }
             )
         }
-        composable(Router.Detail.name) {
+        motionComposable(Router.Detail.name) {
             DetailScreen(
                 onAvatarClick = {
                     navHostController.proceedToUserInfo(it)
@@ -92,6 +103,21 @@ fun Router(
             ) {
                 navHostController.popBackStack()
             }
+        }
+        motionComposable(Router.Bullet.name) {
+            BulletSingleScreen(
+                onUserClick = {
+                    navHostController.proceedToUserInfo(it)
+                },
+                onNavUp = navHostController::popBackStack
+            )
+        }
+        motionComposable(Router.Column.name) {
+            ColumnScreen(
+                onArticleClick = { navHostController.proceedToDetail(it) },
+                onUserClick = { navHostController.proceedToUserInfo(it) },
+                onNavUp = navHostController::popBackStack
+            )
         }
     }
 
@@ -120,6 +146,25 @@ sealed interface Router {
 
         fun NavHostController.proceedToDetail(id: String) {
             navigate(name.replace("{id}", id))
+        }
+
+    }
+
+    data object Bullet : Router {
+        override val name: String
+            get() = "BULLET/{createdAt}"
+
+        fun NavHostController.proceedToBullet(createdAt: Long) {
+            navigate(name.replace("{createdAt}", createdAt.toString()))
+        }
+    }
+
+    data object Column : Router {
+        override val name: String
+            get() = "COLUMN/{columnId}"
+
+        fun NavHostController.proceedToColumn(columnID: Int) {
+            navigate(name.replace("{columnId}", columnID.toString()))
         }
 
     }
