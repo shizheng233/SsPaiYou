@@ -85,18 +85,26 @@ fun HomeScreen(
             onNotLoading = {
                 items(
                     count = data.itemCount,
-                    key = data.itemKey { it.id },
+                    key = data.itemKey { "${it.id}::${it.title}" },
                     contentType = data.itemContentType {
                         when {
-                            it.important == 2 -> HomeScreenKey.SUPER_ITEM
-                            it.morningPaperTitle.isNotEmpty() -> HomeScreenKey.PAPER_ITEM
+                            it.important == 2 && it.banner.isNotBlank() -> HomeScreenKey.SUPER_ITEM
+                            it.important != 2 && it.morningPaperTitle.isNotEmpty() -> HomeScreenKey.PAPER_ITEM
+                            it.banner.isBlank() -> HomeScreenKey.NO_BANNER_ITEM
                             else -> HomeScreenKey.ITEM
                         }
                     }
                 ) { ii ->
                     data[ii]?.let {
-                        when (it.important) {
-                            2 -> {
+                        val onArticleClick = {
+                            if (!it.free && it.slug.isNotBlank()) {
+                                onClick(it.slug)
+                            } else {
+                                onClick(it.id.toString())
+                            }
+                        }
+                        when {
+                            it.important == 2 && it.banner.isNotBlank() -> {
                                 HomeItemLarge(
                                     image = it.banner,
                                     timeColor = it.themeColor,
@@ -106,40 +114,41 @@ fun HomeScreen(
                                     summary = it.summary,
                                     timeStamp = it.releasedTime.toLong(),
                                     commentCount = it.commentCount,
-                                    thunderCount = it.likeCount
-                                ) {
-                                    if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
-                                        onClick(it.slug)
-                                    } else {
+                                    thunderCount = it.likeCount,
+                                    onClick = onArticleClick
+                                )
+                            }
+
+                            it.important != 2 && it.morningPaperTitle.isNotEmpty() -> {
+                                HomePaperItem(
+                                    timeSource = it.releasedTime.toLong(),
+                                    list = it.morningPaperTitle,
+                                    onClick = {
                                         onClick(it.id.toString())
                                     }
-                                }
+                                )
+                            }
+
+                            it.banner.isBlank() -> {
+                                HomeItemNoBanner(
+                                    title = it.title,
+                                    timeStamp = it.releasedTime.toLong(),
+                                    avatar = it.author.avatar,
+                                    author = it.author.nickname,
+                                    onClick = onArticleClick,
+                                    cornerName = it.corner.name
+                                )
                             }
 
                             else -> {
-                                if (it.morningPaperTitle.isNotEmpty()) {
-                                    HomePaperItem(
-                                        timeSource = it.releasedTime.toLong(),
-                                        list = it.morningPaperTitle,
-                                        onClick = {
-                                            onClick(it.id.toString())
-                                        }
-                                    )
-                                } else {
-                                    HomeItemAlt(
-                                        image = it.banner,
-                                        title = it.title,
-                                        timeStamp = it.releasedTime.toLong(),
-                                        avatar = it.author.avatar,
-                                        author = it.author.nickname
-                                    ) {
-                                        if (!it.free && it.slug.isNotEmpty() && it.slug.isNotBlank()) {
-                                            onClick(it.slug)
-                                        } else {
-                                            onClick(it.id.toString())
-                                        }
-                                    }
-                                }
+                                HomeItemAlt(
+                                    image = it.banner,
+                                    title = it.title,
+                                    timeStamp = it.releasedTime.toLong(),
+                                    avatar = it.author.avatar,
+                                    author = it.author.nickname,
+                                    onClick = onArticleClick
+                                )
                             }
                         }
                     }

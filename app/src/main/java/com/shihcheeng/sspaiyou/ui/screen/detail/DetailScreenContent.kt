@@ -19,6 +19,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mikepenz.markdown.compose.Markdown
@@ -41,6 +42,7 @@ fun DetailScreenContent(
     author: ArticleAuthor,
     blocks: List<DetailContent>,
     extendsBodys: List<DetailBodyExtends>,
+    bottomPadding: Dp = 0.dp,
     onAvatarClick: (String) -> Unit
 ) {
 
@@ -72,7 +74,11 @@ fun DetailScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .then(modifier),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            bottom = 32.dp + bottomPadding
+        ),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         state = state
     ) {
@@ -97,6 +103,8 @@ fun DetailScreenContent(
         ) {
             DetailPostUserRow(
                 nickname = author.nickname,
+                avatar = author.avatar,
+                bio = author.bio,
                 modifier = Modifier.click {
                     onAvatarClick(author.slug)
                 }
@@ -116,7 +124,7 @@ fun DetailScreenContent(
                 itemsIndexed(
                     items = x.body,
                     key = { index: Int, _: DetailContent ->
-                        x.id.toString() + "_body_" + index
+                        x.id.toString() + "_body_" + indexa + "_" + index
                     },
                     contentType = { _: Int, item: DetailContent ->
                         when (item) {

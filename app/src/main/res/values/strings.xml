@@ -71,4 +71,21 @@
     <string name="bullet_vote_deadline">投票截止：%1$s</string>
     <string name="bullet_empty">暂无话题</string>
     <string name="user_activity_empty">还没有公开动态</string>
+    <string name="article_view_comments">查看评论 · %1$d</string>
+    <string name="article_comments_title">评论 · %1$d</string>
+    <string name="article_comments_refresh">刷新评论</string>
+    <string name="article_comments_close">关闭评论</string>
+    <string name="article_comments_empty">还没有评论</string>
+    <string name="article_comments_error">评论加载失败，请重试</string>
+    <string name="article_comment_unknown_user">派友</string>
+    <string name="article_comment_view_user">查看 %1$s 的主页</string>
+    <string name="article_comment_author">作者</string>
+    <string name="article_comment_pinned">置顶</string>
+    <string name="article_comment_chosen">精选</string>
+    <string name="article_comment_hidden">这条评论暂不可见</string>
+    <string name="article_comment_likes">%1$d 赞</string>
+    <string name="comments">评论</string>
+    <string name="share_text">分享</string>
+    <string name="toc">目录</string>
+    <string name="article_author_no_bio">无签名</string>
 </resources>

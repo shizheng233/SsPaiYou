@@ -4,6 +4,7 @@ object SSPaiUrl {
 
     const val LOGIN_URL = "https://sspai.com/login"
     const val BASE_URL = "https://sspai.com/api/v1/"
+    const val BASE_URL_V2 = "https://sspai.com/api/v2/"
     const val HOME_SUB_URL = "recommend/page/get"
     const val HOME_REC_SEC_URL = "recommend/index/info/get"
     const val HOME_MAIN_URL = "article/index/page/get"
@@ -21,4 +22,5 @@ object SSPaiUrl {
     const val USER_SLUG_INFO = "user/slug/info/get"
     const val BULLET_SINGE = "bullet/single/info/get"
     const val BULLET_COMMENT = "bullet/thread/page/get"
+    const val ARTICLE_COMMENT = "comment/search/page/get"
 }

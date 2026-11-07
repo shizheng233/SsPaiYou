@@ -1,31 +1,48 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.activities.detail.DetailViewModel
 import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.utils.NetState
+import kotlinx.coroutines.launch
 
 @Composable
 fun DetailScreen(
@@ -38,59 +55,125 @@ fun DetailScreen(
     val bodyExtendsBodys by viewModel.bodyExtendsBlocks.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = rememberLazyListState()
+    var showComments by rememberSaveable { mutableStateOf(false) }
+    val article = (data as? NetState.Success)?.content
+    val context = LocalContext.current
+    val shareTitle = stringResource(R.string.share_text)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val tocEntries = remember(article?.title, contentBlocks, bodyExtendsBodys) {
+        buildDetailToc(article?.title.orEmpty(), contentBlocks, bodyExtendsBodys)
+    }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    val showTitle by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
-                    AnimatedVisibility(
-                        visible = showTitle && data is NetState.Success,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        Text(
-                            text = (data as NetState.Success).content.title,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = drawerState.isOpen,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerState = drawerState,
+                drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ) {
+                DetailTocDrawer(
+                    entries = tocEntries,
+                    articleListState = state,
+                    onEntryClick = { entry ->
+                        scope.launch {
+                            drawerState.close()
+                            state.scrollToItem(entry.itemIndex)
+                        }
                     }
-                },
-                scrollBehavior = scrollBehavior,
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavBack
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_arrow_back_24),
-                            contentDescription = stringResource(R.string.back_to_up)
-                        )
-                    }
-                }
-            )
-        },
-        bottomBar = {
-
-        }
-    ) { padding ->
-        TriStateScreen(
-            triState = data,
-            padding = PaddingValues(
-                top = padding.calculateTopPadding()
-            ),
-            onError = {
-                Error(error = it.localizedMessage, onClick = viewModel::load)
+                )
             }
-        ) {
-            DetailScreenContent(
-                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                state = state,
-                title = it.title,
-                author = it.author,
-                blocks = contentBlocks,
-                extendsBodys = bodyExtendsBodys,
-                onAvatarClick = onAvatarClick
-            )
         }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        val showTitle by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
+                        AnimatedVisibility(
+                            visible = showTitle && data is NetState.Success,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Text(
+                                text = (data as NetState.Success).content.title,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onNavBack
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_arrow_back_24),
+                                contentDescription = stringResource(R.string.back_to_up)
+                            )
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                if (article != null && article.id > 0) {
+                    DetailBottomBar(
+                        commentCount = article.articleCount.commentCount,
+                        onViewComments = { showComments = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        onTocClick = { scope.launch { drawerState.open() } },
+                        onShareCommit = {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, detailArticleUrl(viewModel.id, article.id))
+                            }
+                            context.startActivity(Intent.createChooser(intent, shareTitle))
+                        },
+                        onBookmarkClick = {},
+                        likeCount = article.articleCount.likeCount
+                    )
+                }
+            }
+        ) { padding ->
+            TriStateScreen(
+                triState = data,
+                padding = PaddingValues(
+                    top = padding.calculateTopPadding(),
+                    bottom = 0.dp
+                ),
+                onError = {
+                    Error(error = it.localizedMessage, onClick = viewModel::load)
+                }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    DetailScreenContent(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        state = state,
+                        title = it.title,
+                        author = it.author,
+                        blocks = contentBlocks,
+                        extendsBodys = bodyExtendsBodys,
+                        onAvatarClick = onAvatarClick,
+                        bottomPadding = padding.calculateBottomPadding()
+                    )
+                }
+            }
+        }
+    }
+    if (showComments && article != null && article.id > 0) {
+        val comments = viewModel.comments.collectAsLazyPagingItems()
+        ArticleCommentsSheet(
+            comments = comments,
+            commentCount = article.articleCount.commentCount,
+            onDismiss = { showComments = false },
+            onAvatarClick = {
+                showComments = false
+                onAvatarClick(it)
+            }
+        )
     }
 }

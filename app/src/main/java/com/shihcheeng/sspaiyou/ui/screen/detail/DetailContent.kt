@@ -7,7 +7,7 @@ package com.shihcheeng.sspaiyou.ui.screen.detail
  */
 sealed interface DetailContent {
 
-    data class Markdown(val text: String) : DetailContent
+    data class Markdown(val text: String, val heading: DetailHeading? = null) : DetailContent
 
     data class Image(
         val url: String,

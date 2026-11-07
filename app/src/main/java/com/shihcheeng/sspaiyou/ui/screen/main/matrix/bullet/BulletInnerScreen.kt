@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -107,7 +106,6 @@ fun BulletInnerScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun BulletItem(
     topic: BulletData,
@@ -116,13 +114,12 @@ private fun BulletItem(
     onBulletClick: (Long) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val isDarkTheme = colors.surface.luminance() < 0.5f
-    val containerColor = if (isDarkTheme) colors.surfaceContainerHigh else colors.inverseSurface
-    val contentColor = if (isDarkTheme) colors.onSurface else colors.inverseOnSurface
+    val containerColor = colors.surfaceContainerHigh
+    val contentColor = colors.onSurface
     val supportingColor = contentColor.copy(alpha = 0.72f)
     val isVote = topic.type == 2
     val typeIcon = if (isVote) R.drawable.outline_poll_24 else R.drawable.outline_message_24
-    val typeColor = if (isVote) colors.tertiaryFixedDim else colors.primaryFixedDim
+    val typeColor = if (isVote) colors.tertiary else colors.primary
 
     Card(
         onClick = { onBulletClick(topic.createdAt) },

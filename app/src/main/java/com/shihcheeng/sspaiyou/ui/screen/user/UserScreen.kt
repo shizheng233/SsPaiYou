@@ -33,6 +33,7 @@ fun UserScreen(
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
     val user by viewModel.dataOfUser.collectAsStateWithLifecycle()
+    val currentUserSlug by viewModel.currentUserSlug.collectAsStateWithLifecycle()
     val list = rememberLazyListState()
     val title by viewModel.title.collectAsStateWithLifecycle()
 
@@ -101,7 +102,7 @@ fun UserScreen(
                 articleViewCount = it.data.articleViewCount,
                 likeCount = it.data.likedCount,
                 haveBeenSSPai = it.data.createdAt,
-                isMine = viewModel.localTokenManager.getSlug() == it.data.slug,
+                isMine = !currentUserSlug.isNullOrBlank() && currentUserSlug == it.data.slug,
                 onArticleClick = onArticleClick
             )
         }

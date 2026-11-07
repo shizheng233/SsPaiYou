@@ -3,6 +3,7 @@ package com.shihcheeng.sspaiyou.activities.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleData
 import com.shihcheeng.sspaiyou.repository.DetailRepository
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailBodyExtends
@@ -11,9 +12,13 @@ import com.shihcheeng.sspaiyou.ui.screen.detail.DetailMarkDownParser
 import com.shihcheeng.sspaiyou.utils.NetState
 import com.shihcheeng.sspaiyou.utils.extra.printStackOnlyDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -36,6 +41,13 @@ class DetailViewModel @Inject constructor(
     private val _bodyExtendsBlocks = MutableStateFlow<List<DetailBodyExtends>>(emptyList())
     val bodyExtendsBlocks = _bodyExtendsBlocks.asStateFlow()
 
+    private val commentArticleId = MutableStateFlow<Int?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val comments = commentArticleId.filterNotNull()
+        .flatMapLatest(repository::comments)
+        .cachedIn(viewModelScope)
+
     init {
         load()
     }
@@ -56,7 +68,11 @@ class DetailViewModel @Inject constructor(
                 _bodyExtendsBlocks.emit(bodyBlocks)
                 _contentBlocks.emit(blocks)
                 _data.emit(NetState.Success(dataI))
+                // Member articles are opened by slug; comments still require the resolved numeric ID.
+                commentArticleId.value = dataI.id.takeIf { articleId -> articleId > 0 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             e.printStackOnlyDebug()
             _data.emit(NetState.Error(e))

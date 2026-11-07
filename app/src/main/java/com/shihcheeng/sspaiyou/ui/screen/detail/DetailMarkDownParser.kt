@@ -1,6 +1,8 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
 import com.shihcheeng.sspaiyou.utils.ImageResolveConverter
+import com.vladsch.flexmark.ast.Heading
+import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter
 import com.vladsch.flexmark.html2md.converter.ExtensionConversion
 import com.vladsch.flexmark.html2md.converter.HtmlConverterCoreNodeRendererFactory
@@ -21,6 +23,8 @@ import javax.inject.Inject
  * 2. 行内 `<img>` 经 flexmark 默认转换后输出的标准 `![](url)` 语法。
  */
 class DetailMarkDownParser @Inject constructor() {
+
+    private val markdownParser = Parser.builder().build()
 
     private val converter = FlexmarkHtmlConverter.builder(
         MutableDataSet().set(Parser.EXTENSIONS, listOf(ImageResolveConverter))
@@ -70,9 +74,30 @@ class DetailMarkDownParser @Inject constructor() {
 
     private fun addMarkdownBlock(blocks: MutableList<DetailContent>, raw: String) {
         // 清理 figure 转换时夹带的 <br/>，避免残留为可见文本或产生空白块
-        val text = raw.replace(brTagRegex, "").trim()
-        if (text.isNotEmpty()) {
+        // Preserve leading indentation: stripping it can turn a code line into a heading.
+        val text = raw.replace(brTagRegex, "").trimEnd().trimStart('\r', '\n')
+        if (text.isBlank()) return
+        // Only top-level AST headings qualify; hashes inside code, lists and quotes do not.
+        val headings = markdownParser.parse(text).children
+            .filterIsInstance<Heading>()
+            .filter { it.level in 1..3 }
+            .toList()
+        if (headings.isEmpty()) {
             blocks += DetailContent.Markdown(text)
+            return
+        }
+        text.substring(0, headings.first().startOffset).trimEnd().takeIf(String::isNotBlank)?.let {
+            blocks += DetailContent.Markdown(it)
+        }
+        headings.forEachIndexed { index, heading ->
+            val end = headings.getOrNull(index + 1)?.startOffset ?: text.length
+            blocks += DetailContent.Markdown(
+                text = text.substring(heading.startOffset, end).trim(),
+                heading = DetailHeading(
+                    title = TextCollectingVisitor().collectAndGetText(heading).trim(),
+                    level = heading.level
+                )
+            )
         }
     }
 

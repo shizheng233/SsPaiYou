@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PersonalViewModel @Inject constructor(
-    localTokenManager: LocalTokenManager,
+    private val localTokenManager: LocalTokenManager,
     private val repository: UserRepository
 ) : ViewModel() {
 
@@ -39,6 +39,9 @@ class PersonalViewModel @Inject constructor(
         _info.emit(NetState.Loading)
         try {
             repository.getUserInfo().let {
+                if (it.error == 0 && it.data.slug.isNotBlank()) {
+                    localTokenManager.saveUserSlug(it.data.slug)
+                }
                 _info.emit(NetState.Success(it))
             }
         } catch (e: Exception) {

@@ -25,9 +25,11 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val repository: UserRepository,
-    val localTokenManager: LocalTokenManager,
+    localTokenManager: LocalTokenManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    val currentUserSlug = localTokenManager.slugFlow(viewModelScope)
 
     private val _slug = savedStateHandle.get<String>("slug")
     val slug = MutableStateFlow(_slug)
@@ -55,7 +57,6 @@ class UserViewModel @Inject constructor(
         try {
             _slug?.let {
                 val data = repository.getUserInfo(slug = it)
-                localTokenManager.saveUserSlug(data.data.slug)
                 _data.emit(NetState.Success(data))
                 _title.emit(data.data.nickname)
             }

@@ -26,6 +26,9 @@ class LocalTokenManager @Inject constructor(
 
     suspend fun saveToken(string: String) = withContext(Dispatchers.IO) {
         tokenPreferences.edit {
+            if (string != getToken()) {
+                remove(LOCAL_REAL_USER_NAME)
+            }
             putString(Constants.SSPAI_AWT_JSON, string)
         }
     }
@@ -53,6 +56,13 @@ class LocalTokenManager @Inject constructor(
     }
 
     fun getSlug(): String? = tokenPreferences.getString(LOCAL_REAL_USER_NAME, null)
+
+    fun slugFlow(scoped: CoroutineScope) = tokenPreferences.flowKey()
+        .filter { it == LOCAL_REAL_USER_NAME || it == null }
+        .onStart { emit(LOCAL_REAL_USER_NAME) }
+        .map { getSlug() }
+        .conflate()
+        .stateIn(scoped, SharingStarted.Eagerly, getSlug())
 
 
     fun tokenFlow(

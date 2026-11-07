@@ -13,6 +13,48 @@ class DetailMarkDownParserTest {
     private val parser = DetailMarkDownParser()
 
     @Test
+    fun headingsBecomeSeparateAnchorsWithPlainTextAndOnlyThreeLevels() {
+        val blocks = parser.parse(
+            """<p>导语</p><h1>主标题</h1><p>正文一</p><h2><strong>二级</strong> <a href="https://example.com">链接</a></h2><p>正文二</p><h3>三级</h3><h4>四级</h4><p>结尾</p>"""
+        ).filterIsInstance<DetailContent.Markdown>()
+
+        assertEquals(4, blocks.size)
+        assertNull(blocks.first().heading)
+        assertEquals(
+            listOf(DetailHeading("主标题", 1), DetailHeading("二级 链接", 2), DetailHeading("三级", 3)),
+            blocks.mapNotNull { it.heading }
+        )
+        assertTrue(blocks[1].text.contains("正文一"))
+        assertTrue(blocks.last().text.contains("四级"))
+        assertTrue(blocks.last().text.contains("结尾"))
+    }
+
+    @Test
+    fun codeAndQuotedHeadingsDoNotCreateTocAnchors() {
+        val blocks = parser.parse(
+            """<pre><code>## 不是标题
+### 仍然是代码</code></pre><blockquote><h2>引用内标题</h2></blockquote><h2>真正标题</h2>"""
+        ).filterIsInstance<DetailContent.Markdown>()
+
+        assertEquals(listOf(DetailHeading("真正标题", 2)), blocks.mapNotNull { it.heading })
+        assertTrue(blocks.first().text.contains("不是标题"))
+        assertTrue(blocks.first().text.contains("引用内标题"))
+    }
+
+    @Test
+    fun imagesBetweenHeadingsKeepTheirOwnBlocksAndAnchors() {
+        val blocks = parser.parse(
+            """<h2>重复标题</h2><p>之前</p><figure><img src="photo.jpg"></figure><p>之后</p><h2>重复标题</h2><p>第二节</p>"""
+        )
+
+        assertEquals(listOf(0, 3), blocks.indices.filter {
+            (blocks[it] as? DetailContent.Markdown)?.heading != null
+        })
+        assertTrue(blocks[1] is DetailContent.Image)
+        assertTrue((blocks[2] as DetailContent.Markdown).text.contains("之后"))
+    }
+
+    @Test
     fun chineseQuotesInsideStrongRemainBoldWhenTouchingChineseProse() {
         val html = """<p style="margin-left:0px;">Apple 在 2015 年推出了 SF 系列西文字体（一般使用 SF Pro）和苹方系列中文字体。然而打开 Apple 简体中文官网，可以发现字体栈中第一个是一款名为<strong>「SF Pro SC」</strong>的字体。</p>"""
         val markdown = parser.parse(html).filterIsInstance<DetailContent.Markdown>().single().text
