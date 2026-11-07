@@ -34,6 +34,7 @@ import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityColum
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityComment
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityCommentAndReply
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityPrimeArticle
+import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityTopicComment
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.IBaseData
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserFlag
 import com.shihcheeng.sspaiyou.api.data.user.third.UserBadge
@@ -43,6 +44,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.LoadingItem
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionComment
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionFollowUser
+import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionTopicComment
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityItem
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityNormalItem
 import com.shihcheeng.sspaiyou.utils.extra.formatWithUnit
@@ -181,6 +183,7 @@ fun UserScreenContent(
                     is DataActivityComment -> item.id
                     is DataActivityPrimeArticle -> item.id
                     is DataActivityCommentAndReply -> item.id
+                    is DataActivityTopicComment -> item.id
                 }
                 "${item.javaClass.simpleName}:$id"
             },
@@ -267,19 +270,24 @@ fun UserScreenContent(
                                     Text(data.data.topic.summary, style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
-                            is DataActivityCommentAndReply -> UserActivityItem(
-                                imageUrl = data.author.avatar,
-                                actionString = data.action
-                            ) {
-                                Text(data.data.commentReply.body, style = MaterialTheme.typography.bodyLarge)
-                                if (data.data.topic.title.isNotBlank()) {
-                                    Text(
-                                        data.data.topic.title,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
+                            is DataActivityCommentAndReply -> UserActionTopicComment(
+                                avatarUrl = data.author.avatar,
+                                actionString = data.action,
+                                commentString = data.data.commentReply.body,
+                                replyToString = data.data.commentReplyTo.body.ifBlank {
+                                    data.data.comment.body
+                                },
+                                topicTitle = data.data.topic.title,
+                                statusTitle = data.data.status.title
+                            )
+
+                            is DataActivityTopicComment -> UserActionTopicComment(
+                                avatarUrl = data.author.avatar,
+                                actionString = data.action,
+                                commentString = data.data.comment.body,
+                                topicTitle = data.data.topic.title,
+                                statusTitle = data.data.status.title
+                            )
                         }
                     }
                 }

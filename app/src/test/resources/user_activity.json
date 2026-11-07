@@ -1,0 +1,110 @@
+{
+  "data": [
+    {
+      "id": 3104771,
+      "key": "community_reply_topic_comment",
+      "action": "回复了评论",
+      "data": {
+        "comment": {
+          "id_hash": "dbmp6udb34t9occ9j1vg",
+          "body": "<p>我在 iPad mini 7 上使用时显示比例有问题，无法全屏也无法横屏使用。</p>",
+          "author": null,
+          "reply": null,
+          "statuses": null
+        },
+        "comment_reply": {
+          "id_hash": "dbmr8p5b34t8f3colo80",
+          "body": "你的截图中应该是开启了Windowed apps功能，窗口的布局会不一样，如果把它关掉，应该就能全屏使用了\n或者你把这一个窗口给放大，现在是可以缩放的，放大就能显示全部了",
+          "author": null,
+          "files": null
+        },
+        "comment_reply_to": {"id": 0, "body": "", "user": null},
+        "status": {"title": "", "banner": "", "users": null},
+        "topic": {"id_hash": "1l7lm3mxlt2n", "title": "iOS｜做了一个复古游戏机风格的扫雷游戏💣", "author": null}
+      }
+    },
+    {
+      "id": 3104197,
+      "key": "release_article",
+      "action": "发布了文章",
+      "data": {"id": 118458, "title": "App+1｜RetroSweeper Go：我把扫雷做成了复古游戏机的样子", "banner": "2026/11/05/5f6133903d0f68372790ffef54e341f4.png"}
+    },
+    {
+      "id": 3103758,
+      "key": "community_reply_topic_comment",
+      "action": "回复了评论",
+      "data": {
+        "comment": {"body": "<p>资瓷！多点几个广告！</p>", "author": null},
+        "comment_reply": {"body": "谢谢资瓷🍊之后有空了做点 BGM 进去", "author": null},
+        "comment_reply_to": {"body": ""},
+        "status": {"title": ""},
+        "topic": {"id_hash": "1l7lm3mxlt2n", "title": "iOS｜做了一个复古游戏机风格的扫雷游戏💣", "author": null}
+      }
+    },
+    {
+      "id": 3103757,
+      "key": "community_reply_topic_comment",
+      "action": "回复了评论",
+      "data": {
+        "comment": {"body": "<p>严肃下载，并做了评论，日区第一个大概。水平不行也点广告弄了悔棋步骤</p>", "author": null},
+        "comment_reply": {"body": "哈哈，所以广告是能看的，对吧？搞了好久，一开始一直弄不出来", "author": null},
+        "comment_reply_to": {"body": ""},
+        "status": {"title": ""},
+        "topic": {"id_hash": "1l7lm3mxlt2n", "title": "iOS｜做了一个复古游戏机风格的扫雷游戏💣", "author": null}
+      }
+    },
+    {
+      "id": 3103756,
+      "key": "community_status_topic_comment",
+      "action": "回应了评论",
+      "data": {
+        "comment": {"id_hash": "dbkq6sdb34t9oboh129g", "body": "<p>严肃下载，并做了评论，日区第一个大概。水平不行也点广告弄了悔棋步骤</p>", "author": null, "topic": null},
+        "status": {"title": "小红花", "banner": "https://cdn-static.sspai.com/ui/emoji/5_xiaohonghua.png", "like_on": true, "users": null},
+        "topic": {"id_hash": "1l7lm3mxlt2n", "title": "iOS｜做了一个复古游戏机风格的扫雷游戏💣", "author": null}
+      }
+    },
+    {
+      "id": 3103755,
+      "key": "community_status_topic_comment",
+      "action": "回应了评论",
+      "data": {
+        "comment": {"body": "<p>资瓷！多点几个广告！</p>", "author": null},
+        "status": {"title": "小红花", "banner": "https://cdn-static.sspai.com/ui/emoji/5_xiaohonghua.png", "like_on": true},
+        "topic": {"id_hash": "1l7lm3mxlt2n", "title": "iOS｜做了一个复古游戏机风格的扫雷游戏💣", "author": null}
+      }
+    },
+    {
+      "id": 3103263,
+      "key": "community_release_topic",
+      "action": "发布了主题",
+      "data": {
+        "status": {"title": "", "users": null},
+        "topic": {"id_hash": "1l7lm3mxlt2n", "title": "iOS｜做了一个复古游戏机风格的扫雷游戏💣", "author": null}
+      }
+    },
+    {
+      "id": 3069348,
+      "key": "community_comment_topic",
+      "action": "评论了主题",
+      "data": {
+        "comment": {"id_hash": "d9bmm6s4o16f08t008ng", "body": "<p>我也是这样子，并且不仅是短剧，那些AI配音的视频还有各种直播完全不能听，我现在有时候甚至我都不能听中文讲话…</p>", "author": null, "reply": null},
+        "status": {"title": "", "users": null},
+        "topic": {"id_hash": "vuifhal7ovha", "title": "AI短剧让我心理+生理恶心🤢", "author": null}
+      }
+    },
+    {
+      "id": 3067094,
+      "key": "release_article",
+      "action": "发布了文章",
+      "data": {"id": 112121, "title": "App+1｜WiseSwipe —— 我制作了一个帮你推荐最长免息卡片的信用卡小工具", "banner": "2026/07/09/0b5d8bb983c0379fb901d5ff56611393.png"}
+    },
+    {
+      "id": 3061037,
+      "key": "release_article",
+      "action": "发布了文章",
+      "data": {"id": 111417, "title": "新玩意｜tomtoc 城市穿行 T30 通勤单肩包", "banner": "2026/06/23/76d5997c963f3ff53255ab952cb5af6d.png"}
+    }
+  ],
+  "error": 0,
+  "total": 77
+}
