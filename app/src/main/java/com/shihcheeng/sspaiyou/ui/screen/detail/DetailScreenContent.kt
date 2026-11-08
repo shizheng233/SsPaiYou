@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.PlatformTextStyle
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.model.markdownAnimations
@@ -29,9 +31,11 @@ import com.mikepenz.markdown.model.markdownPadding
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleAuthor
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderImage
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderMarkdownImage
-import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypoMedium
+import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypo
 import com.shihcheeng.sspaiyou.ui.theme.toMarkDownColors
+import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.extra.click
+import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 
 
 @Composable
@@ -69,6 +73,9 @@ fun DetailScreenContent(
         }
     )
     val imageTransformer = remember { DetailImageTransform() }
+    val setting = LocalComposeSetting.current
+    val readerFontScale by setting.observe(SettingData.readerScale)
+        .collectAsStateWithLifecycle(initialValue = 1.15f)
 
     LazyColumn(
         modifier = Modifier
@@ -118,7 +125,7 @@ fun DetailScreenContent(
                 ) {
                     Text(
                         text = x.title,
-                        style = sspaiReaderTypoMedium().h2
+                        style = sspaiReaderTypo(fontScale = readerFontScale).h2
                     )
                 }
                 itemsIndexed(
@@ -138,7 +145,7 @@ fun DetailScreenContent(
                             content = item.text,
                             imageTransformer = imageTransformer,
                             colors = markdownColors,
-                            typography = sspaiReaderTypoMedium(),
+                            typography = sspaiReaderTypo(fontScale = readerFontScale),
                             padding = markdownPadding,
                             components = markdownComponents,
                             animations = markdownAnimations
@@ -166,7 +173,7 @@ fun DetailScreenContent(
                     content = item.text,
                     imageTransformer = imageTransformer,
                     colors = markdownColors,
-                    typography = sspaiReaderTypoMedium(),
+                    typography = sspaiReaderTypo(fontScale = readerFontScale),
                     padding = markdownPadding,
                     components = markdownComponents,
                     animations = markdownAnimations

@@ -70,17 +70,17 @@ fun HomePaperItem(
             HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
             list.forEachIndexed { index, s ->
                 ListItem(
-                    headlineContent = {
-                        Text(text = s)
-                    },
-                    leadingContent = {
-                        Text(text = "0${index + 1}")
-                    },
                     modifier = Modifier
                         .clickable { }
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    leadingContent = {
+                        Text(text = "0${index + 1}")
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    content = {
+                        Text(text = s)
+                    },
                 )
             }
             Spacer(Modifier.height(8.dp))

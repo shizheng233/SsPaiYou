@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Valkyrie.Settings">
+    <option name="flatPackage" value="true" />
     <option name="iconPackDestination" value="C:\Users\26455\Downloads\SSPaiPack" />
     <option name="iconPackName" value="SSPaiPack" />
     <option name="mode" value="Simple" />

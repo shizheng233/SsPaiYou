@@ -19,6 +19,9 @@ dependencyResolutionManagement {
         maven {
             setUrl("https://jitpack.io")
         }
+        maven {
+            url = uri("D:\\AndroidProject\\expressive-settings\\build\\repo")
+        }
     }
     versionCatalogs {
         create("common") {
@@ -29,4 +32,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "SsPai You"
 include(":app")
- 

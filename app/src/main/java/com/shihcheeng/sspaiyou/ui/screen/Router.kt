@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shihcheeng.sspaiyou.ui.screen.Router.Bullet.proceedToBullet
 import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
@@ -17,44 +18,34 @@ import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
 import com.shihcheeng.sspaiyou.ui.screen.favourite.FavouritemScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
-import com.shihcheeng.sspaiyou.ui.screen.setting.SettingScreen
+import com.shihcheeng.sspaiyou.ui.screen.setting.SSPaiSettingScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
-import com.shihcheeng.sspaiyou.ui.theme.MaterialMotions
-import com.shihcheeng.sspaiyou.ui.theme.motionComposable
+import soup.compose.material.motion.animation.materialSharedAxisXIn
+import soup.compose.material.motion.animation.materialSharedAxisXOut
 
 @Composable
 fun Router(
-    navHostController: NavHostController = rememberNavController(),
-    toDetail: (String) -> Unit
+    navHostController: NavHostController = rememberNavController()
 ) {
-    val backGestureDistance = with(LocalDensity.current) { 48.dp.roundToPx() }
+    val slideDistance = with(LocalDensity.current) { 48.dp.roundToPx() }
 
     NavHost(
         navController = navHostController,
         startDestination = Router.Main.name,
         enterTransition = {
-            MaterialMotions.navigationEnter(forward = true)
+            materialSharedAxisXIn(forward = true, slideDistance = slideDistance)
         },
         popEnterTransition = {
-            MaterialMotions.navigationEnter(forward = false)
+            materialSharedAxisXIn(forward = false, slideDistance = slideDistance)
         },
         popExitTransition = {
-            MaterialMotions.navigationExit(forward = false)
+            materialSharedAxisXOut(forward = false, slideDistance = slideDistance)
         },
         exitTransition = {
-            MaterialMotions.navigationExit(forward = true)
-        },
-        predictivePopEnterTransition = {
-            MaterialMotions.predictivePopEnter()
-        },
-        predictivePopExitTransition = { swipeEdge ->
-            MaterialMotions.predictivePopExit(
-                swipeEdge = swipeEdge,
-                slideDistance = backGestureDistance
-            )
+            materialSharedAxisXOut(forward = true, slideDistance = slideDistance)
         }
     ) {
-        motionComposable(Router.Main.name) {
+        composable(Router.Main.name) {
             MainScreen(
                 onClick = { x ->
                     navHostController.proceedToDetail(x)
@@ -78,16 +69,21 @@ fun Router(
                 navHostController proceedTo Router.Login
             }
         }
-        motionComposable(Router.Login.name) {
+        composable(Router.Login.name) {
             WebLoginScreen(onNavUp = navHostController::popBackStack)
         }
-        motionComposable(Router.Favourite.name) {
+        composable(Router.Favourite.name) {
             FavouritemScreen()
         }
-        motionComposable(Router.Setting.name) {
-            SettingScreen()
+        composable(Router.Setting.name) {
+            SSPaiSettingScreen(
+                onBack = navHostController::popBackStack,
+                onSeeLibsClick = {
+
+                }
+            )
         }
-        motionComposable(Router.UserInfo.name) {
+        composable(Router.UserInfo.name) {
             UserScreen(
                 onNavUp = navHostController::popBackStack,
                 onArticleClick = {
@@ -95,7 +91,7 @@ fun Router(
                 }
             )
         }
-        motionComposable(Router.Detail.name) {
+        composable(Router.Detail.name) {
             DetailScreen(
                 onAvatarClick = {
                     navHostController.proceedToUserInfo(it)
@@ -104,7 +100,7 @@ fun Router(
                 navHostController.popBackStack()
             }
         }
-        motionComposable(Router.Bullet.name) {
+        composable(Router.Bullet.name) {
             BulletSingleScreen(
                 onUserClick = {
                     navHostController.proceedToUserInfo(it)
@@ -112,7 +108,7 @@ fun Router(
                 onNavUp = navHostController::popBackStack
             )
         }
-        motionComposable(Router.Column.name) {
+        composable(Router.Column.name) {
             ColumnScreen(
                 onArticleClick = { navHostController.proceedToDetail(it) },
                 onUserClick = { navHostController.proceedToUserInfo(it) },
@@ -120,7 +116,6 @@ fun Router(
             )
         }
     }
-
 }
 
 

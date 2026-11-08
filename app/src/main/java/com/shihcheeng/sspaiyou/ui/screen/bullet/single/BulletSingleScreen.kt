@@ -62,9 +62,11 @@ import com.shihcheeng.sspaiyou.ui.screen.bullet.comment.BulletCommentItem
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailContent
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailImageTransform
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailMarkdownParagraph
-import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypoMedium
+import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypo
 import com.shihcheeng.sspaiyou.ui.theme.toMarkDownColors
+import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.imageUrlForNullable
+import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -77,6 +79,9 @@ fun BulletSingleScreen(
 ) {
     val data by viewModel.data.collectAsStateWithLifecycle()
     val comments = viewModel.comments.collectAsLazyPagingItems()
+    val setting = LocalComposeSetting.current
+    val readerFontScale by setting.observe(SettingData.readerScale)
+        .collectAsStateWithLifecycle(initialValue = 1.15f)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,7 +102,12 @@ fun BulletSingleScreen(
             padding = padding,
             onError = { Error(error = it.localizedMessage, onClick = viewModel::load) }
         ) { content ->
-            BulletSingleScreenContent(content, comments, onUserClick = onUserClick)
+            BulletSingleScreenContent(
+                content = content,
+                readerFontScale = readerFontScale,
+                comments = comments,
+                onUserClick = onUserClick
+            )
         }
     }
 }
@@ -105,6 +115,7 @@ fun BulletSingleScreen(
 @Composable
 private fun BulletSingleScreenContent(
     content: BulletSingleContent,
+    readerFontScale: Float,
     comments: LazyPagingItems<BulletComment>,
     onUserClick: (String) -> Unit
 ) {
@@ -155,7 +166,11 @@ private fun BulletSingleScreenContent(
             key = { index, _ -> "body_$index" },
             contentType = { _, block -> if (block is DetailContent.Image) "image" else "markdown" }
         ) { _, block ->
-            BulletBodyBlock(block, Modifier.padding(horizontal = 16.dp))
+            BulletBodyBlock(
+                block = block,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                readerFontScale = readerFontScale
+            )
         }
         if (topic.votes.isNotEmpty() || topic.voteTitle.isNotBlank()) {
             item(key = "votes", contentType = "votes") {
@@ -171,9 +186,11 @@ private fun BulletSingleScreenContent(
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(Modifier
-                        .weight(1f)
-                        .padding(vertical = 12.dp)) {
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .padding(vertical = 12.dp)
+                    ) {
                         Text(
                             stringResource(R.string.bullet_threads, topic.threadsCount),
                             style = MaterialTheme.typography.titleMedium
@@ -256,7 +273,11 @@ private fun BulletAuthor(author: BulletUser, onUserClick: (String) -> Unit) {
 }
 
 @Composable
-private fun BulletBodyBlock(block: DetailContent, modifier: Modifier = Modifier) {
+private fun BulletBodyBlock(
+    block: DetailContent,
+    readerFontScale: Float,
+    modifier: Modifier = Modifier
+) {
     when (block) {
         is DetailContent.Image -> Column(modifier) {
             ReaderImage(
@@ -282,7 +303,7 @@ private fun BulletBodyBlock(block: DetailContent, modifier: Modifier = Modifier)
             modifier = modifier,
             imageTransformer = remember { DetailImageTransform() },
             colors = MaterialTheme.colorScheme.toMarkDownColors(),
-            typography = sspaiReaderTypoMedium(),
+            typography = sspaiReaderTypo(fontScale = readerFontScale),
             padding = markdownPadding(block = 6.dp, blockQuoteText = PaddingValues(8.dp)),
             components = markdownComponents(
                 image = { ReaderMarkdownImage(content = it.content, node = it.node) },

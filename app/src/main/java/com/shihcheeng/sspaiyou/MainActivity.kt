@@ -5,19 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
-import com.shihcheeng.sspaiyou.activities.detail.DetailActivity.Companion.toDetail
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shihcheeng.sspaiyou.ui.screen.Router
 import com.shihcheeng.sspaiyou.ui.theme.AppTheme
+import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.LocalComposeTokenManager
 import com.shihcheeng.sspaiyou.utils.LocalTokenManager
 import com.shihcheeng.sspaiyou.utils.extra.TRANSPARENT
+import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
+import com.shihcheeng.sspaiyou.utils.settingdata.SettingKeys
 import dagger.hilt.android.AndroidEntryPoint
+import dev.expressive.settings.DataStoreSettingsRepository
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,6 +31,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var tokenManager: LocalTokenManager
+
+    @Inject
+    lateinit var settingsRepository: DataStoreSettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,19 +44,29 @@ class MainActivity : ComponentActivity() {
         )
         window.isNavigationBarContrastEnforced = false
         setContent {
-            AppTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+            CompositionLocalProvider(
+                LocalComposeTokenManager provides tokenManager,
+                LocalComposeSetting provides settingsRepository
+            ) {
+                val isDynamicColor by settingsRepository.observe(SettingData.dynamicColor)
+                    .collectAsStateWithLifecycle(initialValue = true)
+                val darkTheme by settingsRepository.observe(SettingData.themeMode)
+                    .collectAsStateWithLifecycle(
+                        initialValue = SettingKeys.ThemeMode.System
+                    )
+                AppTheme(
+                    dynamicColor = isDynamicColor,
+                    darkTheme = when (darkTheme) {
+                        SettingKeys.ThemeMode.System -> isSystemInDarkTheme()
+                        SettingKeys.ThemeMode.Light -> false
+                        SettingKeys.ThemeMode.Dark -> true
+                    }
                 ) {
-                    CompositionLocalProvider(
-                        LocalComposeTokenManager provides tokenManager
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
                     ) {
-                        Router(
-                            toDetail = {
-                                toDetail(it)
-                            }
-                        )
+                        Router()
                     }
                 }
             }

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import com.shihcheeng.sspaiyou.ui.theme.MaterialMotions
+import soup.compose.material.motion.animation.materialFadeThrough
 
 @Composable
 fun Pager(
@@ -17,7 +17,7 @@ fun Pager(
     saveableStateHolder: SaveableStateHolder = rememberSaveableStateHolder(),
     index: Int,
     transitionSpec: AnimatedContentTransitionScope<Int>.() -> ContentTransform = {
-        MaterialMotions.fadeThrough()
+        materialFadeThrough()
     },
     content: @Composable AnimatedContentScope.(index: Int) -> Unit
 ) {

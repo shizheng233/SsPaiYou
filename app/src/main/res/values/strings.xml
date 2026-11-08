@@ -88,4 +88,21 @@
     <string name="share_text">分享</string>
     <string name="toc">目录</string>
     <string name="article_author_no_bio">无签名</string>
+    <string name="select_system_theme">选择系统主题显示方式</string>
+    <string name="theme_mode">主题</string>
+    <string name="display">显示</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="light">亮色主题</string>
+    <string name="dark">暗色主题</string>
+    <string name="dynamic_color">动态主题</string>
+    <string name="use_wallpaper_colors_on_android_12_and_later">在12+设备上使用壁纸颜色主题</string>
+    <string name="reader">阅读器</string>
+    <string name="font_scale">字体缩放</string>
+    <string name="about_app">关于</string>
+    <string name="version">版本</string>
+    <string name="release_verison_text">正式版</string>
+    <string name="debug_version_text">测试版</string>
+    <string name="unknown_type_version_text">未知版本</string>
+    <string name="opensource_libs">开源许可证</string>
+    <string name="opensource_libs_summary">查看本APP使用的开源库</string>
 </resources>

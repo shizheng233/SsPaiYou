@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -22,6 +23,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.Pager
 import com.shihcheeng.sspaiyou.ui.screen.main.home.HomeScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.MatrixScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.personal.PersonalScreen
+import com.shihcheeng.sspaiyou.utils.LocalComposeTokenManager
 
 @Composable
 fun MainScreen(
@@ -36,12 +38,26 @@ fun MainScreen(
 
     val navItems = MainScreenItem.listInCompose()
     val (select, onSelect) = rememberSaveable { mutableIntStateOf(0) }
+    val tokenManager = LocalComposeTokenManager.current
+    val isLogin = tokenManager.getToken() != null
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(text = stringResource(navItems[select].name))
+                },
+                actions = {
+                    if (navItems[select].name != R.string.personal || !isLogin) {
+                        IconButton(
+                            onClick = onSetting
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_settings_24),
+                                contentDescription = stringResource(R.string.setting)
+                            )
+                        }
+                    }
                 }
             )
         },
