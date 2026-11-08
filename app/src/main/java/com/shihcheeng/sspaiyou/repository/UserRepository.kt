@@ -4,6 +4,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.shihcheeng.sspaiyou.api.service.UserService
 import com.shihcheeng.sspaiyou.paging.ActivityPaging
+import com.shihcheeng.sspaiyou.paging.UserFavouritePaging
+import com.shihcheeng.sspaiyou.utils.Constants
 import com.shihcheeng.sspaiyou.utils.extra.IGNORE_PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,5 +31,13 @@ class UserRepository @Inject constructor(
         ActivityPaging(service, slug)
     }.flow
 
-
+    fun getFavourites(slug: String) = Pager(
+        config = PagingConfig(
+            pageSize = Constants.NORMAL_LIMIT,
+            initialLoadSize = Constants.NORMAL_LIMIT,
+            enablePlaceholders = false
+        )
+    ) {
+        UserFavouritePaging(service, slug)
+    }.flow
 }

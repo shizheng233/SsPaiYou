@@ -42,6 +42,11 @@ class UserViewModel @Inject constructor(
         repository.getData(it)
     }.cachedIn(viewModelScope)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val favourites = slug.filter { it.isNotBlank() }.flatMapLatest {
+        repository.getFavourites(it)
+    }.cachedIn(viewModelScope)
+
     private val _data = mutableNetStateOf<ThirdUserDataModel>()
     val dataOfUser = _data.asStateFlow()
 

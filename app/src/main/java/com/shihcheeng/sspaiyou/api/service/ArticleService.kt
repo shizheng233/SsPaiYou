@@ -1,9 +1,15 @@
 package com.shihcheeng.sspaiyou.api.service
 
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleDataModel
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteResponse
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface ArticleService {
@@ -29,4 +35,14 @@ interface ArticleService {
         @Query("created_at") createdAt: Long,
         @Query("article_id") articleId: Int
     ): ArticleCommentDataModel
+
+    @POST(SSPaiUrl.FAVOURITE_ON_OFF)
+    suspend fun favouriteOrNot(
+        @Body request: ArticleFavouriteRequest
+    ): ArticleFavouriteResponse
+
+    @POST(SSPaiUrl.LIKE_ON_OFF)
+    suspend fun likeItOrNot(
+        @Body request: ArticleLikeRequest
+    ): ArticleLikeResponse
 }

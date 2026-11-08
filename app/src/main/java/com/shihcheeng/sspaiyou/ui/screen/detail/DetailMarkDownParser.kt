@@ -27,7 +27,10 @@ class DetailMarkDownParser @Inject constructor() {
     private val markdownParser = Parser.builder().build()
 
     private val converter = FlexmarkHtmlConverter.builder(
-        MutableDataSet().set(Parser.EXTENSIONS, listOf(ImageResolveConverter))
+        MutableDataSet()
+            .set(Parser.EXTENSIONS, listOf(ImageResolveConverter))
+            // Setext headings starting with "1. " are parsed as lists instead of headings.
+            .set(FlexmarkHtmlConverter.SETEXT_HEADINGS, false)
     ).htmlNodeRendererFactory { options ->
         val handlers = HtmlConverterCoreNodeRendererFactory().apply(options)
             .htmlNodeRendererHandlers

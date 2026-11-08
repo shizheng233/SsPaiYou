@@ -16,11 +16,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +54,11 @@ fun DetailScreen(
     onNavBack: () -> Unit
 ) {
     val data by viewModel.data.collectAsStateWithLifecycle()
+    val token by viewModel.token.collectAsStateWithLifecycle()
+    val isFavouriteUpdating by viewModel.isFavouriteUpdating.collectAsStateWithLifecycle()
+    val favouriteError by viewModel.favouriteError.collectAsStateWithLifecycle()
+    val isLikeUpdating by viewModel.isLikeUpdating.collectAsStateWithLifecycle()
+    val likeError by viewModel.likeError.collectAsStateWithLifecycle()
     val contentBlocks by viewModel.contentBlocks.collectAsStateWithLifecycle()
     val bodyExtendsBodys by viewModel.bodyExtendsBlocks.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -61,6 +69,25 @@ fun DetailScreen(
     val shareTitle = stringResource(R.string.share_text)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val favouriteErrorMessage = stringResource(R.string.article_favourite_error)
+    LaunchedEffect(favouriteError) {
+        if (favouriteError) {
+            snackbarHostState.showSnackbar(favouriteErrorMessage)
+            viewModel.clearFavouriteError()
+        }
+    }
+    val likeErrorMessage = when (likeError) {
+        DetailViewModel.LikeError.NOT_LOGGED_IN -> stringResource(R.string.no_login)
+        DetailViewModel.LikeError.REQUEST_FAILED -> stringResource(R.string.article_like_error)
+        null -> null
+    }
+    LaunchedEffect(likeError) {
+        if (likeErrorMessage != null) {
+            snackbarHostState.showSnackbar(likeErrorMessage)
+            viewModel.clearLikeError()
+        }
+    }
     val tocEntries = remember(article?.title, contentBlocks, bodyExtendsBodys) {
         buildDetailToc(article?.title.orEmpty(), contentBlocks, bodyExtendsBodys)
     }
@@ -87,6 +114,7 @@ fun DetailScreen(
         }
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = {
@@ -130,8 +158,13 @@ fun DetailScreen(
                             }
                             context.startActivity(Intent.createChooser(intent, shareTitle))
                         },
-                        onBookmarkClick = {},
-                        likeCount = article.articleCount.likeCount
+                        onBookmarkClick = viewModel::toggleFavourite,
+                        isBookmarked = article.favorited,
+                        bookmarkEnabled = !token.isNullOrBlank() && !isFavouriteUpdating,
+                        likeCount = article.articleCount.likeCount,
+                        onLikeClick = viewModel::toggleLike,
+                        isLike = article.liked,
+                        likeEnabled = !isLikeUpdating
                     )
                 }
             }

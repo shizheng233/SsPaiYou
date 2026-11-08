@@ -8,6 +8,7 @@ plugins {
     alias(common.plugins.ksp)
     alias(common.plugins.tools.hilt)
     kotlin("plugin.serialization") version "2.0.21"
+    alias(aboutlibs.plugins.aboutLibraries)
 }
 
 kotlin {
@@ -108,6 +109,9 @@ dependencies {
     implementation(common.markwon.image)
     implementation(common.markwon.image.coil)
     implementation(common.markwon.html)
+    implementation(aboutlibs.aboutlibraries.compose.core)
+    implementation(aboutlibs.aboutlibraries.compose.m3)
+    implementation(aboutlibs.aboutlibraries.core)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)

@@ -1,5 +1,8 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -27,6 +30,37 @@ class DetailMarkDownParserTest {
         assertTrue(blocks[1].text.contains("正文一"))
         assertTrue(blocks.last().text.contains("四级"))
         assertTrue(blocks.last().text.contains("结尾"))
+    }
+
+    @Test
+    fun jsonEscapedNumberedHeadingsKeepTheirLevelsInTocAndRenderer() {
+        val json = """{"body":"\u003ch1\u003e1. 总览\u003c/h1\u003e\u003ch2\u003e0. 为什么想给 AI 编程配个手持遥控器？\u003c/h2\u003e\u003cp\u003e正文\u003c/p\u003e\u003ch2\u003e1. 硬件细节：为什么选 RC003？\u003c/h2\u003e\u003ch2\u003e2. 软件配置：打通系统级语音输入\u003c/h2\u003e\u003ch3\u003e2.1 macOS 平台配置流程\u003c/h3\u003e"}"""
+        val body = Json.parseToJsonElement(json).jsonObject.getValue("body").jsonPrimitive.content
+        val blocks = parser.parse(body).filterIsInstance<DetailContent.Markdown>()
+        val expected = listOf(
+            DetailHeading("1. 总览", 1),
+            DetailHeading("0. 为什么想给 AI 编程配个手持遥控器？", 2),
+            DetailHeading("1. 硬件细节：为什么选 RC003？", 2),
+            DetailHeading("2. 软件配置：打通系统级语音输入", 2),
+            DetailHeading("2.1 macOS 平台配置流程", 3)
+        )
+
+        assertEquals(expected, blocks.mapNotNull { it.heading })
+        blocks.zip(expected).forEach { (block, heading) ->
+            val tree = MarkdownParser(GFMFlavourDescriptor()).buildMarkdownTreeFromString(block.text)
+            val expectedType = when (heading.level) {
+                1 -> MarkdownElementTypes.ATX_1
+                2 -> MarkdownElementTypes.ATX_2
+                else -> MarkdownElementTypes.ATX_3
+            }
+            assertEquals(expectedType, tree.children.first().type)
+            assertTrue(tree.descendants().none { it.type == MarkdownElementTypes.ORDERED_LIST })
+        }
+        assertTrue(blocks[1].text.contains("正文"))
+        assertEquals(
+            expected.mapIndexed { index, heading -> DetailTocEntry(heading.title, heading.level, index + 2) },
+            buildDetailToc("", blocks, emptyList())
+        )
     }
 
     @Test

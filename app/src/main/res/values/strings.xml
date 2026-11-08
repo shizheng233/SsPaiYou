@@ -39,6 +39,8 @@
     <string name="sspai_member">荣誉会员</string>
     <string name="activity_info">关注</string>
     <string name="favourite_of_user">收藏</string>
+    <string name="article_favourited">已收藏</string>
+    <string name="article_favourite_error">收藏操作失败，请重试</string>
     <string name="created_of_user">创作</string>
     <string name="activity_of_user">动态</string>
     <string name="liked_count">获得充电</string>
@@ -71,6 +73,12 @@
     <string name="bullet_vote_deadline">投票截止：%1$s</string>
     <string name="bullet_empty">暂无话题</string>
     <string name="user_activity_empty">还没有公开动态</string>
+    <string name="user_favourites_empty">还没有公开收藏</string>
+    <string name="favourites_refresh">刷新收藏</string>
+    <string name="favourites_login_required">请先登录后查看收藏</string>
+    <string name="favourite_type_podcast">播客</string>
+    <string name="favourite_type_member_article">会员文章</string>
+    <string name="favourite_type_paid_article">付费文章</string>
     <string name="article_view_comments">查看评论 · %1$d</string>
     <string name="article_comments_title">评论 · %1$d</string>
     <string name="article_comments_refresh">刷新评论</string>
@@ -85,6 +93,9 @@
     <string name="article_comment_hidden">这条评论暂不可见</string>
     <string name="article_comment_likes">%1$d 赞</string>
     <string name="comments">评论</string>
+    <string name="article_like">喜欢</string>
+    <string name="article_unlike">取消喜欢</string>
+    <string name="article_like_error">喜欢操作失败，请重试</string>
     <string name="share_text">分享</string>
     <string name="toc">目录</string>
     <string name="article_author_no_bio">无签名</string>

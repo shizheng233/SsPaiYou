@@ -23,4 +23,7 @@ object SSPaiUrl {
     const val BULLET_SINGE = "bullet/single/info/get"
     const val BULLET_COMMENT = "bullet/thread/page/get"
     const val ARTICLE_COMMENT = "comment/search/page/get"
+    const val USER_FAVOURE = "article/user/favorite/public/page/get"
+    const val FAVOURITE_ON_OFF = "article/user/favorite"
+    const val LIKE_ON_OFF= "article/user/like"
 }

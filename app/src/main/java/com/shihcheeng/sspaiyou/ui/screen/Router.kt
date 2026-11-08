@@ -12,6 +12,7 @@ import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.UserInfo.proceedToUserInfo
+import com.shihcheeng.sspaiyou.ui.screen.about.AboutScreen
 import com.shihcheeng.sspaiyou.ui.screen.bullet.single.BulletSingleScreen
 import com.shihcheeng.sspaiyou.ui.screen.column.ColumnScreen
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
@@ -73,22 +74,25 @@ fun Router(
             WebLoginScreen(onNavUp = navHostController::popBackStack)
         }
         composable(Router.Favourite.name) {
-            FavouritemScreen()
+            FavouritemScreen(
+                onNavUp = navHostController::popBackStack,
+                onArticleClick = { navHostController.proceedToDetail(it) },
+                onUserClick = { navHostController.proceedToUserInfo(it) }
+            )
         }
         composable(Router.Setting.name) {
             SSPaiSettingScreen(
                 onBack = navHostController::popBackStack,
                 onSeeLibsClick = {
-
+                    navHostController proceedTo Router.OpensourceLibs
                 }
             )
         }
         composable(Router.UserInfo.name) {
             UserScreen(
                 onNavUp = navHostController::popBackStack,
-                onArticleClick = {
-                    navHostController.proceedToDetail(it.toString())
-                }
+                onArticleClick = { navHostController.proceedToDetail(it) },
+                onUserClick = { navHostController.proceedToUserInfo(it) }
             )
         }
         composable(Router.Detail.name) {
@@ -114,6 +118,9 @@ fun Router(
                 onUserClick = { navHostController.proceedToUserInfo(it) },
                 onNavUp = navHostController::popBackStack
             )
+        }
+        composable(Router.OpensourceLibs.name) {
+            AboutScreen(onBack = navHostController::popBackStack)
         }
     }
 }
@@ -187,6 +194,12 @@ sealed interface Router {
         fun NavHostController.proceedToUserInfo(slug: String) {
             navigate(name.replace("{slug}", slug))
         }
+
+    }
+
+    data object OpensourceLibs : Router {
+        override val name: String
+            get() = "OPENSOURCE_LIBS"
 
     }
 

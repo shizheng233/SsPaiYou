@@ -5,17 +5,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.sp
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.ui.theme.AppTheme
 import com.shihcheeng.sspaiyou.utils.icons.Bookmark
+import com.shihcheeng.sspaiyou.utils.icons.FlashOn
 import com.shihcheeng.sspaiyou.utils.icons.IosShare
 import com.shihcheeng.sspaiyou.utils.icons.ListUnordered
 import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DetailBottomBar(
     modifier: Modifier = Modifier,
@@ -38,7 +38,12 @@ fun DetailBottomBar(
     onShareCommit: () -> Unit,
     onBookmarkClick: () -> Unit,
     onTocClick: () -> Unit,
-    onViewComments: () -> Unit
+    onViewComments: () -> Unit,
+    onLikeClick: () -> Unit,
+    isLike: Boolean,
+    isBookmarked: Boolean = false,
+    bookmarkEnabled: Boolean = true,
+    likeEnabled: Boolean = true
 ) {
     val color = MaterialTheme.colorScheme
     val typo = MaterialTheme.typography
@@ -79,13 +84,23 @@ fun DetailBottomBar(
                 )
             }
         }
-        IconButton(onClick = {}) {
+        IconToggleButton(
+            onCheckedChange = { onLikeClick() },
+            checked = isLike,
+            enabled = likeEnabled
+        ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.outline_flash_on_24),
-                    contentDescription = null
+                    painter = if (isLike) {
+                        painterResource(R.drawable.outline_flash_on_24)
+                    } else {
+                        rememberVectorPainter(SSPaiPack.FlashOn)
+                    },
+                    contentDescription = stringResource(
+                        if (isLike) R.string.article_unlike else R.string.article_like
+                    )
                 )
                 Text(
                     text = "(${likeCount})",
@@ -93,8 +108,10 @@ fun DetailBottomBar(
                 )
             }
         }
-        IconButton(
-            onClick = onBookmarkClick
+        IconToggleButton(
+            checked = isBookmarked,
+            onCheckedChange = { onBookmarkClick() },
+            enabled = bookmarkEnabled
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -104,7 +121,13 @@ fun DetailBottomBar(
                     contentDescription = null
                 )
                 Text(
-                    text = stringResource(R.string.favourite_of_user),
+                    text = stringResource(
+                        id = if (isBookmarked) {
+                            R.string.article_favourited
+                        } else {
+                            R.string.favourite_of_user
+                        }
+                    ),
                     style = typo.labelSmall
                         .copy(
                             fontWeight = FontWeight.Thin,
@@ -163,6 +186,8 @@ fun DetailBottomBarPreview() {
             onShareCommit = {},
             onBookmarkClick = { },
             onTocClick = { },
+            onLikeClick = {},
+            isLike = false
         )
     }
 }

@@ -11,7 +11,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,19 +32,25 @@ import soup.compose.material.motion.animation.materialFadeOut
 fun UserScreen(
     viewModel: UserViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
     onNavUp: () -> Unit,
-    onArticleClick: (Int) -> Unit
+    onArticleClick: (String) -> Unit,
+    onUserClick: (String) -> Unit
 ) {
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val data = viewModel.data.collectAsLazyPagingItems()
+    // Do not request favourites until their tab is opened; cachedIn retains loaded pages.
+    val favourites = if (selectedTab == 1) viewModel.favourites.collectAsLazyPagingItems() else null
     val user by viewModel.dataOfUser.collectAsStateWithLifecycle()
     val currentUserSlug by viewModel.currentUserSlug.collectAsStateWithLifecycle()
-    val list = rememberLazyListState()
+    val activityList = rememberLazyListState()
+    val favouriteList = rememberLazyListState()
+    val list = if (selectedTab == 0) activityList else favouriteList
     val title by viewModel.title.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    val showTitle by remember { derivedStateOf { list.firstVisibleItemIndex > 0 } }
+                    val showTitle by remember(list) { derivedStateOf { list.firstVisibleItemIndex > 0 } }
                     AnimatedVisibility(
                         visible = showTitle,
                         enter = materialFadeIn(),
@@ -70,7 +79,7 @@ fun UserScreen(
         TriStateScreen(
             padding = PaddingValues(
                 top = padding.calculateTopPadding(),
-                bottom = padding.calculateBottomPadding()
+                bottom = 0.dp
             ),
             onError = {
                 Error(error = it.localizedMessage, onClick = viewModel::load)
@@ -78,9 +87,19 @@ fun UserScreen(
             triState = user,
         ) {
             UserScreenContent(
-                contentPaddingValues = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
+                contentPaddingValues = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = 24.dp + padding.calculateBottomPadding()
+                ),
                 listState = list,
                 data = data,
+                favourites = favourites,
+                selectedTab = selectedTab,
+                onTabSelected = { x ->
+                    selectedTab = x
+                },
                 followed = it.data.followed,
                 color = it.data.userBadges
                     .takeIf { x ->
@@ -103,7 +122,8 @@ fun UserScreen(
                 likeCount = it.data.likedCount,
                 haveBeenSSPai = it.data.createdAt,
                 isMine = !currentUserSlug.isNullOrBlank() && currentUserSlug == it.data.slug,
-                onArticleClick = onArticleClick
+                onArticleClick = onArticleClick,
+                onUserClick = onUserClick
             )
         }
     }

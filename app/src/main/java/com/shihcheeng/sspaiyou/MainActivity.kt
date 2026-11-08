@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -20,6 +21,7 @@ import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.LocalComposeTokenManager
 import com.shihcheeng.sspaiyou.utils.LocalTokenManager
 import com.shihcheeng.sspaiyou.utils.extra.TRANSPARENT
+import com.shihcheeng.sspaiyou.utils.extra.observe
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingKeys
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,6 +45,17 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.TRANSPARENT
         )
         window.isNavigationBarContrastEnforced = false
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        settingsRepository.observe(SettingData.themeMode).observe(this) { type ->
+            when (type) {
+                SettingKeys.ThemeMode.System -> {
+                    controller.isAppearanceLightStatusBars = !isDarkMode()
+                }
+
+                SettingKeys.ThemeMode.Light -> controller.isAppearanceLightStatusBars = true
+                SettingKeys.ThemeMode.Dark -> controller.isAppearanceLightStatusBars = false
+            }
+        }
         setContent {
             CompositionLocalProvider(
                 LocalComposeTokenManager provides tokenManager,
@@ -51,9 +64,7 @@ class MainActivity : ComponentActivity() {
                 val isDynamicColor by settingsRepository.observe(SettingData.dynamicColor)
                     .collectAsStateWithLifecycle(initialValue = true)
                 val darkTheme by settingsRepository.observe(SettingData.themeMode)
-                    .collectAsStateWithLifecycle(
-                        initialValue = SettingKeys.ThemeMode.System
-                    )
+                    .collectAsStateWithLifecycle(initialValue = SettingKeys.ThemeMode.System)
                 AppTheme(
                     dynamicColor = isDynamicColor,
                     darkTheme = when (darkTheme) {
@@ -72,4 +83,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    fun isDarkMode(): Boolean {
+        val currentNightMode =
+            this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
+    }
+
+
 }

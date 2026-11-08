@@ -2,6 +2,7 @@ package com.shihcheeng.sspaiyou.api.service
 
 import com.shihcheeng.sspaiyou.api.data.user.UserinfoDataModel
 import com.shihcheeng.sspaiyou.api.data.user.activity.UserActivityDataModel
+import com.shihcheeng.sspaiyou.api.data.user.favourite.UserFavouriteDataModel
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserDataModel
 import com.shihcheeng.sspaiyou.utils.Constants
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
@@ -28,4 +29,12 @@ interface UserService {
         @Query("slug") slug: String
     ): UserActivityDataModel
 
+    @GET(SSPaiUrl.USER_FAVOURE)
+    suspend fun getUserFavourite(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("created_at") createdAt: Long,
+        @Query("slug") slug: String,
+        @Query("type") type: String = "all"
+    ): UserFavouriteDataModel
 }

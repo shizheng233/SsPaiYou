@@ -3,6 +3,8 @@ package com.shihcheeng.sspaiyou.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleComment
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.paging.ArticleCommentPaging
@@ -22,6 +24,22 @@ class DetailRepository @Inject constructor(
     ) {
         ArticleCommentPaging(service, articleId)
     }.flow
+
+    suspend fun setFavourite(articleId: Int, favourite: Boolean) {
+        require(articleId > 0) { "Invalid article ID" }
+        val response = service.favouriteOrNot(
+            ArticleFavouriteRequest(targetId = articleId, flag = if (favourite) 1 else 2)
+        )
+        check(response.error == 0) { "收藏操作失败：${response.error}" }
+    }
+
+    suspend fun setLike(articleId: Int, liked: Boolean) {
+        require(articleId > 0) { "Invalid article ID" }
+        val response = service.likeItOrNot(
+            ArticleLikeRequest(targetId = articleId, flag = if (liked) 1 else 2)
+        )
+        check(response.error == 0) { "喜欢操作失败：${response.error}" }
+    }
 
     suspend fun getArticleDetail(id: String) = withContext(Dispatchers.Default) {
         runCatching {

@@ -2,6 +2,10 @@ package com.shihcheeng.sspaiyou.article
 
 import androidx.paging.PagingSource
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleDataModel
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteResponse
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleComment
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
 import com.shihcheeng.sspaiyou.api.service.ArticleService
@@ -154,6 +158,12 @@ class ArticleCommentTest {
 
         override suspend fun getMemberArticleDetail(slug: String, view: String, supportWebp: Boolean): ArticleDataModel =
             error("Unexpected member article request")
+
+        override suspend fun favouriteOrNot(request: ArticleFavouriteRequest): ArticleFavouriteResponse =
+            error("Unexpected favourite request")
+
+        override suspend fun likeItOrNot(request: ArticleLikeRequest): ArticleLikeResponse =
+            error("Unexpected like request")
 
         override suspend fun getArticleComments(limit: Int, offset: Int, createdAt: Long, articleId: Int): ArticleCommentDataModel {
             requests += CommentRequest(limit, offset, createdAt, articleId)

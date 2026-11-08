@@ -5,15 +5,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -28,6 +33,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.materialkolor.material3.rememberDynamicColorScheme
 import com.shihcheeng.sspaiyou.R
+import com.shihcheeng.sspaiyou.api.data.column.ColumnArticle
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityArticle
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityAuthors
 import com.shihcheeng.sspaiyou.api.data.user.activity.datadtos.DataActivityColumns
@@ -42,6 +48,7 @@ import com.shihcheeng.sspaiyou.api.data.user.third.UserRewardBadge
 import com.shihcheeng.sspaiyou.ui.compoents.ErrorItem
 import com.shihcheeng.sspaiyou.ui.compoents.LoadingItem
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
+import com.shihcheeng.sspaiyou.ui.screen.favourite.favouriteItems
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionComment
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionFollowUser
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActionTopicComment
@@ -49,12 +56,18 @@ import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityItem
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityNormalItem
 import com.shihcheeng.sspaiyou.utils.extra.formatWithUnit
 import com.shihcheeng.sspaiyou.utils.extra.untilToDay
+import com.shihcheeng.sspaiyou.utils.icons.BoxesLinked
+import com.shihcheeng.sspaiyou.utils.icons.ListVideo
+import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
 
 @Composable
 fun UserScreenContent(
     contentPaddingValues: PaddingValues,
     listState: LazyListState,
     data: LazyPagingItems<IBaseData>,
+    favourites: LazyPagingItems<ColumnArticle>?,
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
     followed: Boolean,
     color: String?,
     onFollowedChange: (Boolean) -> Unit,
@@ -71,12 +84,15 @@ fun UserScreenContent(
     likeCount: Int,
     haveBeenSSPai: Int,
     isMine: Boolean,
-    onArticleClick: (Int) -> Unit
+    onArticleClick: (String) -> Unit,
+    onUserClick: (String) -> Unit
 ) {
 
     val scheme = MaterialTheme.colorScheme
     val seed = remember(color) {
-        runCatching { color?.takeIf(String::isNotBlank)?.toColorInt()?.let { Color(it) } }.getOrNull()
+        runCatching {
+            color?.takeIf(String::isNotBlank)?.toColorInt()?.let { Color(it) }
+        }.getOrNull()
     }
     val primary = seed?.let {
         rememberDynamicColorScheme(
@@ -144,12 +160,44 @@ fun UserScreenContent(
                 )
             }
         }
-        item(key = "activity_heading", contentType = "heading") {
-            Text(
-                text = stringResource(R.string.activity_of_user),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 12.dp)
-            )
+        item(key = "user_content_tabs", contentType = "tabs") {
+            PrimaryTabRow(
+                selectedTabIndex = selectedTab,
+            ) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { onTabSelected(0) },
+                    text = { Text(stringResource(R.string.activity_of_user)) },
+                    icon = {
+                        Icon(
+                            imageVector = SSPaiPack.ListVideo,
+                            contentDescription = stringResource(R.string.activity_of_user)
+                        )
+                    }
+                )
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = { onTabSelected(1) },
+                    text = { Text(stringResource(R.string.favourite_of_user)) },
+                    icon = {
+                        Icon(
+                            imageVector = SSPaiPack.BoxesLinked,
+                            contentDescription = stringResource(R.string.favourite_of_user)
+                        )
+                    }
+                )
+            }
+        }
+        item(
+            key = "spacer_support_1"
+        ) {
+            Spacer(Modifier.height(8.dp))
+        }
+        if (selectedTab == 1) {
+            favourites?.let {
+                favouriteItems(it, onArticleClick, onUserClick)
+            }
+            return@LazyColumn
         }
         if (data.itemCount == 0) {
             pagingTriState(
@@ -216,7 +264,7 @@ fun UserScreenContent(
                                         title = data.data.title,
                                         banner = data.data.banner.takeIf { x -> x.isNotEmpty() }
                                     ) {
-                                        onArticleClick(data.data.id)
+                                        onArticleClick(data.data.id.toString())
                                     }
                                 }
                             }
@@ -258,18 +306,25 @@ fun UserScreenContent(
                                     commentString = data.data.comment,
                                     title = data.data.articleTitle,
                                     banner = data.data.artcileBanner,
-                                ) { onArticleClick(data.data.articleId) }
+                                ) { onArticleClick(data.data.articleId.toString()) }
                             }
 
                             is DataActivityPrimeArticle -> UserActivityItem(
                                 imageUrl = data.author.avatar,
                                 actionString = data.action
                             ) {
-                                Text(data.data.topic.title, style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    data.data.topic.title,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                                 if (data.data.topic.summary.isNotBlank()) {
-                                    Text(data.data.topic.summary, style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        data.data.topic.summary,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
                                 }
                             }
+
                             is DataActivityCommentAndReply -> UserActionTopicComment(
                                 avatarUrl = data.author.avatar,
                                 actionString = data.action,
