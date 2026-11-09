@@ -58,7 +58,12 @@ object NetworkModula {
                 newBuilder.headers(map.toHeaders())
                 it.proceed(newBuilder.build())
             }
-            .addNetworkInterceptor(HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) })
+            .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+                redactHeader("Authorization")
+                redactHeader("Cookie")
+                redactHeader("Set-Cookie")
+                setLevel(HttpLoggingInterceptor.Level.BODY)
+            })
             .build()
     }
 
