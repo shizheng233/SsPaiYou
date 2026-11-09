@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.ui.theme.AppTheme
 import com.shihcheeng.sspaiyou.utils.icons.Bookmark
+import com.shihcheeng.sspaiyou.utils.icons.BookmarkAdded
 import com.shihcheeng.sspaiyou.utils.icons.FlashOn
 import com.shihcheeng.sspaiyou.utils.icons.IosShare
 import com.shihcheeng.sspaiyou.utils.icons.ListUnordered
@@ -117,7 +118,7 @@ fun DetailBottomBar(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    imageVector = SSPaiPack.Bookmark,
+                    imageVector = if (isBookmarked) SSPaiPack.BookmarkAdded else SSPaiPack.Bookmark,
                     contentDescription = null
                 )
                 Text(

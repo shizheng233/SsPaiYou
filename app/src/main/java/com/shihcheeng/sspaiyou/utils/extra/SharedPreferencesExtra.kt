@@ -10,6 +10,8 @@ fun SharedPreferences.flowKey(): Flow<String?> = callbackFlow {
         trySend(key)
     }
     registerOnSharedPreferenceChangeListener(listener)
+    // Read the initial state only after registration so concurrent changes cannot be missed.
+    trySend(null)
     awaitClose {
         unregisterOnSharedPreferenceChangeListener(listener)
     }

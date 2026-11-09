@@ -12,12 +12,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.ui.compoents.Pager
 import com.shihcheeng.sspaiyou.ui.screen.main.home.HomeScreen
@@ -39,7 +42,11 @@ fun MainScreen(
     val navItems = MainScreenItem.listInCompose()
     val (select, onSelect) = rememberSaveable { mutableIntStateOf(0) }
     val tokenManager = LocalComposeTokenManager.current
-    val isLogin = tokenManager.getToken() != null
+    val scope = rememberCoroutineScope()
+    val token by remember(tokenManager, scope) {
+        tokenManager.tokenFlow(scope)
+    }.collectAsStateWithLifecycle()
+    val isLogin = token != null
 
     Scaffold(
         topBar = {

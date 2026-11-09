@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -165,6 +168,124 @@ class LocalTokenManagerTest {
             assertNull(manager.transformToAuthorization())
         } finally {
             scope.cancel()
+        }
+    }
+
+    @Test
+    fun logoutClearsAllCookiesAndUserIdentityAndAllowsLoginAgain() = runBlocking {
+        manager.saveToken(TOKEN)
+        manager.saveUserSlug("existing-user")
+        manager.cookieSaver("another_cookie", "session-cookie")
+
+        manager.logout()
+        manager.logout()
+
+        val reopened = newManager()
+        assertNull(reopened.getToken())
+        assertNull(reopened.getSlug())
+        assertNull(reopened.getCookie("another_cookie"))
+        assertNull(reopened.transformToAuthorization())
+        assertEquals(setOf("COOKIE_STORAGE_VERSION"), preferences.all.keys)
+        val xml = File(context.applicationInfo.dataDir, "shared_prefs/$preferencesName.xml").readText()
+        assertFalse(xml.contains("v1:"))
+        assertFalse(xml.contains("existing-user"))
+
+        reopened.saveToken("new-session")
+        assertTrue(reopened.saveUserSlug("new-user"))
+        assertEquals("new-session", reopened.getToken())
+        assertEquals("new-user", reopened.getSlug())
+    }
+
+    @Test
+    fun logoutRefreshesExistingTokenAndSlugSubscribers() = runBlocking<Unit> {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            val tokens = manager.tokenFlow(scope)
+            val slugs = manager.slugFlow(scope)
+            manager.saveToken(TOKEN)
+            manager.saveUserSlug("existing-user")
+            withTimeout(5_000) {
+                tokens.first { it == TOKEN }
+                slugs.first { it == "existing-user" }
+            }
+
+            manager.logout()
+
+            withTimeout(5_000) {
+                tokens.first { it == null }
+                slugs.first { it == null }
+            }
+        } finally {
+            scope.cancel()
+        }
+    }
+
+    @Test
+    fun logoutDuringListenerRegistrationCannotLeaveStaleInitialState() = runBlocking {
+        for (observeToken in listOf(true, false)) {
+            manager.saveToken(TOKEN)
+            manager.saveUserSlug("existing-user")
+            val registered = CompletableDeferred<Unit>()
+            val loggingOutPreferences = object : SharedPreferences by preferences {
+                override fun registerOnSharedPreferenceChangeListener(
+                    listener: SharedPreferences.OnSharedPreferenceChangeListener
+                ) {
+                    runBlocking { manager.logout() }
+                    preferences.registerOnSharedPreferenceChangeListener(listener)
+                    registered.complete(Unit)
+                }
+            }
+            val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+            try {
+                val reader = LocalTokenManager(loggingOutPreferences, cipher)
+                val state = if (observeToken) reader.tokenFlow(scope) else reader.slugFlow(scope)
+                withTimeout(5_000) {
+                    registered.await()
+                    state.first { it == null }
+                }
+            } finally {
+                scope.cancel()
+            }
+        }
+    }
+
+    @Test
+    fun staleUserInfoCannotRestoreSlugAfterLogoutOrReplaceAnotherAccount() = runBlocking {
+        manager.saveToken(TOKEN)
+        manager.logout()
+
+        assertFalse(manager.saveUserSlug("old-user", expectedToken = TOKEN))
+        assertFalse(manager.saveUserSlug("old-user"))
+        assertNull(manager.getSlug())
+
+        manager.saveToken("new-session")
+        assertTrue(manager.saveUserSlug("new-user", expectedToken = "new-session"))
+        assertFalse(manager.saveUserSlug("old-user", expectedToken = TOKEN))
+        assertEquals("new-user", manager.getSlug())
+    }
+
+    @Test
+    fun concurrentLogoutAndUserInfoWritesNeverRestoreLoggedOutIdentity() = runBlocking {
+        repeat(10) {
+            manager.saveToken(TOKEN)
+            manager.saveUserSlug("existing-user")
+            val start = CompletableDeferred<Unit>()
+            val writes = List(4) {
+                async(Dispatchers.Default) {
+                    start.await()
+                    manager.saveUserSlug("late-user", expectedToken = TOKEN)
+                }
+            }
+            val logout = async(Dispatchers.Default) {
+                start.await()
+                manager.logout()
+            }
+            start.complete(Unit)
+            writes.awaitAll()
+            logout.await()
+
+            assertNull(manager.getToken())
+            assertNull(manager.getSlug())
         }
     }
 

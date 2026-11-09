@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -39,11 +38,30 @@ class LocalTokenManager internal constructor(
         cookieSaver(Constants.SSPAI_AWT_JSON, string)
     }
 
-    suspend fun saveUserSlug(slug: String) = withContext(Dispatchers.IO) {
-        synchronized(storageLock) {
-            tokenPreferences.edit {
-                putString(LOCAL_REAL_USER_NAME, slug)
+    /** Pass the token captured before requesting user info to reject stale responses. */
+    suspend fun saveUserSlug(slug: String, expectedToken: String? = getToken()): Boolean =
+        withContext(Dispatchers.IO) {
+            synchronized(storageLock) {
+                if (expectedToken == null || getCookieLocked(Constants.SSPAI_AWT_JSON) != expectedToken) {
+                    return@synchronized false
+                }
+                tokenPreferences.edit {
+                    putString(LOCAL_REAL_USER_NAME, slug)
+                }
+                true
             }
+        }
+
+    /** Atomically clears all session cookies and user identity, waiting for disk persistence. */
+    suspend fun logout() = withContext(Dispatchers.IO) {
+        synchronized(storageLock) {
+            val editor = tokenPreferences.edit()
+            // Explicit removals also notify listeners on Android 10, unlike clear().
+            tokenPreferences.all.keys.filter { it != COOKIE_STORAGE_VERSION }.forEach {
+                editor.remove(it)
+            }
+            editor.putInt(COOKIE_STORAGE_VERSION, ENCRYPTED_VERSION)
+            check(editor.commit()) { "Unable to persist logout" }
         }
     }
 
@@ -132,11 +150,12 @@ class LocalTokenManager internal constructor(
     private fun Exception.isInvalidatedKey() =
         this is KeyPermanentlyInvalidatedException || this is UnrecoverableKeyException
 
-    fun getSlug(): String? = tokenPreferences.getString(LOCAL_REAL_USER_NAME, null)
+    fun getSlug(): String? = synchronized(storageLock) {
+        tokenPreferences.getString(LOCAL_REAL_USER_NAME, null)
+    }
 
     fun slugFlow(scoped: CoroutineScope) = tokenPreferences.flowKey()
         .filter { it == LOCAL_REAL_USER_NAME || it == null }
-        .onStart { emit(LOCAL_REAL_USER_NAME) }
         .map { getSlug() }
         .conflate()
         .stateIn(scoped, SharingStarted.Eagerly, getSlug())
@@ -146,9 +165,7 @@ class LocalTokenManager internal constructor(
         scoped: CoroutineScope
     ) = tokenPreferences.flowKey()
         .filter { it == Constants.SSPAI_AWT_JSON || it == null }
-        .onStart {
-            emit("ignition")
-        }.map { getToken() }
+        .map { getToken() }
         .conflate()
         .stateIn(scoped, SharingStarted.Eagerly, getToken())
 

@@ -39,7 +39,7 @@
     <string name="sspai_member">荣誉会员</string>
     <string name="activity_info">关注</string>
     <string name="favourite_of_user">收藏</string>
-    <string name="article_favourited">已收藏</string>
+    <string name="article_favourited">取消</string>
     <string name="article_favourite_error">收藏操作失败，请重试</string>
     <string name="created_of_user">创作</string>
     <string name="activity_of_user">动态</string>
@@ -116,4 +116,12 @@
     <string name="unknown_type_version_text">未知版本</string>
     <string name="opensource_libs">开源许可证</string>
     <string name="opensource_libs_summary">查看本APP使用的开源库</string>
+    <string name="log_out_now">登出</string>
+    <string name="warning">注意</string>
+    <string name="waring_text">这将会退出登录，你想要重新登录才能使用登录后的功能</string>
+    <string name="about_user">用户</string>
+    <string name="log_out_text">退出登录</string>
+    <string name="log_out_summary">注意：这将会清除用户信息！</string>
+    <string name="benefits_statement">利益相关声明：%s</string>
+    <string name="benefits_statement_desc">利益相关声明的准确性和真实性，会影响投稿的最终处理结果——为保证读者准确获取内容创作的背景信息，建议所有作者在提交内容前根据实际情况进行选择声明。少数派鼓励准确披露利益关系、内容有参考价值、观点独立的高质量宣传内容。</string>
 </resources>

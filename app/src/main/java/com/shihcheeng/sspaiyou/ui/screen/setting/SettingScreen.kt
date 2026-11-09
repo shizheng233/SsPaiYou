@@ -3,14 +3,28 @@ package com.shihcheeng.sspaiyou.ui.screen.setting
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shihcheeng.sspaiyou.BuildConfig
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.icons.BookletFill
 import com.shihcheeng.sspaiyou.utils.icons.CodepenFill
+import com.shihcheeng.sspaiyou.utils.icons.ErrorWarningLine
 import com.shihcheeng.sspaiyou.utils.icons.FontSizeIcon
+import com.shihcheeng.sspaiyou.utils.icons.Output
 import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingKeys
@@ -22,11 +36,13 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SSPaiSettingScreen(
+    viewModel: SettingViewModel = hiltViewModel(),
     repository: SettingsRepository = LocalComposeSetting.current,
     onBack: () -> Unit,
     onSeeLibsClick: () -> Unit,
 ) {
     val context = LocalResources.current
+    var logoutDialog by remember { mutableStateOf(false) }
     SettingsScreen(
         spec = settingsSpec(title = context.getString(R.string.setting)) {
             group(title = context.getString(R.string.display)) {
@@ -79,15 +95,74 @@ fun SSPaiSettingScreen(
                     icon = SSPaiPack.BookletFill
                 )
             }
+            group(context.getString(R.string.about_user)) {
+                action(
+                    title = context.getString(R.string.log_out_text),
+                    description = context.getString(R.string.log_out_summary),
+                    id = KEY_ACTION_OF_CLEAR_USER_LOGIN,
+                    icon = SSPaiPack.Output,
+                    isDestructive = true
+                )
+            }
         },
         repository = repository,
         onBack = onBack,
         onAction = { x ->
             when (x.id) {
                 KEY_ACTION_OF_SEE_LIBS -> onSeeLibsClick()
+                KEY_ACTION_OF_CLEAR_USER_LOGIN -> {
+                    logoutDialog = true
+                }
             }
         }
     )
+
+    if (logoutDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                logoutDialog = false
+            },
+            icon = {
+                Icon(
+                    imageVector = SSPaiPack.ErrorWarningLine,
+                    contentDescription = stringResource(R.string.warning)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.waring_text)
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.log_out_text)
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.logOut()
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.log_out_now),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        logoutDialog = false
+                    }
+                ) {
+                    Text(text = stringResource(dev.expressive.settings.R.string.es_cancel))
+                }
+            }
+        )
+    }
 }
 
 private const val KEY_ACTION_OF_SEE_LIBS = "KEY_ACTION_OF_SEE_LIBS"
+private const val KEY_ACTION_OF_CLEAR_USER_LOGIN = "KEY_ACTION_OF_CLEAR_USER_LOGIN"
