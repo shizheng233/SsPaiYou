@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun isDarkMode(): Boolean {
+    private fun isDarkMode(): Boolean {
         val currentNightMode =
             this.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES

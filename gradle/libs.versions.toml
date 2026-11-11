@@ -2,6 +2,7 @@
 agentwebCore = "v5.1.1-androidx"
 agp = "9.4.1"
 composeWebview = "0.33.6"
+datatableMaterial3 = "0.13.0"
 expressiveSettings = "1.0.0"
 flexmarkAll = "0.64.8"
 jsoup = "1.23.2"
@@ -22,6 +23,7 @@ richeditorCompose = "1.2.1"
 agentweb-core = { module = "io.github.justson:agentweb-core", version.ref = "agentwebCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 compose-webview = { module = "io.github.kevinnzou:compose-webview", version.ref = "composeWebview" }
+datatable-material3 = { module = "com.seanproctor:datatable-material3", version.ref = "datatableMaterial3" }
 expressive-settings = { module = "dev.expressive.settings:expressive-settings", version.ref = "expressiveSettings" }
 flexmark-all = { module = "com.vladsch.flexmark:flexmark-all", version.ref = "flexmarkAll" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
