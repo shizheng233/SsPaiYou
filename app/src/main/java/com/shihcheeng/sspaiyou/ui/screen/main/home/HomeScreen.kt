@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou.ui.screen.main.home
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.triStateItem
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
+    onTagClick: (String) -> Unit,
     onClick: (String) -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
@@ -63,8 +65,19 @@ fun HomeScreen(
                             onlyImage = banner.onlyImage
                         ) {
                             banner.url.detectiveUrlTypeOp { bannerType, s ->
-                                if (bannerType == BannerType.POST) {
-                                    onClick(s)
+                                when (bannerType) {
+                                    BannerType.POST -> {
+                                        onClick(s)
+                                    }
+
+                                    BannerType.TAG -> {
+                                        onTagClick(s)
+                                    }
+
+                                    BannerType.TOPIC,
+                                    BannerType.SERIES,
+                                    BannerType.OTHER -> {
+                                    }
                                 }
                             }
                         }
@@ -172,18 +185,21 @@ fun HomeScreen(
 
 }
 
-private fun String.detectiveUrlTypeOp(
+internal fun String.detectiveUrlTypeOp(
     onEach: (BannerType, String) -> Unit
 ) {
-    val ii = this.split("/")
-    val typeString = ii[ii.lastIndex - 1]
+    // pathSegments decodes URL escapes once and excludes query/fragment components.
+    // Navigation and Retrofit must receive the original tag, not its encoded URL segment.
+    val segments = Uri.parse(this).pathSegments
+    val typeString = segments.getOrNull(segments.lastIndex - 1)
     onEach(
         when (typeString) {
             "post" -> BannerType.POST
             "topic" -> BannerType.TOPIC
             "series" -> BannerType.SERIES
+            "tag" -> BannerType.TAG
             else -> BannerType.OTHER
         },
-        ii[ii.lastIndex]
+        segments.lastOrNull().orEmpty()
     )
 }

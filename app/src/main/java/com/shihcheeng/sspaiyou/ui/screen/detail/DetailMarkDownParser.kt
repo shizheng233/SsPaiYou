@@ -2,6 +2,8 @@ package com.shihcheeng.sspaiyou.ui.screen.detail
 
 import com.shihcheeng.sspaiyou.utils.ImageResolveConverter
 import com.vladsch.flexmark.ast.Heading
+import com.vladsch.flexmark.ext.tables.TableBlock
+import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter
 import com.vladsch.flexmark.html2md.converter.ExtensionConversion
@@ -16,7 +18,7 @@ import javax.inject.Inject
 
 /**
  * 将文章 HTML 正文先转换为 Markdown，再切分为 [DetailContent] 列表：
- * 文本段落归为 [DetailContent.Markdown]，图片归为 [DetailContent.Image]。
+ * 文本和表格归为 [DetailContent.Markdown]，表格外的图片归为 [DetailContent.Image]。
  *
  * 图片来源有两种形态，都需要识别：
  * 1. `<figure>` 经 [ImageResolveConverter] 转换后输出的原生 `<img>` 标签；
@@ -24,13 +26,16 @@ import javax.inject.Inject
  */
 class DetailMarkDownParser @Inject constructor() {
 
-    private val markdownParser = Parser.builder().build()
+    private val markdownParser = Parser.builder()
+        .extensions(listOf(TablesExtension.create()))
+        .build()
 
     private val converter = FlexmarkHtmlConverter.builder(
         MutableDataSet()
             .set(Parser.EXTENSIONS, listOf(ImageResolveConverter))
             // Setext headings starting with "1. " are parsed as lists instead of headings.
             .set(FlexmarkHtmlConverter.SETEXT_HEADINGS, false)
+            .set(FlexmarkHtmlConverter.IGNORE_TABLE_HEADING_AFTER_ROWS, false)
     ).htmlNodeRendererFactory { options ->
         val handlers = HtmlConverterCoreNodeRendererFactory().apply(options)
             .htmlNodeRendererHandlers
@@ -52,7 +57,8 @@ class DetailMarkDownParser @Inject constructor() {
     }.build()
 
     fun parse(html: String): List<DetailContent> {
-        val imageRatios = Jsoup.parseBodyFragment(html).select("img").associate { image ->
+        val document = Jsoup.parseBodyFragment(html)
+        val imageRatios = document.select("img").associate { image ->
             val url = image.attr("data-original").ifBlank { image.attr("src") }
             val width = image.attr("width").toFloatOrNull()
             val height = image.attr("height").toFloatOrNull()
@@ -61,10 +67,54 @@ class DetailMarkDownParser @Inject constructor() {
             } else null
             url to ratio
         }
-        val markdown = converter.convert(html)
+        document.select("table").forEach { table ->
+            // Flexmark handles thead/tbody; normalize tfoot so footer rows are not lost.
+            table.children().filter { it.normalName() == "tfoot" }.forEach { it.tagName("tbody") }
+            val rows = table.select("tr").filter { it.closest("table") == table }
+            val firstRow = rows.firstOrNull()
+            val hasHeader = firstRow?.parent()?.normalName() == "thead" ||
+                firstRow?.children()?.any { it.normalName() == "th" } == true
+            // Flexmark supports multiple header rows, but the GFM renderer accepts only one.
+            // Keep the first header row in thead and treat subsequent th cells as bold data.
+            table.children().filter { it.normalName() == "thead" }.forEach { it.tagName("tbody") }
+            rows.forEach rowLoop@{ row ->
+                if (hasHeader && row == firstRow) return@rowLoop
+                row.children().filter { it.normalName() == "th" }.forEach { cell ->
+                    cell.tagName("td")
+                    if (cell.childNodeSize() > 0) {
+                        val strong = Element("strong")
+                        cell.childNodes().toList().forEach { strong.appendChild(it) }
+                        cell.appendChild(strong)
+                    }
+                }
+            }
+            if (hasHeader) {
+                firstRow.remove()
+                table.prependChild(Element("thead").appendChild(firstRow))
+            }
+            if (!hasHeader && rows.isNotEmpty()) {
+                // GFM requires a header and separator even when HTML contains only td cells.
+                val columns = rows.maxOf { row ->
+                    row.children().filter { it.normalName() == "td" || it.normalName() == "th" }
+                        .sumOf { it.attr("colspan").toIntOrNull()?.coerceAtLeast(1) ?: 1 }
+                }
+                if (columns > 0) {
+                    val header = Element("thead")
+                    val headerRow = header.appendElement("tr")
+                    repeat(columns) { headerRow.appendElement("th") }
+                    table.prependChild(header)
+                }
+            }
+        }
+        val markdown = converter.convert(document.body().html())
+        val tableRanges = markdownParser.parse(markdown).descendants
+            .filterIsInstance<TableBlock>()
+            .map { it.startOffset until it.endOffset }
         val blocks = mutableListOf<DetailContent>()
         var lastIndex = 0
         imageTokenRegex.findAll(markdown).forEach { match ->
+            // Keep inline cell images inside their table; splitting a row breaks GFM parsing.
+            if (tableRanges.any { match.range.first in it }) return@forEach
             addMarkdownBlock(blocks, markdown.substring(lastIndex, match.range.first))
             resolveImage(match.value)?.let { image ->
                 blocks += image.copy(aspectRatio = imageRatios[image.url])

@@ -36,6 +36,7 @@ fun MainScreen(
     onMineClick: (String) -> Unit,
     onBulletClick: (Long) -> Unit,
     onColumnClick: (Int) -> Unit,
+    onTagClick: (String) -> Unit,
     onLoginClick: () -> Unit
 ) {
 
@@ -101,7 +102,11 @@ fun MainScreen(
             modifier = Modifier.padding(padding)
         ) { selectedIndex ->
             when (selectedIndex) {
-                0 -> HomeScreen(onClick = onClick)
+                0 -> HomeScreen(
+                    onClick = onClick,
+                    onTagClick = onTagClick
+                )
+
                 1 -> MatrixScreen(
                     onClick = onClick,
                     onBulletClick = onBulletClick,

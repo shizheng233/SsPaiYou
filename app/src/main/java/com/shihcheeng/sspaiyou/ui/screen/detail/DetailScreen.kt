@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.shihcheeng.sspaiyou.R
@@ -46,11 +47,16 @@ import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.utils.NetState
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun DetailScreen(
-    viewModel: DetailViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel<DetailViewModel>(),
+    viewModel: DetailViewModel = hiltViewModel<DetailViewModel>(),
     onAvatarClick: (String) -> Unit,
+    onTagClick: (String) -> Unit = {},
     onNavBack: () -> Unit
 ) {
     val data by viewModel.data.collectAsStateWithLifecycle()
@@ -154,7 +160,10 @@ fun DetailScreen(
                         onShareCommit = {
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, detailArticleUrl(viewModel.id, article.id))
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    detailArticleUrl(viewModel.id, article.id)
+                                )
                             }
                             context.startActivity(Intent.createChooser(intent, shareTitle))
                         },
@@ -179,6 +188,16 @@ fun DetailScreen(
                     Error(error = it.localizedMessage, onClick = viewModel::load)
                 }
             ) {
+                val publishedDate = remember(it.releasedTime, it.pubDate) {
+                    if (it.releasedTime > 0) {
+                        DateTimeFormatter.ofPattern("MM月dd日", Locale.CHINESE)
+                            .withZone(ZoneId.systemDefault())
+                            .format(Instant.ofEpochSecond(it.releasedTime.toLong()))
+                    } else {
+                        it.pubDate
+                    }
+                }
+                val tags = remember(it.tags) { it.tags.orEmpty().map { tag -> tag.title } }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -188,10 +207,13 @@ fun DetailScreen(
                         state = state,
                         title = it.title,
                         author = it.author,
+                        publishedDate = publishedDate,
+                        tags = tags,
                         blocks = contentBlocks,
                         extendsBodys = bodyExtendsBodys,
+                        bottomPadding = padding.calculateBottomPadding(),
                         onAvatarClick = onAvatarClick,
-                        bottomPadding = padding.calculateBottomPadding()
+                        onTagClick = onTagClick
                     )
                 }
             }

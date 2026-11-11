@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou.ui.screen
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -11,6 +12,7 @@ import com.shihcheeng.sspaiyou.ui.screen.Router.Bullet.proceedToBullet
 import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
+import com.shihcheeng.sspaiyou.ui.screen.Router.TagsScreen.proceedToTagsDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.UserInfo.proceedToUserInfo
 import com.shihcheeng.sspaiyou.ui.screen.about.AboutScreen
 import com.shihcheeng.sspaiyou.ui.screen.bullet.single.BulletSingleScreen
@@ -20,6 +22,7 @@ import com.shihcheeng.sspaiyou.ui.screen.favourite.FavouritemScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
 import com.shihcheeng.sspaiyou.ui.screen.setting.SSPaiSettingScreen
+import com.shihcheeng.sspaiyou.ui.screen.tags.TagsScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
@@ -65,6 +68,9 @@ fun Router(
                 },
                 onColumnClick = {
                     navHostController.proceedToColumn(it)
+                },
+                onTagClick = {
+                    navHostController.proceedToTagsDetail(it)
                 }
             ) {
                 navHostController proceedTo Router.Login
@@ -99,7 +105,8 @@ fun Router(
             DetailScreen(
                 onAvatarClick = {
                     navHostController.proceedToUserInfo(it)
-                }
+                },
+                onTagClick = { navHostController.proceedToTagsDetail(it) }
             ) {
                 navHostController.popBackStack()
             }
@@ -116,6 +123,13 @@ fun Router(
             ColumnScreen(
                 onArticleClick = { navHostController.proceedToDetail(it) },
                 onUserClick = { navHostController.proceedToUserInfo(it) },
+                onNavUp = navHostController::popBackStack
+            )
+        }
+        composable(Router.TagsScreen.name) { backStackEntry ->
+            TagsScreen(
+                tagName = backStackEntry.arguments?.getString("tag_name").orEmpty(),
+                onArticleClick = { navHostController.proceedToDetail(it) },
                 onNavUp = navHostController::popBackStack
             )
         }
@@ -200,6 +214,15 @@ sealed interface Router {
     data object OpensourceLibs : Router {
         override val name: String
             get() = "OPENSOURCE_LIBS"
+    }
+
+    data object TagsScreen : Router {
+        override val name: String
+            get() = "TAGS/{tag_name}"
+
+        fun NavHostController.proceedToTagsDetail(tagName: String) {
+            navigate(name.replace("{tag_name}", Uri.encode(tagName)))
+        }
 
     }
 

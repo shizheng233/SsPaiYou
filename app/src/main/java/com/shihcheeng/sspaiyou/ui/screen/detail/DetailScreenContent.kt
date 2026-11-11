@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -16,25 +17,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleAuthor
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.model.markdownAnimations
 import com.mikepenz.markdown.model.markdownPadding
-import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleAuthor
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderImage
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderMarkdownImage
 import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypo
 import com.shihcheeng.sspaiyou.ui.theme.toMarkDownColors
 import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
-import com.shihcheeng.sspaiyou.utils.extra.click
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 
 
@@ -44,10 +41,13 @@ fun DetailScreenContent(
     state: LazyListState,
     title: String,
     author: ArticleAuthor,
+    publishedDate: String,
+    tags: List<String>,
     blocks: List<DetailContent>,
     extendsBodys: List<DetailBodyExtends>,
     bottomPadding: Dp = 0.dp,
-    onAvatarClick: (String) -> Unit
+    onAvatarClick: (String) -> Unit = {},
+    onTagClick: (String) -> Unit = {}
 ) {
 
     val markdownColors = MaterialTheme.colorScheme.toMarkDownColors()
@@ -69,6 +69,13 @@ fun DetailScreenContent(
                 content = it.content,
                 node = it.node,
                 style = it.typography.paragraph
+            )
+        },
+        table = {
+            DetailArticleTable(
+                content = it.content,
+                node = it.node,
+                style = it.typography.table
             )
         }
     )
@@ -93,15 +100,12 @@ fun DetailScreenContent(
             key = DetailScreenKey.HEADER,
             contentType = DetailScreenKey.HEADER
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium
-                    .copy(
-                        lineHeight = 30.sp * 1.2f,
-                        platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        fontWeight = FontWeight.Bold
-                    ),
-                color = MaterialTheme.colorScheme.onSurface
+            DetailArticleTitle(
+                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
+                title = title,
+                publishedDate = publishedDate,
+                tags = tags,
+                onTagClick = onTagClick
             )
         }
         item(
@@ -112,7 +116,7 @@ fun DetailScreenContent(
                 nickname = author.nickname,
                 avatar = author.avatar,
                 bio = author.bio,
-                modifier = Modifier.click {
+                modifier = Modifier.clickable(enabled = author.slug.isNotBlank()) {
                     onAvatarClick(author.slug)
                 }
             )
@@ -230,12 +234,10 @@ fun DetailScreenContentPreview() {
     DetailScreenContent(
         state = state,
         title = "社区速递 068 | 你没见过的社区文章、一周最热评、派友的控制中心",
-        author = ArticleAuthor(
-            nickname = "Matrix机器人"
-        ),
+        author = ArticleAuthor(nickname = "Matrix机器人"),
+        publishedDate = "06月16日",
+        tags = listOf("Matrix", "社区速递"),
         blocks = blocks,
         extendsBodys = emptyList()
-    ) {
-
-    }
+    )
 }

@@ -4,7 +4,7 @@ data class DetailHeading(val title: String, val level: Int)
 
 data class DetailTocEntry(val title: String, val level: Int, val itemIndex: Int)
 
-/** Indices follow DetailScreenContent: article title, author, extensions, then body. */
+/** Indices follow DetailScreenContent: article header, author, extensions, then body. */
 fun buildDetailToc(
     title: String,
     blocks: List<DetailContent>,

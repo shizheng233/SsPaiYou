@@ -33,6 +33,12 @@ class ImageNodeResolve : HtmlNodeRenderer {
             context: HtmlNodeConverterContext,
             markdown: HtmlMarkdownWriter
         ) {
+            // Article editors also wrap tables in <figure class="table">.
+            // Let the HTML converter reach the table instead of treating it as an image.
+            if (node.selectFirst("table") != null || node.selectFirst("img") == null) {
+                context.processUnwrapped(node)
+                return
+            }
             val images = node.getElementsByTag("img")
             val figcaption = node.getElementsByTag("figcaption")
             if (images.size == 1) {

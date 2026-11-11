@@ -25,5 +25,6 @@ object SSPaiUrl {
     const val ARTICLE_COMMENT = "comment/search/page/get"
     const val USER_FAVOURE = "article/user/favorite/public/page/get"
     const val FAVOURITE_ON_OFF = "article/user/favorite"
-    const val LIKE_ON_OFF= "article/user/like"
+    const val LIKE_ON_OFF = "article/user/like"
+    const val ARTICLE_TAGS = "article/tag/page/get"
 }

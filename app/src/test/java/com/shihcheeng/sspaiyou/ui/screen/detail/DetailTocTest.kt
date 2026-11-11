@@ -5,7 +5,7 @@ import org.junit.Test
 
 class DetailTocTest {
     @Test
-    fun tocIndicesIncludeAuthorImagesAndAllExtensionHeaders() {
+    fun tocIndicesIncludeArticleHeaderAuthorImagesAndAllExtensionHeaders() {
         val parser = DetailMarkDownParser()
         val extensions = listOf(
             extension(1, "扩展章节", parser.parse("<p>导语</p><h3>扩展标题</h3>")),

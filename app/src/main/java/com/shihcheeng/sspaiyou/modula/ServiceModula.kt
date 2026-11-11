@@ -5,6 +5,7 @@ import com.shihcheeng.sspaiyou.api.service.BulletService
 import com.shihcheeng.sspaiyou.api.service.ColumnService
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.api.service.MatrixService
+import com.shihcheeng.sspaiyou.api.service.TagsService
 import com.shihcheeng.sspaiyou.api.service.UserService
 import dagger.Module
 import dagger.Provides
@@ -46,6 +47,12 @@ object ServiceModula {
     fun provideColumnsService(
         retrofit: Retrofit
     ): ColumnService = retrofit.create(ColumnService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideTagsService(
+        retrofit: Retrofit
+    ): TagsService = retrofit.create(TagsService::class.java)
 
     @Singleton
     @Provides
