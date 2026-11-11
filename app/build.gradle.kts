@@ -113,6 +113,7 @@ dependencies {
     implementation(aboutlibs.aboutlibraries.compose.m3)
     implementation(aboutlibs.aboutlibraries.core)
     implementation(libs.datatable.material3)
+    implementation(libs.zoomimage.coil2)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)

@@ -10,7 +10,8 @@ import org.intellij.markdown.ast.findChildOfType
 @Composable
 fun ReaderMarkdownImage(
     content: String,
-    node: ASTNode
+    node: ASTNode,
+    onImageClick: ((String) -> Unit)? = null
 ) {
 
     val link = remember(content, node) {
@@ -18,5 +19,5 @@ fun ReaderMarkdownImage(
             ?.getUnescapedTextInNode(content)
     }
 
-    ReaderImage(url = link)
+    ReaderImage(url = link, onImageClick = onImageClick)
 }

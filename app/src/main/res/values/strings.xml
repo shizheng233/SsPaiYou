@@ -92,10 +92,17 @@
     <string name="article_comment_chosen">精选</string>
     <string name="article_comment_hidden">这条评论暂不可见</string>
     <string name="article_comment_likes">%1$d 赞</string>
+    <string name="article_comment_replies">%1$d 条回复</string>
+    <string name="article_comment_attachment">评论图片 %1$d</string>
+    <string name="article_image_open">查看大图</string>
+    <string name="article_image_fullscreen">大图预览，可双指缩放或双击放大</string>
+    <string name="article_image_close">关闭大图</string>
+    <string name="article_image_load_error">图片加载失败，请重试</string>
     <string name="comments">评论</string>
     <string name="article_like">喜欢</string>
     <string name="article_unlike">取消喜欢</string>
     <string name="article_like_error">喜欢操作失败，请重试</string>
+    <string name="article_reading_progress">阅读进度</string>
     <string name="share_text">分享</string>
     <string name="toc">目录</string>
     <string name="article_author_no_bio">无签名</string>
@@ -124,4 +131,12 @@
     <string name="log_out_summary">注意：这将会清除用户信息！</string>
     <string name="benefits_statement">利益相关声明：%s</string>
     <string name="benefits_statement_desc">利益相关声明的准确性和真实性，会影响投稿的最终处理结果——为保证读者准确获取内容创作的背景信息，建议所有作者在提交内容前根据实际情况进行选择声明。少数派鼓励准确披露利益关系、内容有参考价值、观点独立的高质量宣传内容。</string>
+    <string name="cache_text">缓存</string>
+    <string name="size_of_image_cache_title">图片缓存大小</string>
+    <string name="size_of_image_cache_title_summary">下次启动应用生效</string>
+    <string name="use_inner_browser_title">使用内部浏览器查看链接</string>
+    <string name="use_inner_browser_summary">使用内置的非常老旧的浏览器组件查看链接:)</string>
+    <string name="inner_b">内置浏览器</string>
+    <string name="web_page_loading">正在加载网页…</string>
+    <string name="external_browser_open">在外部浏览器打开</string>
 </resources>

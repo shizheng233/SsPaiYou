@@ -41,7 +41,8 @@ fun ArticleCommentsSheet(
     comments: LazyPagingItems<ArticleComment>,
     commentCount: Int,
     onDismiss: () -> Unit,
-    onAvatarClick: (String) -> Unit
+    onAvatarClick: (String) -> Unit,
+    onImageClick: ((String) -> Unit)? = null
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
@@ -115,7 +116,11 @@ fun ArticleCommentsSheet(
                         contentType = { "comment" }
                     ) { index ->
                         comments[index]?.let { comment ->
-                            ArticleCommentItem(comment = comment, onAvatarClick = onAvatarClick)
+                            ArticleCommentItem(
+                                comment = comment,
+                                onAvatarClick = onAvatarClick,
+                                onImageClick = onImageClick
+                            )
                         }
                     }
                     when (comments.loadState.append) {

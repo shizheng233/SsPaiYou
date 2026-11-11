@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import coil.ImageLoader
@@ -19,6 +20,7 @@ import coil.intercept.Interceptor
 import coil.request.SuccessResult
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -30,6 +32,7 @@ class ReaderImageTest {
     fun delayedImageIsDrawnWithoutScrollingAndUpdatesItsAspectRatio() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val releaseImage = CompletableDeferred<Unit>()
+        var openedImage: String? = null
         val bitmap = Bitmap.createBitmap(400, 200, Bitmap.Config.ARGB_8888).apply {
             eraseColor(android.graphics.Color.RED)
         }
@@ -53,7 +56,8 @@ class ReaderImageTest {
                             ReaderImage(
                                 url = "https://example.com/delayed.png",
                                 imageLoader = loader,
-                                modifier = Modifier.testTag("reader-image")
+                                modifier = Modifier.testTag("reader-image"),
+                                onImageClick = { openedImage = it }
                             )
                         }
                     }
@@ -72,6 +76,8 @@ class ReaderImageTest {
             val pixels = image.captureToImage().toPixelMap()
             val center = pixels[pixels.width / 2, pixels.height / 2]
             assertTrue("Loaded image must be visible without a scroll", center.red > 0.9f && center.green < 0.1f)
+            image.performClick()
+            assertEquals("https://example.com/delayed.png", openedImage)
         } finally {
             loader.shutdown()
         }

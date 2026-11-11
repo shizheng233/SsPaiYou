@@ -284,7 +284,7 @@ class DetailLikeTest {
         compose.setContent {
             CompositionLocalProvider(LocalComposeSetting provides settings) {
                 MaterialTheme {
-                    DetailScreen(viewModel = viewModel, onAvatarClick = {}, onNavBack = {})
+                    DetailScreen(viewModel = viewModel, onAvatarClick = {}, onLinkClick = {}, onNavBack = {})
                 }
             }
         }

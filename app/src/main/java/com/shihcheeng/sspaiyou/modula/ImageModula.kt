@@ -2,6 +2,8 @@ package com.shihcheeng.sspaiyou.modula
 
 import android.content.Context
 import coil.ImageLoader
+import coil.disk.DiskCache
+import com.shihcheeng.sspaiyou.utils.ImageCacheConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,10 +45,22 @@ object ImageModula {
             .build()
     }
 
-    fun imageLoader(okHttpClient: OkHttpClient, context: Context) =
+    // A future settings value can be passed here when creating the application ImageLoader.
+    // Coil's cache limit is fixed at creation; changing the setting takes effect on next app start.
+    fun imageLoader(
+        okHttpClient: OkHttpClient,
+        context: Context,
+        diskCacheMaxSizeBytes: Long = ImageCacheConfig.DEFAULT_MAX_SIZE_BYTES
+    ) =
         ImageLoader.Builder(context)
             .crossfade(true)
             .okHttpClient(okHttpClient)
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(context.cacheDir.resolve(ImageCacheConfig.DIRECTORY_NAME))
+                    .maxSizeBytes(diskCacheMaxSizeBytes)
+                    .build()
+            }
             .build()
 
 }

@@ -18,6 +18,7 @@ composeBom = "2026.09.00"
 material = "1.14.0"
 multiplatformMarkdownRenderer = "0.46.0"
 richeditorCompose = "1.2.1"
+zoomimage-last = "1.7.0"
 
 [libraries]
 agentweb-core = { module = "io.github.justson:agentweb-core", version.ref = "agentwebCore" }
@@ -47,6 +48,8 @@ multiplatform-markdown-renderer-android = { module = "com.mikepenz:multiplatform
 multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRenderer" }
 multiplatform-markdown-renderer-coil2 = { module = "com.mikepenz:multiplatform-markdown-renderer-coil2", version.ref = "multiplatformMarkdownRenderer" }
 richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditorCompose" }
+zoomimage-core = { module = "io.github.panpf.zoomimage:zoomimage-compose", version.ref = "zoomimage-last" }
+zoomimage-coil2 = { module = "io.github.panpf.zoomimage:zoomimage-compose-coil2", version.ref = "zoomimage-last" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

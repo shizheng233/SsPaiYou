@@ -33,6 +33,38 @@ import java.io.IOException
 
 class ArticleCommentTest {
     @Test
+    fun replySampleDecodesReplyUserSeparatelyFromEmptyAuthor() {
+        val response = Json.decodeFromString<ArticleCommentDataModel>(sampleJson("comment_has_reply.json"))
+        assertEquals(5, response.total)
+        assertEquals(5, response.data.size)
+        val parent = response.data.single { it.id == 433819 }
+        assertTrue(parent.replyShow)
+        val reply = parent.reply.single()
+        assertEquals(396692, reply.id)
+        assertEquals("bakamio", reply.user.nickname)
+        assertEquals("vst7qe4v", reply.user.slug)
+        assertEquals("", reply.author.nickname)
+        assertTrue(reply.isAuthor)
+        assertEquals(1794292474L, reply.createdAt)
+        assertTrue(reply.comment.contains("\n国区的话"))
+        assertEquals(3, reply.status)
+        assertFalse(reply.blocked || reply.hide || reply.authorBlocked)
+        assertEquals(1, reply.flags.size)
+    }
+
+    @Test
+    fun repliesStayWithParentWithoutCountingAsSeparatePagingItems() = runBlocking {
+        val service = FakeArticleService().apply {
+            response = Json.decodeFromString(sampleJson("comment_has_reply.json"))
+        }
+        val page = ArticleCommentPaging(service, 123456)
+            .load(PagingSource.LoadParams.Refresh(null, 20, false)) as PagingSource.LoadResult.Page
+        assertEquals(5, page.data.size)
+        assertEquals(396692, page.data.last().reply.single().id)
+        assertNull(page.nextKey)
+    }
+
+    @Test
     fun sampleDecodesCommentsUsersAndNestedMetadata() {
         val response = Json.decodeFromString<ArticleCommentDataModel>(sampleJson())
         assertEquals(0, response.error)
@@ -145,7 +177,7 @@ class ArticleCommentTest {
         })
     }
 
-    private fun sampleJson(): String = requireNotNull(javaClass.getResource("/article_comment.json"))
+    private fun sampleJson(name: String = "article_comment.json"): String = requireNotNull(javaClass.getResource("/$name"))
         .readText(Charsets.UTF_8)
 
     private class FakeArticleService : ArticleService {

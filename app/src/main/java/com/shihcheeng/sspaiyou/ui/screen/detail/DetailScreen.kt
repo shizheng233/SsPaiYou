@@ -1,31 +1,26 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
 import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,9 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,7 +39,9 @@ import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.activities.detail.DetailViewModel
 import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
+import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.NetState
+import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -56,6 +52,7 @@ import java.util.Locale
 fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel<DetailViewModel>(),
     onAvatarClick: (String) -> Unit,
+    onLinkClick: (String) -> Unit,
     onTagClick: (String) -> Unit = {},
     onNavBack: () -> Unit
 ) {
@@ -70,8 +67,10 @@ fun DetailScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = rememberLazyListState()
     var showComments by rememberSaveable { mutableStateOf(false) }
+    var selectedImageUrl by rememberSaveable(viewModel.id) { mutableStateOf<String?>(null) }
     val article = (data as? NetState.Success)?.content
     val context = LocalContext.current
+    val setting = LocalComposeSetting.current
     val shareTitle = stringResource(R.string.share_text)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -97,6 +96,9 @@ fun DetailScreen(
     val tocEntries = remember(article?.title, contentBlocks, bodyExtendsBodys) {
         buildDetailToc(article?.title.orEmpty(), contentBlocks, bodyExtendsBodys)
     }
+    val innerOpen by setting.observe(SettingData.urlIsOpenInner)
+        .collectAsStateWithLifecycle(initialValue = true)
+    val urlHandler = customUriHandler(urlIsInnerOpen = innerOpen, onInnerOpen = onLinkClick)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -122,32 +124,18 @@ fun DetailScreen(
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
-                TopAppBar(
-                    title = {
-                        val showTitle by remember { derivedStateOf { state.firstVisibleItemIndex > 0 } }
-                        AnimatedVisibility(
-                            visible = showTitle && data is NetState.Success,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Text(
-                                text = (data as NetState.Success).content.title,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    },
+                val showTitle by remember(state) {
+                    derivedStateOf { state.firstVisibleItemIndex > 0 }
+                }
+                DetailReadingToolBar(
+                    title = article?.title,
+                    titleShowable = showTitle,
+                    // Includes scrolling within the first item, and becomes false again at the top.
+                    showProgressBar = state.canScrollBackward,
+                    // Defer the per-pixel state read to the progress indicator.
+                    progress = { state.readingProgress() },
                     scrollBehavior = scrollBehavior,
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onNavBack
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.baseline_arrow_back_24),
-                                contentDescription = stringResource(R.string.back_to_up)
-                            )
-                        }
-                    }
+                    onNavBack = onNavBack
                 )
             },
             bottomBar = {
@@ -202,19 +190,22 @@ fun DetailScreen(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    DetailScreenContent(
-                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                        state = state,
-                        title = it.title,
-                        author = it.author,
-                        publishedDate = publishedDate,
-                        tags = tags,
-                        blocks = contentBlocks,
-                        extendsBodys = bodyExtendsBodys,
-                        bottomPadding = padding.calculateBottomPadding(),
-                        onAvatarClick = onAvatarClick,
-                        onTagClick = onTagClick
-                    )
+                    CompositionLocalProvider(LocalUriHandler provides urlHandler) {
+                        DetailScreenContent(
+                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                            state = state,
+                            title = it.title,
+                            author = it.author,
+                            publishedDate = publishedDate,
+                            tags = tags,
+                            blocks = contentBlocks,
+                            extendsBodys = bodyExtendsBodys,
+                            bottomPadding = padding.calculateBottomPadding(),
+                            onAvatarClick = onAvatarClick,
+                            onTagClick = onTagClick,
+                            onImageClick = { selectedImageUrl = it }
+                        )
+                    }
                 }
             }
         }
@@ -228,7 +219,13 @@ fun DetailScreen(
             onAvatarClick = {
                 showComments = false
                 onAvatarClick(it)
-            }
+            },
+            onImageClick = { selectedImageUrl = it }
         )
+    }
+    selectedImageUrl?.let { url ->
+        key(url) {
+            ArticleImageDialog(url = url, onDismiss = { selectedImageUrl = null })
+        }
     }
 }

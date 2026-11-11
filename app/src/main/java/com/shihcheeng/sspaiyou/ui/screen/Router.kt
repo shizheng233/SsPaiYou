@@ -13,12 +13,14 @@ import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.TagsScreen.proceedToTagsDetail
+import com.shihcheeng.sspaiyou.ui.screen.Router.UrlWebBrowserScreen.proceedToInnerBrowser
 import com.shihcheeng.sspaiyou.ui.screen.Router.UserInfo.proceedToUserInfo
 import com.shihcheeng.sspaiyou.ui.screen.about.AboutScreen
 import com.shihcheeng.sspaiyou.ui.screen.bullet.single.BulletSingleScreen
 import com.shihcheeng.sspaiyou.ui.screen.column.ColumnScreen
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
 import com.shihcheeng.sspaiyou.ui.screen.favourite.FavouritemScreen
+import com.shihcheeng.sspaiyou.ui.screen.innerbrowser.WebUrlBrowserScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
 import com.shihcheeng.sspaiyou.ui.screen.setting.SSPaiSettingScreen
@@ -106,6 +108,9 @@ fun Router(
                 onAvatarClick = {
                     navHostController.proceedToUserInfo(it)
                 },
+                onLinkClick = {
+                    navHostController.proceedToInnerBrowser(it)
+                },
                 onTagClick = { navHostController.proceedToTagsDetail(it) }
             ) {
                 navHostController.popBackStack()
@@ -135,6 +140,13 @@ fun Router(
         }
         composable(Router.OpensourceLibs.name) {
             AboutScreen(onBack = navHostController::popBackStack)
+        }
+        composable(Router.UrlWebBrowserScreen.name) { backStackEntry ->
+            // Navigation 已解码路由参数，保留网页 URL 自身原有的百分号编码。
+            WebUrlBrowserScreen(
+                url = requireNotNull(backStackEntry.arguments?.getString("url_browser")),
+                onNavUp = { navHostController.popBackStack() }
+            )
         }
     }
 }
@@ -222,6 +234,15 @@ sealed interface Router {
 
         fun NavHostController.proceedToTagsDetail(tagName: String) {
             navigate(name.replace("{tag_name}", Uri.encode(tagName)))
+        }
+    }
+
+    data object UrlWebBrowserScreen : Router {
+        override val name: String
+            get() = "WEB_BROWSER/{url_browser}"
+
+        fun NavHostController.proceedToInnerBrowser(url: String) {
+            navigate(name.replace("{url_browser}", Uri.encode(url)))
         }
 
     }

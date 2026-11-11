@@ -27,10 +27,9 @@ data class ArticleComment(
     val hide: Boolean = false,
     @SerialName("liked_status") val likedStatus: Int = 0,
     @SerialName("unlikes_count") val unlikesCount: Int = 0,
-    // The supplied response only contains empty arrays for these fields.
-    @SerialName("comment_files") val commentFiles: List<JsonElement> = emptyList(),
+    @SerialName("comment_files") val commentFiles: List<ArticleCommentFile> = emptyList(),
     val user: ArticleCommentUser = ArticleCommentUser(),
-    val reply: List<JsonElement> = emptyList(),
+    val reply: List<ArticleCommentReply> = emptyList(),
     @SerialName("author_blocked") val authorBlocked: Boolean = false,
     val article: ArticleCommentArticle = ArticleCommentArticle(),
     val series: ArticleCommentSeries = ArticleCommentSeries(),
@@ -41,6 +40,38 @@ data class ArticleComment(
     @SerialName("reply_show") val replyShow: Boolean = false,
     val statuses: List<JsonElement> = emptyList(),
     @SerialName("article_body_extend_id") val articleBodyExtendId: Int = 0
+)
+
+@Keep
+@Serializable
+data class ArticleCommentReply(
+    val id: Int = 0,
+    val comment: String = "",
+    val blocked: Boolean = false,
+    @SerialName("created_at") val createdAt: Long = 0L,
+    val liked: Boolean = false,
+    @SerialName("likes_count") val likesCount: Int = 0,
+    val hide: Boolean = false,
+    @SerialName("liked_status") val likedStatus: Int = 0,
+    @SerialName("unlikes_count") val unlikesCount: Int = 0,
+    @SerialName("comment_files") val commentFiles: List<ArticleCommentFile> = emptyList(),
+    val author: ArticleCommentUser = ArticleCommentUser(),
+    val user: ArticleCommentUser = ArticleCommentUser(),
+    @SerialName("comment_reply_unlike_count") val commentReplyUnlikeCount: Int = 0,
+    @SerialName("author_blocked") val authorBlocked: Boolean = false,
+    val chosen: Boolean = false,
+    val top: Boolean = false,
+    @SerialName("is_author") val isAuthor: Boolean = false,
+    val flags: List<JsonElement> = emptyList(),
+    val status: Int = 0,
+    val statuses: List<JsonElement> = emptyList()
+)
+
+@Keep
+@Serializable
+data class ArticleCommentFile(
+    val id: Int = 0,
+    @SerialName("file_path") val filePath: String = ""
 )
 
 @Keep

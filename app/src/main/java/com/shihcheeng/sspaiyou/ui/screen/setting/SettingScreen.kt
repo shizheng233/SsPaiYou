@@ -20,7 +20,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shihcheeng.sspaiyou.BuildConfig
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
+import com.shihcheeng.sspaiyou.utils.icons.ArchiveBoxOutline
 import com.shihcheeng.sspaiyou.utils.icons.BookletFill
+import com.shihcheeng.sspaiyou.utils.icons.Browser
 import com.shihcheeng.sspaiyou.utils.icons.CodepenFill
 import com.shihcheeng.sspaiyou.utils.icons.ErrorWarningLine
 import com.shihcheeng.sspaiyou.utils.icons.FontSizeIcon
@@ -66,6 +68,12 @@ fun SSPaiSettingScreen(
                 )
             }
             group(title = context.getString(R.string.reader)) {
+                toggle(
+                    key = SettingData.urlIsOpenInner,
+                    title = context.getString(R.string.use_inner_browser_title),
+                    description = context.getString(R.string.use_inner_browser_summary),
+                    icon = SSPaiPack.Browser
+                )
                 slider(
                     key = SettingData.readerScale,
                     title = context.getString(R.string.font_scale),
@@ -75,6 +83,17 @@ fun SSPaiSettingScreen(
                         "${(it * 100).roundToInt()}%"
                     },
                     steps = 5
+                )
+            }
+            group(title = context.getString(R.string.cache_text)) {
+                slider(
+                    key = SettingData.imageCacheSize,
+                    title = context.getString(R.string.size_of_image_cache_title),
+                    description = context.getString(R.string.size_of_image_cache_title_summary),
+                    valueRange = 64f..1024f,
+                    steps = 14,
+                    formatValue = { "${it.roundToInt()} MiB" },
+                    icon = SSPaiPack.ArchiveBoxOutline
                 )
             }
             group(title = context.getString(R.string.about_app)) {

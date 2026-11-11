@@ -1,12 +1,12 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -17,21 +17,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleAuthor
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.compose.components.markdownComponents
 import com.mikepenz.markdown.model.markdownAnimations
 import com.mikepenz.markdown.model.markdownPadding
+import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleAuthor
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderImage
 import com.shihcheeng.sspaiyou.ui.compoents.ReaderMarkdownImage
 import com.shihcheeng.sspaiyou.ui.theme.sspaiReaderTypo
 import com.shihcheeng.sspaiyou.ui.theme.toMarkDownColors
 import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
+import com.shihcheeng.sspaiyou.utils.SSPaiUrlHandler
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 
 
@@ -47,7 +50,8 @@ fun DetailScreenContent(
     extendsBodys: List<DetailBodyExtends>,
     bottomPadding: Dp = 0.dp,
     onAvatarClick: (String) -> Unit = {},
-    onTagClick: (String) -> Unit = {}
+    onTagClick: (String) -> Unit = {},
+    onImageClick: ((String) -> Unit)? = null
 ) {
 
     val markdownColors = MaterialTheme.colorScheme.toMarkDownColors()
@@ -61,7 +65,8 @@ fun DetailScreenContent(
         image = {
             ReaderMarkdownImage(
                 content = it.content,
-                node = it.node
+                node = it.node,
+                onImageClick = onImageClick
             )
         },
         paragraph = {
@@ -155,7 +160,7 @@ fun DetailScreenContent(
                             animations = markdownAnimations
                         )
 
-                        is DetailContent.Image -> DetailContentImage(item)
+                        is DetailContent.Image -> DetailContentImage(item, onImageClick)
                     }
                 }
             }
@@ -183,21 +188,22 @@ fun DetailScreenContent(
                     animations = markdownAnimations
                 )
 
-                is DetailContent.Image -> DetailContentImage(item)
+                is DetailContent.Image -> DetailContentImage(item, onImageClick)
             }
         }
     }
 }
 
 @Composable
-private fun DetailContentImage(image: DetailContent.Image) {
+private fun DetailContentImage(image: DetailContent.Image, onImageClick: ((String) -> Unit)?) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         ReaderImage(
             url = image.url,
             contentDescription = image.caption,
-            aspectRatio = image.aspectRatio
+            aspectRatio = image.aspectRatio,
+            onImageClick = onImageClick
         )
         if (!image.caption.isNullOrBlank()) {
             Text(
@@ -210,6 +216,17 @@ private fun DetailContentImage(image: DetailContent.Image) {
                     .padding(top = 4.dp, bottom = 8.dp)
             )
         }
+    }
+}
+
+@Composable
+fun customUriHandler(
+    urlIsInnerOpen: Boolean,
+    onInnerOpen: (String) -> Unit
+): UriHandler {
+    val context = LocalContext.current
+    return remember(context, urlIsInnerOpen, onInnerOpen) {
+        SSPaiUrlHandler(context, urlIsInnerOpen, onInnerOpen)
     }
 }
 
