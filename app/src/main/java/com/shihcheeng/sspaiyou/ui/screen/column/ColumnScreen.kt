@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou.ui.screen.column
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,10 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +54,16 @@ fun ColumnScreen(
     onNavUp: () -> Unit
 ) {
     val info by viewModel.info.collectAsStateWithLifecycle()
+    val pending by viewModel.followPending.collectAsStateWithLifecycle()
+    val token by viewModel.token.collectAsStateWithLifecycle()
+    val followError by viewModel.followError.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    LaunchedEffect(followError) {
+        if (followError) {
+            Toast.makeText(context, R.string.column_follow_error, Toast.LENGTH_SHORT).show()
+            viewModel.clearFollowError()
+        }
+    }
     val articles = viewModel.articles.collectAsLazyPagingItems()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -65,6 +78,9 @@ fun ColumnScreen(
             ) {
                 ColumnInfoDrawer(
                     info = info,
+                    followPending = (info as? NetState.Success)?.content?.id in pending,
+                    followEnabled = !token.isNullOrBlank(),
+                    onFollowChange = viewModel::setFollowed,
                     onRetry = viewModel::load,
                     onClose = { scope.launch { drawerState.close() } },
                     onUserClick = { slug ->

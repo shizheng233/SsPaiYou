@@ -9,8 +9,10 @@ import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter
 import com.vladsch.flexmark.html2md.converter.ExtensionConversion
 import com.vladsch.flexmark.html2md.converter.HtmlConverterCoreNodeRendererFactory
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRenderer
+import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererFactory
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererHandler
 import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.data.MutableDataSet
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -36,25 +38,31 @@ class DetailMarkDownParser @Inject constructor() {
             // Setext headings starting with "1. " are parsed as lists instead of headings.
             .set(FlexmarkHtmlConverter.SETEXT_HEADINGS, false)
             .set(FlexmarkHtmlConverter.IGNORE_TABLE_HEADING_AFTER_ROWS, false)
-    ).htmlNodeRendererFactory { options ->
-        val handlers = HtmlConverterCoreNodeRendererFactory().apply(options)
-            .htmlNodeRendererHandlers
-            .filter { it.tagName == "strong" || it.tagName == "b" }
-            .map { original ->
-                HtmlNodeRendererHandler(original.tagName, Element::class.java) { element, context, out ->
-                    val addBoundaries = context.htmlConverterOptions.extInlineStrong == ExtensionConversion.MARKDOWN &&
-                        !out.isPreFormatted && !context.isInlineCode && element.hasText()
-                    // Comments delimit CJK punctuation without adding characters to rendered text.
-                    // Never start a paragraph/list item with a comment: it would become an HTML block.
-                    if (addBoundaries && element.previousSibling() != null && out.column() > 0) {
-                        out.append("<!-- -->")
+    ).htmlNodeRendererFactory(StrongHtmlNodeRendererFactory).build()
+
+    // Flexmark identifies factories by runtime Class. Use an explicit class so
+    // the R8 factory keep rule can preserve its identity instead of merging SAM lambdas.
+    private object StrongHtmlNodeRendererFactory : HtmlNodeRendererFactory {
+        override fun apply(options: DataHolder): HtmlNodeRenderer {
+            val handlers = HtmlConverterCoreNodeRendererFactory().apply(options)
+                .htmlNodeRendererHandlers
+                .filter { it.tagName == "strong" || it.tagName == "b" }
+                .map { original ->
+                    HtmlNodeRendererHandler(original.tagName, Element::class.java) { element, context, out ->
+                        val addBoundaries = context.htmlConverterOptions.extInlineStrong == ExtensionConversion.MARKDOWN &&
+                            !out.isPreFormatted && !context.isInlineCode && element.hasText()
+                        // Comments delimit CJK punctuation without adding characters to rendered text.
+                        // Never start a paragraph/list item with a comment: it would become an HTML block.
+                        if (addBoundaries && element.previousSibling() != null && out.column() > 0) {
+                            out.append("<!-- -->")
+                        }
+                        original.render(element, context, out)
+                        if (addBoundaries) out.append("<!-- -->")
                     }
-                    original.render(element, context, out)
-                    if (addBoundaries) out.append("<!-- -->")
-                }
-            }.toSet()
-        HtmlNodeRenderer { handlers }
-    }.build()
+                }.toSet()
+            return HtmlNodeRenderer { handlers }
+        }
+    }
 
     fun parse(html: String): List<DetailContent> {
         val document = Jsoup.parseBodyFragment(html)

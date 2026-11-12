@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,11 +41,14 @@ import com.shihcheeng.sspaiyou.utils.NetState
 import com.shihcheeng.sspaiyou.utils.imageUrlForNullable
 
 @Composable
-internal fun ColumnInfoDrawer(
+fun ColumnInfoDrawer(
     info: NetState<ColumnInfo>,
     onRetry: () -> Unit,
     onClose: () -> Unit,
     onUserClick: (String) -> Unit,
+    onFollowChange: (Boolean) -> Unit,
+    followPending: Boolean = false,
+    followEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxSize()) {
@@ -69,13 +73,19 @@ internal fun ColumnInfoDrawer(
         when (info) {
             NetState.Loading -> ColumnLoading(Modifier.weight(1f))
             is NetState.Error -> Error(error = info.throwable.localizedMessage, onClick = onRetry)
-            is NetState.Success -> ColumnInfoContent(info.content, onUserClick)
+            is NetState.Success -> ColumnInfoContent(info.content, onUserClick, onFollowChange, followPending, followEnabled)
         }
     }
 }
 
 @Composable
-private fun ColumnInfoContent(info: ColumnInfo, onUserClick: (String) -> Unit) {
+private fun ColumnInfoContent(
+    info: ColumnInfo,
+    onUserClick: (String) -> Unit,
+    onFollowChange: (Boolean) -> Unit,
+    followPending: Boolean,
+    followEnabled: Boolean
+) {
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
@@ -96,6 +106,13 @@ private fun ColumnInfoContent(info: ColumnInfo, onUserClick: (String) -> Unit) {
             )
         }
         Text(info.title, style = MaterialTheme.typography.headlineMedium)
+        FilledTonalButton(
+            onClick = { onFollowChange(!info.followed) },
+            enabled = followEnabled && !followPending && info.id > 0,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(if (info.followed) R.string.column_unfollow else R.string.add_to_list))
+        }
         Text(
             info.intro.ifBlank { stringResource(R.string.no_desc) },
             style = MaterialTheme.typography.bodyLarge,
@@ -212,7 +229,8 @@ private fun ColumnInfoDrawerPreview() {
                 ),
                 onRetry = {},
                 onClose = {},
-                onUserClick = {}
+                onUserClick = {},
+                onFollowChange = {}
             )
         }
     }

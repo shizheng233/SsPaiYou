@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,6 +58,7 @@ fun PersonalScreenContent(
     beingDays: Int?,
     imageUrl: String,
     onSetting: () -> Unit,
+    onHistory: () -> Unit,
     onFavourite: () -> Unit,
     onMine: () -> Unit,
     modifier: Modifier = Modifier
@@ -98,6 +98,14 @@ fun PersonalScreenContent(
                     containerColor = colors.secondaryContainer,
                     contentColor = colors.onSecondaryContainer,
                     onClick = onFavourite
+                )
+                PersonalActionCard(
+                    icon = R.drawable.coolicons__history_duocolor_sharp__1,
+                    title = stringResource(R.string.history),
+                    description = stringResource(R.string.personal_history_description),
+                    containerColor = colors.surfaceContainerLow,
+                    contentColor = colors.onSurface,
+                    onClick = onHistory
                 )
                 PersonalActionCard(
                     icon = R.drawable.outline_settings_24,
@@ -183,7 +191,9 @@ private fun ProfileCard(
                         horizontal = 16.dp,
                         vertical = 12.dp
                     ),
-                    modifier = Modifier.weight(1f, fill = false).padding(start = 16.dp)
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .padding(start = 16.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.personal_view_profile),
@@ -277,7 +287,9 @@ private fun PersonalActionCard(
                 Icon(
                     painter = painterResource(icon),
                     contentDescription = null,
-                    modifier = Modifier.padding(12.dp).size(24.dp)
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .size(24.dp)
                 )
             }
             Column(
@@ -327,7 +339,8 @@ private fun PersonalScreenContentPreview() {
                 imageUrl = "",
                 onSetting = {},
                 onFavourite = {},
-                onMine = {}
+                onMine = {},
+                onHistory = {}
             )
         }
     }

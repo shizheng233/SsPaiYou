@@ -3,10 +3,14 @@ package com.shihcheeng.sspaiyou.api.service
 import com.shihcheeng.sspaiyou.api.data.column.ColumnDataModel
 import com.shihcheeng.sspaiyou.api.data.column.ColumnArticleDataModel
 import com.shihcheeng.sspaiyou.api.data.column.ColumnSingleDataModel
+import com.shihcheeng.sspaiyou.api.data.column.ColumnFollowRequest
+import com.shihcheeng.sspaiyou.api.data.column.ColumnFollowResponse
 import com.shihcheeng.sspaiyou.utils.Constants
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
 import com.shihcheeng.sspaiyou.utils.extra.createAtFor
 import retrofit2.http.GET
+import retrofit2.http.Body
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface ColumnService {
@@ -34,5 +38,7 @@ interface ColumnService {
         @Query("view") view: String = "second"
     ): ColumnArticleDataModel
 
+    @POST(SSPaiUrl.FOLLOW_COLUMN)
+    suspend fun followColumn(@Body request: ColumnFollowRequest): ColumnFollowResponse
 
 }

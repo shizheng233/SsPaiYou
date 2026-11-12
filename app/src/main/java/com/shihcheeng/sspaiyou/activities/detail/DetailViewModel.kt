@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleData
+import com.shihcheeng.sspaiyou.database.datamodel.LocalRecordDataModel
 import com.shihcheeng.sspaiyou.repository.DetailRepository
+import com.shihcheeng.sspaiyou.repository.HistoryRepository
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailBodyExtends
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailContent
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailMarkDownParser
@@ -29,7 +31,8 @@ class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: DetailRepository,
     private val markDownParser: DetailMarkDownParser,
-    private val localTokenManager: LocalTokenManager
+    private val localTokenManager: LocalTokenManager,
+    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
     val id = savedStateHandle.get<String>("id")
@@ -123,7 +126,9 @@ class DetailViewModel @Inject constructor(
                         current.copy(
                             liked = liked,
                             articleCount = current.articleCount.copy(
-                                likeCount = (current.articleCount.likeCount + countChange).coerceAtLeast(0)
+                                likeCount = (current.articleCount.likeCount + countChange).coerceAtLeast(
+                                    0
+                                )
                             )
                         )
                     )
@@ -143,6 +148,82 @@ class DetailViewModel @Inject constructor(
 
     fun clearLikeError() {
         _likeError.value = null
+    }
+
+    suspend fun savedReadingPosition(articleId: Int): LocalRecordDataModel? {
+        val ownerKey = currentHistoryOwnerKey() ?: return null
+        return try {
+            historyRepository.getHistoryByPostId(ownerKey, articleId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            e.printStackOnlyDebug()
+            null
+        }
+    }
+
+    suspend fun saveReadingProgress(
+        article: ArticleData,
+        progress: Float,
+        itemIndex: Int,
+        itemOffsetPx: Int
+    ) {
+        if (article.id <= 0) return
+        val ownerKey = currentHistoryOwnerKey() ?: return
+        try {
+            val existing = historyRepository.getHistoryByPostId(ownerKey, article.id)
+            val memberSlug = id?.takeIf { it.toIntOrNull() == null && it.isNotBlank() }
+            val preserveMemberRoute = memberSlug == null &&
+                    existing?.detailRoute == LocalRecordDataModel.DETAIL_ROUTE_MEMBER_SLUG &&
+                    !existing.slug.isNullOrBlank()
+            val normalizedProgress = progress.coerceIn(0f, 1f)
+            val now = System.currentTimeMillis()
+            val coverUrl = article.banner.takeIf { it.isNotBlank() }
+                ?: article.promoteImage.takeIf { it.isNotBlank() }
+                ?: existing?.coverUrl
+
+            historyRepository.upsertHistory(
+                LocalRecordDataModel(
+                    ownerKey = ownerKey,
+                    postId = article.id,
+                    detailRoute = when {
+                        memberSlug != null -> LocalRecordDataModel.DETAIL_ROUTE_MEMBER_SLUG
+                        preserveMemberRoute -> LocalRecordDataModel.DETAIL_ROUTE_MEMBER_SLUG
+                        else -> LocalRecordDataModel.DETAIL_ROUTE_ID
+                    },
+                    slug = memberSlug ?: existing?.slug?.takeIf { preserveMemberRoute },
+                    title = article.title,
+                    coverUrl = coverUrl,
+                    authorId = article.author.id.takeIf { it > 0 } ?: existing?.authorId,
+                    authorName = article.author.nickname.takeIf { it.isNotBlank() }
+                        ?: existing?.authorName,
+                    authorSlug = article.author.slug.takeIf { it.isNotBlank() }
+                        ?: existing?.authorSlug,
+                    authorAvatarUrl = article.author.avatar.takeIf { it.isNotBlank() }
+                        ?: existing?.authorAvatarUrl,
+                    readProgress = normalizedProgress,
+                    resumeItemIndex = itemIndex.coerceAtLeast(0),
+                    resumeItemOffsetPx = itemOffsetPx.coerceAtLeast(0),
+                    lastReadAtEpochMillis = now,
+                    completedAtEpochMillis = if (normalizedProgress >= 0.99f) {
+                        existing?.completedAtEpochMillis ?: now
+                    } else {
+                        null
+                    }
+                )
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            e.printStackOnlyDebug()
+        }
+    }
+
+    private fun currentHistoryOwnerKey(): String? {
+        if (localTokenManager.getToken().isNullOrBlank()) {
+            return LocalRecordDataModel.OWNER_ANONYMOUS
+        }
+        return localTokenManager.getSlug()?.takeIf { it.isNotBlank() }
     }
 
     enum class LikeError {

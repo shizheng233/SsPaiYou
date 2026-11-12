@@ -17,6 +17,8 @@
     <string name="yesterday">昨天</string>
     <string name="day_of_count">%d 天前</string>
     <string name="add_to_list">关注</string>
+    <string name="column_unfollow">取消关注</string>
+    <string name="column_follow_error">关注操作失败，请重试</string>
     <string name="followed_personal">%1$s人关注</string>
     <string name="no_login">没有登录</string>
     <string name="now_login">立刻登录</string>
@@ -31,6 +33,7 @@
     <string name="personal_shortcuts">常用功能</string>
     <string name="personal_favourites_description">重温收藏的好内容</string>
     <string name="personal_settings_description">管理应用偏好</string>
+    <string name="personal_history_description">查看观看历史</string>
     <string name="personal_welcome_title">你的个人空间</string>
     <string name="personal_welcome_description">登录少数派，收藏喜欢的内容，关注感兴趣的人。</string>
     <string name="had_been_sspai"> %d 天</string>
@@ -139,4 +142,5 @@
     <string name="inner_b">内置浏览器</string>
     <string name="web_page_loading">正在加载网页…</string>
     <string name="external_browser_open">在外部浏览器打开</string>
+    <string name="history">历史记录</string>
 </resources>

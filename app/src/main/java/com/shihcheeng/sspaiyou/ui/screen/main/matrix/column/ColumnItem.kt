@@ -40,7 +40,8 @@ fun ColumnItem(
     imageUrl: String,
     checkValue: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    followEnabled: Boolean = true
 ) {
     OutlinedCard(
         onClick = onClick,
@@ -78,7 +79,7 @@ fun ColumnItem(
                             color = MaterialTheme.colorScheme.tertiaryContainer,
                         ) {
                             Text(
-                                text = stringResource(R.string.add_to_list),
+                                text = stringResource(if (checkValue) R.string.column_unfollow else R.string.add_to_list),
                                 modifier = Modifier.padding(8.dp)
                             )
                         }
@@ -87,7 +88,8 @@ fun ColumnItem(
                 ) {
                     FilledTonalIconToggleButton(
                         onCheckedChange = onCheckedChange,
-                        checked = checkValue
+                        checked = checkValue,
+                        enabled = followEnabled
                     ) {
                         Icon(
                             painter = painterResource(
@@ -97,7 +99,7 @@ fun ColumnItem(
                                     R.drawable.eos_icons_activate_subscriptions
                                 }
                             ),
-                            contentDescription = stringResource(R.string.add_to_list)
+                            contentDescription = stringResource(if (checkValue) R.string.column_unfollow else R.string.add_to_list)
                         )
                     }
                 }

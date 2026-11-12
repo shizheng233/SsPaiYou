@@ -6,6 +6,7 @@ import com.vladsch.flexmark.html2md.converter.HtmlNodeConverterContext
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRenderer
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererFactory
 import com.vladsch.flexmark.html2md.converter.HtmlNodeRendererHandler
+import com.vladsch.flexmark.util.data.DataHolder
 import org.jsoup.nodes.Element
 import kotlin.math.roundToInt
 
@@ -79,11 +80,14 @@ class ImageNodeResolve : HtmlNodeRenderer {
     }
 
 
+    // Keep an explicit factory class: Flexmark uses its identity for dependency ordering.
+    private object Factory : HtmlNodeRendererFactory {
+        override fun apply(options: DataHolder): HtmlNodeRenderer = ImageNodeResolve()
+    }
+
     companion object {
 
-        fun create(): HtmlNodeRendererFactory = HtmlNodeRendererFactory {
-            ImageNodeResolve()
-        }
+        fun create(): HtmlNodeRendererFactory = Factory
     }
 
 }

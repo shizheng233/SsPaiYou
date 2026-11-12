@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.shihcheeng.sspaiyou.ui.screen.Router.Bullet.proceedToBullet
 import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
+import com.shihcheeng.sspaiyou.ui.screen.Router.HistoryScreen.proceedToHistory
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.TagsScreen.proceedToTagsDetail
 import com.shihcheeng.sspaiyou.ui.screen.Router.UrlWebBrowserScreen.proceedToInnerBrowser
@@ -20,6 +21,7 @@ import com.shihcheeng.sspaiyou.ui.screen.bullet.single.BulletSingleScreen
 import com.shihcheeng.sspaiyou.ui.screen.column.ColumnScreen
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
 import com.shihcheeng.sspaiyou.ui.screen.favourite.FavouritemScreen
+import com.shihcheeng.sspaiyou.ui.screen.history.HistoryScreen
 import com.shihcheeng.sspaiyou.ui.screen.innerbrowser.WebUrlBrowserScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
@@ -73,6 +75,9 @@ fun Router(
                 },
                 onTagClick = {
                     navHostController.proceedToTagsDetail(it)
+                },
+                onHistory = {
+                    navHostController.proceedToHistory(it)
                 }
             ) {
                 navHostController proceedTo Router.Login
@@ -148,6 +153,18 @@ fun Router(
                 onNavUp = { navHostController.popBackStack() }
             )
         }
+        composable(Router.HistoryScreen.name) {
+            HistoryScreen(
+                onBacK = navHostController::popBackStack,
+                gotoItem = { record ->
+                    val detailId = when (record.detailRoute) {
+                        com.shihcheeng.sspaiyou.database.datamodel.LocalRecordDataModel.DETAIL_ROUTE_MEMBER_SLUG -> record.slug
+                        else -> record.postId.toString()
+                    }
+                    detailId?.let { navHostController.proceedToDetail(it) }
+                }
+            )
+        }
     }
 }
 
@@ -158,6 +175,9 @@ sealed interface Router {
 
     /**
      * 跳转到目的。
+     *
+     * @receiver [NavHostController]。
+     * @param t 是Router
      */
     infix fun <T : Router> NavHostController.proceedTo(t: T) {
         navigate(t.name)
@@ -173,7 +193,7 @@ sealed interface Router {
             get() = "DETAIL/{id}"
 
         fun NavHostController.proceedToDetail(id: String) {
-            navigate(name.replace("{id}", id))
+            navigate(name.replace("{id}", Uri.encode(id)))
         }
 
     }
@@ -245,6 +265,15 @@ sealed interface Router {
             navigate(name.replace("{url_browser}", Uri.encode(url)))
         }
 
+    }
+
+    data object HistoryScreen : Router {
+        override val name: String
+            get() = "HISTORY/{owner_key}"
+
+        fun NavHostController.proceedToHistory(ownerKey: String) {
+            navigate(name.replace("{owner_key}", Uri.encode(ownerKey)))
+        }
     }
 
 }

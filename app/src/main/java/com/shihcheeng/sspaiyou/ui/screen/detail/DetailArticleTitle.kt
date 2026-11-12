@@ -1,12 +1,12 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -90,7 +90,8 @@ fun DetailArticleTitle(
             color = colors.surfaceContainerLow,
             contentColor = colors.onSurface,
             shape = shapes.large.copy(
-                topStart = if (visibleTags.isEmpty()) shapes.large.topStart else CornerSize(0.dp)
+                topStart = if (visibleTags.isEmpty()) shapes.large.topStart else CornerSize(0.dp),
+                bottomStart = CornerSize(0.dp)
             )
         ) {
             Text(
@@ -106,10 +107,13 @@ fun DetailArticleTitle(
         }
         if (publishedDate.isNotBlank()) {
             Surface(
-                modifier = Modifier.padding(top = 6.dp),
+                modifier = Modifier,
                 color = colors.inverseSurface,
                 contentColor = colors.inverseOnSurface,
-                shape = shapes.small
+                shape = shapes.large.copy(
+                    topStart = CornerSize(0.dp),
+                    topEnd = CornerSize(0.dp)
+                )
             ) {
                 Text(
                     text = publishedDate,

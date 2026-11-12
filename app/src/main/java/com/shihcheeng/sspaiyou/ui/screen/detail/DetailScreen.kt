@@ -21,11 +21,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -42,13 +44,19 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.NetState
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
+@OptIn(FlowPreview::class)
 fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel<DetailViewModel>(),
     onAvatarClick: (String) -> Unit,
@@ -69,6 +77,7 @@ fun DetailScreen(
     var showComments by rememberSaveable { mutableStateOf(false) }
     var selectedImageUrl by rememberSaveable(viewModel.id) { mutableStateOf<String?>(null) }
     val article = (data as? NetState.Success)?.content
+    var restoredArticleId by remember(article?.id) { mutableIntStateOf(-1) }
     val context = LocalContext.current
     val setting = LocalComposeSetting.current
     val shareTitle = stringResource(R.string.share_text)
@@ -76,6 +85,57 @@ fun DetailScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val favouriteErrorMessage = stringResource(R.string.article_favourite_error)
+
+    LaunchedEffect(article?.id, contentBlocks, bodyExtendsBodys) {
+        val currentArticle = article ?: return@LaunchedEffect
+        if (currentArticle.id <= 0 || restoredArticleId == currentArticle.id) {
+            restoredArticleId = currentArticle.id
+            return@LaunchedEffect
+        }
+
+        val itemCount = 2 + bodyExtendsBodys.sumOf { 1 + it.body.size } + contentBlocks.size
+        snapshotFlow { state.layoutInfo.totalItemsCount }
+            .first { it >= itemCount && it > 0 }
+
+        val savedPosition = viewModel.savedReadingPosition(currentArticle.id)
+        val targetIndex = savedPosition?.resumeItemIndex?.coerceIn(0, itemCount - 1) ?: 0
+        val targetOffset = savedPosition?.resumeItemOffsetPx?.coerceAtLeast(0) ?: 0
+        state.scrollToItem(targetIndex, targetOffset)
+        restoredArticleId = currentArticle.id
+    }
+
+    LaunchedEffect(article?.id, restoredArticleId) {
+        val currentArticle = article ?: return@LaunchedEffect
+        if (currentArticle.id <= 0 || restoredArticleId != currentArticle.id) {
+            return@LaunchedEffect
+        }
+
+        viewModel.saveReadingProgress(
+            article = currentArticle,
+            progress = state.readingProgress(),
+            itemIndex = state.firstVisibleItemIndex,
+            itemOffsetPx = state.firstVisibleItemScrollOffset
+        )
+
+        snapshotFlow {
+            Triple(
+                state.firstVisibleItemIndex,
+                state.firstVisibleItemScrollOffset,
+                state.readingProgress()
+            )
+        }
+            .distinctUntilChanged()
+            .debounce(700)
+            .collect { (itemIndex, itemOffsetPx, progress) ->
+                viewModel.saveReadingProgress(
+                    article = currentArticle,
+                    progress = progress,
+                    itemIndex = itemIndex,
+                    itemOffsetPx = itemOffsetPx
+                )
+            }
+    }
+
     LaunchedEffect(favouriteError) {
         if (favouriteError) {
             snackbarHostState.showSnackbar(favouriteErrorMessage)

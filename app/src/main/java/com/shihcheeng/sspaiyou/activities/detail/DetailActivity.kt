@@ -26,6 +26,7 @@ import io.noties.markwon.Markwon
 import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin
 
+@Deprecated(message = "")
 @AndroidEntryPoint
 class DetailActivity : AppCompatActivity(), NetStateListener<ArticleData>,
     OnApplyWindowInsetsListener {

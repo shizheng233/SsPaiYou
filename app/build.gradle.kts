@@ -39,7 +39,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -114,7 +115,11 @@ dependencies {
     implementation(aboutlibs.aboutlibraries.core)
     implementation(libs.datatable.material3)
     implementation(libs.zoomimage.coil2)
+    implementation(common.androidx.room)
+    ksp(common.androidx.room.complier)
+    implementation(common.androidx.room.ktx)
     testImplementation(libs.junit)
+    testImplementation(common.androidx.room.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

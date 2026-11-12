@@ -37,6 +37,7 @@ fun MainScreen(
     onBulletClick: (Long) -> Unit,
     onColumnClick: (Int) -> Unit,
     onTagClick: (String) -> Unit,
+    onHistory: (String) -> Unit,
     onLoginClick: () -> Unit
 ) {
 
@@ -48,6 +49,9 @@ fun MainScreen(
         tokenManager.tokenFlow(scope)
     }.collectAsStateWithLifecycle()
     val isLogin = token != null
+    val userSlug by remember(tokenManager, scope) {
+        tokenManager.slugFlow(scope)
+    }.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -56,6 +60,16 @@ fun MainScreen(
                     Text(text = stringResource(navItems[select].name))
                 },
                 actions = {
+                    if (navItems[select].name == R.string.personal && !isLogin) {
+                        IconButton(
+                            onClick = { onHistory("anonymous") }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.coolicons__history_duocolor_sharp__1),
+                                contentDescription = stringResource(R.string.history)
+                            )
+                        }
+                    }
                     if (navItems[select].name != R.string.personal || !isLogin) {
                         IconButton(
                             onClick = onSetting
@@ -117,7 +131,8 @@ fun MainScreen(
                     onLoginClick = onLoginClick,
                     onFavourite = onFavourite,
                     onSetting = onSetting,
-                    onMine = onMineClick
+                    onMine = onMineClick,
+                    onHistory = { userSlug?.let { x -> onHistory(x) } }
                 )
             }
         }

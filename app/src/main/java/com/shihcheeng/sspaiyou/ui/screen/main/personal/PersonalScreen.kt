@@ -13,6 +13,7 @@ fun PersonalScreen(
     onLoginClick: () -> Unit,
     onFavourite: () -> Unit,
     onSetting: () -> Unit,
+    onHistory: () -> Unit,
     onMine: (String) -> Unit
 ) {
     val token by viewModel.token.collectAsStateWithLifecycle()
@@ -38,6 +39,7 @@ fun PersonalScreen(
                 imageUrl = model.data.avatar,
                 onSetting = onSetting,
                 onFavourite = onFavourite,
+                onHistory = onHistory,
                 onMine = { onMine(model.data.slug) }
             )
         }
