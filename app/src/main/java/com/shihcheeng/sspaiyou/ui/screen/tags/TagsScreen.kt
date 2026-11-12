@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -98,13 +100,15 @@ private fun TagArticleList(
                     textAlign = TextAlign.Center
                 )
 
-            else -> LazyColumn(
+            else -> LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (refresh is LoadState.Error) {
-                    item(key = "refresh_error", contentType = "error") {
+                    item(key = "refresh_error", contentType = "error", span = { GridItemSpan(maxLineSpan) }) {
                         ErrorItem(error = refresh.error.localizedMessage, onClick = articles::retry)
                     }
                 }
@@ -126,7 +130,7 @@ private fun TagArticleList(
                     }
                 }
                 when (val append = articles.loadState.append) {
-                    is LoadState.Loading -> item(key = "append_loading", contentType = "loading") {
+                    is LoadState.Loading -> item(key = "append_loading", contentType = "loading", span = { GridItemSpan(maxLineSpan) }) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -137,7 +141,7 @@ private fun TagArticleList(
                         }
                     }
 
-                    is LoadState.Error -> item(key = "append_error", contentType = "error") {
+                    is LoadState.Error -> item(key = "append_error", contentType = "error", span = { GridItemSpan(maxLineSpan) }) {
                         ErrorItem(error = append.error.localizedMessage, onClick = articles::retry)
                     }
 

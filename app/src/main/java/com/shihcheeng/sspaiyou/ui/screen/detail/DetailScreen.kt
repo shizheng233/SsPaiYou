@@ -43,17 +43,14 @@ import com.shihcheeng.sspaiyou.ui.compoents.Error
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.utils.LocalComposeSetting
 import com.shihcheeng.sspaiyou.utils.NetState
+import com.shihcheeng.sspaiyou.utils.extra.calculateDay
+import com.shihcheeng.sspaiyou.utils.extra.timestampToChinese
 import com.shihcheeng.sspaiyou.utils.settingdata.SettingData
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(FlowPreview::class)
@@ -236,12 +233,12 @@ fun DetailScreen(
                     Error(error = it.localizedMessage, onClick = viewModel::load)
                 }
             ) {
-                val publishedDate = remember(it.releasedTime, it.pubDate) {
-                    if (it.releasedTime > 0) {
-                        DateTimeFormatter.ofPattern("MM月dd日", Locale.CHINESE)
-                            .withZone(ZoneId.systemDefault())
-                            .format(Instant.ofEpochSecond(it.releasedTime.toLong()))
-                    } else {
+                val publishedDate = if (it.releasedTime > 0) {
+                    "${it.releasedTime.toLong().calculateDay()} ${
+                        it.releasedTime.toLong().timestampToChinese()
+                    }"
+                } else {
+                    remember(it.pubDate) {
                         it.pubDate
                     }
                 }
