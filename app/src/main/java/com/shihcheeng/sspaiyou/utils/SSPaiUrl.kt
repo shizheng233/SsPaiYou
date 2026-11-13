@@ -28,4 +28,6 @@ object SSPaiUrl {
     const val LIKE_ON_OFF = "article/user/like"
     const val ARTICLE_TAGS = "article/tag/page/get"
     const val FOLLOW_COLUMN = "special/column/user/follow"
+    const val INSERT_COMMENT = "https://sspai.com/api/v2/comment/insert"
+    const val SEARCH_ARTICLE = "search/article/page/get"
 }

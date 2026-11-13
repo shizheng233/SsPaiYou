@@ -27,6 +27,8 @@ import com.shihcheeng.sspaiyou.ui.screen.main.home.HomeScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.MatrixScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.personal.PersonalScreen
 import com.shihcheeng.sspaiyou.utils.LocalComposeTokenManager
+import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
+import com.shihcheeng.sspaiyou.utils.icons.SearchFilled
 
 @Composable
 fun MainScreen(
@@ -38,6 +40,7 @@ fun MainScreen(
     onColumnClick: (Int) -> Unit,
     onTagClick: (String) -> Unit,
     onHistory: (String) -> Unit,
+    onSearch:() -> Unit,
     onLoginClick: () -> Unit
 ) {
 
@@ -60,6 +63,14 @@ fun MainScreen(
                     Text(text = stringResource(navItems[select].name))
                 },
                 actions = {
+                    IconButton(
+                        onClick = onSearch
+                    ) {
+                        Icon(
+                            imageVector = SSPaiPack.SearchFilled,
+                            contentDescription = stringResource(R.string.search_articles)
+                        )
+                    }
                     if (navItems[select].name == R.string.personal && !isLogin) {
                         IconButton(
                             onClick = { onHistory("anonymous") }

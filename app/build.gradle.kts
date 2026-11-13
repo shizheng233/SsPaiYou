@@ -119,6 +119,7 @@ dependencies {
     ksp(common.androidx.room.complier)
     implementation(common.androidx.room.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(common.androidx.room.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)

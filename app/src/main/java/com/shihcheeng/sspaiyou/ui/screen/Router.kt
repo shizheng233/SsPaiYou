@@ -26,6 +26,7 @@ import com.shihcheeng.sspaiyou.ui.screen.innerbrowser.WebUrlBrowserScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
 import com.shihcheeng.sspaiyou.ui.screen.setting.SSPaiSettingScreen
+import com.shihcheeng.sspaiyou.ui.screen.sreach.SearchScreen
 import com.shihcheeng.sspaiyou.ui.screen.tags.TagsScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
 import soup.compose.material.motion.animation.materialSharedAxisXIn
@@ -78,7 +79,8 @@ fun Router(
                 },
                 onHistory = {
                     navHostController.proceedToHistory(it)
-                }
+                },
+                onSearch = { navHostController proceedTo Router.SearchScreen }
             ) {
                 navHostController proceedTo Router.Login
             }
@@ -164,6 +166,15 @@ fun Router(
                     detailId?.let { navHostController.proceedToDetail(it) }
                 }
             )
+        }
+        composable(Router.SearchScreen.name) {
+            SearchScreen(
+                onClick = {
+                    navHostController.proceedToDetail(it)
+                }
+            ) {
+                navHostController.popBackStack()
+            }
         }
     }
 }
@@ -274,6 +285,11 @@ sealed interface Router {
         fun NavHostController.proceedToHistory(ownerKey: String) {
             navigate(name.replace("{owner_key}", Uri.encode(ownerKey)))
         }
+    }
+
+    data object SearchScreen : Router {
+        override val name: String
+            get() = "SEARCH"
     }
 
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.shihcheeng.sspaiyou.database.base.LocalHistoryRecordBase
+import com.shihcheeng.sspaiyou.database.base.LocalSearchKeywordRecordBase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,5 +31,22 @@ object LocalRecordModula {
     fun provideHistoryDAO(
         localHistoryRecordBase: LocalHistoryRecordBase
     ) = localHistoryRecordBase.historyDao()
+
+    // ---- 关键字历史记录 ---
+    @Provides
+    @Singleton
+    fun provideLocalKeywordRecord(
+        @ApplicationContext context: Context
+    ) = Room.databaseBuilder<LocalSearchKeywordRecordBase>(
+        context = context,
+        name = "local_keyword_record"
+    ).setDriver(AndroidSQLiteDriver())
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideKeywordHistoryDAO(
+        localSearchKeywordRecordBase: LocalSearchKeywordRecordBase
+    ) = localSearchKeywordRecordBase.keywordDAO()
 
 }

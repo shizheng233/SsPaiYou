@@ -1,0 +1,11 @@
+<resources>
+    <string name="search_articles">搜索文章</string>
+    <string name="search_waiting">输入关键词，搜索感兴趣的文章</string>
+    <string name="search_empty">没有搜索结果，换个关键词试试</string>
+    <string name="search_error">搜索失败，请重试</string>
+    <string name="search_clear">清空搜索</string>
+    <string name="search_collapse">收起搜索</string>
+    <string name="search_history_record">保存的搜索记录</string>
+    <string name="search_history_put">放入搜索内容</string>
+    <string name="search_history_empty">暂无搜索历史</string>
+</resources>
