@@ -15,5 +15,5 @@ data class HomeMainDataModel(
     @SerialName("msg")
     val msg: String = "",
     @SerialName("total")
-    val total: Int = 0
+    val total: Int? = null
 )

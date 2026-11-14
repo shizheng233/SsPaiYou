@@ -6,7 +6,7 @@ import com.shihcheeng.sspaiyou.api.service.MatrixService
 import com.shihcheeng.sspaiyou.paging.MatrixHotPaging
 import com.shihcheeng.sspaiyou.paging.MatrixPaging
 import com.shihcheeng.sspaiyou.paging.BulletPaging
-import com.shihcheeng.sspaiyou.utils.extra.IGNORE_PAGE_SIZE
+import com.shihcheeng.sspaiyou.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -18,12 +18,24 @@ class MatrixRepository @Inject constructor(
 ) {
 
     val normalData
-        get() = Pager(config = PagingConfig(pageSize = PagingConfig.IGNORE_PAGE_SIZE)) {
+        get() = Pager(
+            config = PagingConfig(
+                pageSize = Constants.NORMAL_LIMIT,
+                initialLoadSize = Constants.NORMAL_LIMIT,
+                enablePlaceholders = false
+            )
+        ) {
             MatrixPaging(service)
         }.flow
 
     val hostData
-        get() = Pager(config = PagingConfig(pageSize = PagingConfig.IGNORE_PAGE_SIZE)) {
+        get() = Pager(
+            config = PagingConfig(
+                pageSize = Constants.NORMAL_LIMIT,
+                initialLoadSize = Constants.NORMAL_LIMIT,
+                enablePlaceholders = false
+            )
+        ) {
             MatrixHotPaging(service)
         }.flow
 

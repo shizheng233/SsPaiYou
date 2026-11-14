@@ -10,10 +10,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserActivityDataModel(
     @SerialName("data")
-    val `data`: List<IBaseData>? = listOf(),
+    val `data`: List<IBaseData>? = emptyList(),
     @SerialName("error")
     val error: Int = 0,
     @SerialName("total")
-    val total: Int = 0
+    val total: Int? = null,
+    @SerialName("msg")
+    val msg: String = ""
 )
 

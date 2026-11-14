@@ -6,7 +6,6 @@ import com.shihcheeng.sspaiyou.api.service.UserService
 import com.shihcheeng.sspaiyou.paging.ActivityPaging
 import com.shihcheeng.sspaiyou.paging.UserFavouritePaging
 import com.shihcheeng.sspaiyou.utils.Constants
-import com.shihcheeng.sspaiyou.utils.extra.IGNORE_PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -26,7 +25,11 @@ class UserRepository @Inject constructor(
     }
 
     fun getData(slug: String) = Pager(
-        config = PagingConfig(pageSize = PagingConfig.IGNORE_PAGE_SIZE)
+        config = PagingConfig(
+            pageSize = Constants.NORMAL_LIMIT,
+            initialLoadSize = Constants.NORMAL_LIMIT,
+            enablePlaceholders = false
+        )
     ) {
         ActivityPaging(service, slug)
     }.flow

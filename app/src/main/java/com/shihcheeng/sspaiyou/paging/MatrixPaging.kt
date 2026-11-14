@@ -8,10 +8,11 @@ class MatrixPaging(
     private val service: MatrixService
 ) : BaseMatrixPaging<NormalMatrixData>() {
 
-    override suspend fun getData(offset: Int): List<NormalMatrixData> {
-        return service.getMatrix(offset = offset).data
+    override suspend fun loadPage(limit: Int, offset: Int, createdAt: Long): PageData<NormalMatrixData> {
+        val response = service.getMatrix(limit = limit, offset = offset, createdAt = createdAt)
+        check(response.error == 0) {
+            response.msg.ifBlank { "Matrix feed API error: ${response.error}" }
+        }
+        return PageData(response.data, response.total)
     }
-
-    override val loadOffset: Int
-        get() = 10
 }

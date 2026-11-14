@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import com.shihcheeng.sspaiyou.api.data.home.second.MainsItem
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.paging.HomePaging
+import com.shihcheeng.sspaiyou.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -15,7 +16,13 @@ class HomeRepository @Inject constructor(
     private val homeService: HomeService
 ) {
 
-    fun getHome() = Pager(config = PagingConfig(1)) {
+    fun getHome() = Pager(
+        config = PagingConfig(
+            pageSize = Constants.NORMAL_LIMIT,
+            initialLoadSize = Constants.NORMAL_LIMIT,
+            enablePlaceholders = false
+        )
+    ) {
         HomePaging(homeService)
     }.flow
 
