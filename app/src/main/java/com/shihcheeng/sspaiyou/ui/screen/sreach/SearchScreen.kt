@@ -63,6 +63,7 @@ import com.shihcheeng.sspaiyou.utils.icons.ArrowBackIos
 import com.shihcheeng.sspaiyou.utils.icons.ArrowLeftUpLine
 import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
 import com.shihcheeng.sspaiyou.utils.icons.SavedSearch
+import com.shihcheeng.sspaiyou.utils.icons.SearchFilled
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,6 +103,11 @@ fun SearchScreen(
                                 contentDescription = stringResource(R.string.search_collapse)
                             )
                         }
+                    } else {
+                        Icon(
+                            imageVector = SSPaiPack.SearchFilled,
+                            contentDescription = null
+                        )
                     }
                 },
                 trailingIcon = {
