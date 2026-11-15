@@ -31,6 +31,8 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.repository.DetailRepository
+import com.shihcheeng.sspaiyou.repository.FakeHistoryDAO
+import com.shihcheeng.sspaiyou.repository.HistoryRepository
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailBottomBar
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailMarkDownParser
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailScreen
@@ -267,7 +269,8 @@ class DetailLikeTest {
                 SavedStateHandle(mapOf("id" to route)),
                 DetailRepository(service),
                 DetailMarkDownParser(),
-                tokenManager
+                tokenManager,
+                HistoryRepository(FakeHistoryDAO())
             ) as T
         }
         compose.runOnIdle {

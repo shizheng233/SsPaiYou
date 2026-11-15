@@ -27,6 +27,8 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.repository.DetailRepository
+import com.shihcheeng.sspaiyou.repository.FakeHistoryDAO
+import com.shihcheeng.sspaiyou.repository.HistoryRepository
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailBottomBar
 import com.shihcheeng.sspaiyou.ui.screen.detail.DetailMarkDownParser
 import com.shihcheeng.sspaiyou.utils.LocalTokenManager
@@ -54,6 +56,7 @@ class DetailFavouriteTest {
     private lateinit var tokenManager: LocalTokenManager
     private lateinit var viewModel: DetailViewModel
     private lateinit var service: FakeArticleService
+    private lateinit var historyRepository: HistoryRepository
 
     @Before
     fun setUp() {
@@ -66,6 +69,7 @@ class DetailFavouriteTest {
         }
         tokenManager = LocalTokenManager(testContext)
         service = FakeArticleService()
+        historyRepository = HistoryRepository(FakeHistoryDAO())
     }
 
     @After
@@ -212,7 +216,8 @@ class DetailFavouriteTest {
                 SavedStateHandle(mapOf("id" to route)),
                 DetailRepository(service),
                 DetailMarkDownParser(),
-                tokenManager
+                tokenManager,
+                historyRepository
             ) as T
         }
         compose.runOnIdle {
