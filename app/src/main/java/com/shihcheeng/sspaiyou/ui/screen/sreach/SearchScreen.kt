@@ -240,7 +240,7 @@ private fun SearchResults(
 ) {
     val refresh = articles.loadState.refresh
     Box(
-        modifier = modifier.padding(paddingValues),
+        modifier = modifier.padding(),
         contentAlignment = Alignment.Center
     ) {
         when {
@@ -265,11 +265,16 @@ private fun SearchResults(
                 )
             }
 
-            articles.itemCount == 0 && refresh is LoadState.Loading ->
+            articles.itemCount == 0 && refresh is LoadState.Loading -> {
                 CircularProgressIndicator()
+            }
 
-            articles.itemCount == 0 && refresh is LoadState.Error ->
-                Error(error = stringResource(R.string.search_error), onClick = articles::retry)
+            articles.itemCount == 0 && refresh is LoadState.Error -> {
+                Error(
+                    error = stringResource(R.string.search_error),
+                    onClick = articles::retry
+                )
+            }
 
             articles.itemCount == 0 -> Text(
                 text = stringResource(R.string.search_empty),
@@ -281,8 +286,13 @@ private fun SearchResults(
 
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(
+                    top = paddingValues.calculateTopPadding() + 16.dp,
+                    bottom = paddingValues.calculateBottomPadding() + 16.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 when (refresh) {
                     is LoadState.Loading -> item(key = "refresh_loading", contentType = "loading") {
@@ -300,7 +310,7 @@ private fun SearchResults(
                 }
                 items(
                     count = articles.itemCount,
-                    key = articles.itemKey { "search_article_${it.id}" },
+                    key = articles.itemKey { "search::article_${it.id}::${it.releasedTime}" },
                     contentType = { "search_article" }
                 ) { index ->
                     articles[index]?.let { article ->

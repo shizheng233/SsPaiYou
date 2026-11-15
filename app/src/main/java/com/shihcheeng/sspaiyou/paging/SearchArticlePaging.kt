@@ -13,6 +13,8 @@ class SearchArticlePaging(
 ) : PagingSource<Int, ColumnArticle>() {
     // Keep the search time range stable while loading subsequent pages.
     private val endTime = getSystemSecond()
+    // Each refresh/search creates a new source with its own deduplication state.
+    private val loadedArticleIds = mutableSetOf<Int>()
 
     override fun getRefreshKey(state: PagingState<Int, ColumnArticle>): Int = 0
 
@@ -28,10 +30,14 @@ class SearchArticlePaging(
             check(response.error == 0) {
                 response.msg.ifBlank { "Search articles API error: ${response.error}" }
             }
+            // Pagination follows raw API results, even when a whole page is duplicated.
             val nextOffset = offset + response.data.size
             val endReached = response.data.isEmpty() || response.total?.let { nextOffset >= it } == true
+            val uniqueData = synchronized(loadedArticleIds) {
+                response.data.filter { loadedArticleIds.add(it.id) }
+            }
             LoadResult.Page(
-                data = response.data,
+                data = uniqueData,
                 prevKey = null,
                 nextKey = if (endReached) null else nextOffset
             )

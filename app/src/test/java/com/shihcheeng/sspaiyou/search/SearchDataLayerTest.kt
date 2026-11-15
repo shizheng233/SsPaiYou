@@ -15,10 +15,14 @@ import com.shihcheeng.sspaiyou.utils.SSPaiUrl
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -130,6 +134,102 @@ class SearchDataLayerTest {
     }
 
     @Test
+    fun duplicateArticlesAcrossPagesAreFilteredAndOffsetUsesRawResponseCount() = runBlocking {
+        val service = FakeSearchService()
+        val paging = SearchArticlePaging(service, "游戏")
+        val firstArticle = ColumnArticle(id = 1)
+        val overlappingArticle = ColumnArticle(id = 2, releasedTime = 123L, title = "first")
+        service.response = SearchArticleDataModel(
+            listOf(firstArticle, overlappingArticle),
+            error = 0,
+            total = 7
+        )
+        val first = paging.load(PagingSource.LoadParams.Refresh(null, 2, false))
+            as PagingSource.LoadResult.Page
+        assertEquals(listOf(1, 2), first.data.map { it.id })
+        assertEquals(2, first.nextKey)
+
+        val repeatedArticle = overlappingArticle.copy(title = "repeated", releasedTime = 456L)
+        val newArticle = ColumnArticle(id = 3)
+        service.response = SearchArticleDataModel(
+            listOf(repeatedArticle, newArticle, newArticle),
+            error = 0,
+            total = 7
+        )
+        val second = paging.load(PagingSource.LoadParams.Append(requireNotNull(first.nextKey), 3, false))
+            as PagingSource.LoadResult.Page
+        assertEquals(listOf(3), second.data.map { it.id })
+        assertEquals(5, second.nextKey)
+
+        service.response = SearchArticleDataModel(
+            listOf(overlappingArticle, ColumnArticle(id = 4)),
+            error = 0,
+            total = 7
+        )
+        val last = paging.load(PagingSource.LoadParams.Append(requireNotNull(second.nextKey), 2, false))
+            as PagingSource.LoadResult.Page
+        assertEquals(listOf(1, 2, 3, 4), (first.data + second.data + last.data).map { it.id })
+        assertNull(last.nextKey)
+        assertEquals(listOf(0, 2, 5), service.requests.map { it.offset })
+    }
+
+    @Test
+    fun duplicateOnlyPageKeepsLoadingUntilRawResponseIsEmpty() = runBlocking {
+        val service = FakeSearchService()
+        val paging = SearchArticlePaging(service, "游戏")
+        val article = ColumnArticle(id = 1)
+        service.response = SearchArticleDataModel(listOf(article), error = 0)
+        val first = paging.load(PagingSource.LoadParams.Refresh(null, 8, false))
+            as PagingSource.LoadResult.Page
+
+        service.response = SearchArticleDataModel(listOf(article, article), error = 0)
+        val duplicates = paging.load(
+            PagingSource.LoadParams.Append(requireNotNull(first.nextKey), 8, false)
+        ) as PagingSource.LoadResult.Page
+        assertTrue(duplicates.data.isEmpty())
+        assertEquals(3, duplicates.nextKey)
+
+        service.response = SearchArticleDataModel(listOf(ColumnArticle(id = 2)), error = 0)
+        val next = paging.load(
+            PagingSource.LoadParams.Append(requireNotNull(duplicates.nextKey), 8, false)
+        ) as PagingSource.LoadResult.Page
+        assertEquals(listOf(2), next.data.map { it.id })
+        assertEquals(4, next.nextKey)
+
+        service.response = SearchArticleDataModel(error = 0)
+        val last = paging.load(PagingSource.LoadParams.Append(requireNotNull(next.nextKey), 8, false))
+            as PagingSource.LoadResult.Page
+        assertTrue(last.data.isEmpty())
+        assertNull(last.nextKey)
+        assertEquals(listOf(0, 1, 3, 4), service.requests.map { it.offset })
+    }
+
+    @Test
+    fun failedAppendDoesNotConsumeIdsAndNewSourceResetsDeduplication() = runBlocking {
+        val service = FakeSearchService()
+        val paging = SearchArticlePaging(service, "游戏")
+        val firstArticle = ColumnArticle(id = 1)
+        val newArticle = ColumnArticle(id = 2)
+        service.response = SearchArticleDataModel(listOf(firstArticle), error = 0)
+        val first = paging.load(PagingSource.LoadParams.Refresh(null, 8, false))
+            as PagingSource.LoadResult.Page
+        val append = PagingSource.LoadParams.Append(requireNotNull(first.nextKey), 8, false)
+
+        service.response = SearchArticleDataModel(listOf(firstArticle, newArticle), error = 503)
+        assertTrue(paging.load(append) is PagingSource.LoadResult.Error)
+
+        service.response = service.response.copy(error = 0)
+        val retried = paging.load(append) as PagingSource.LoadResult.Page
+        assertEquals(listOf(newArticle), retried.data)
+        assertEquals(3, retried.nextKey)
+
+        paging.invalidate()
+        val refreshed = SearchArticlePaging(service, "游戏")
+            .load(PagingSource.LoadParams.Refresh(null, 8, false)) as PagingSource.LoadResult.Page
+        assertEquals(listOf(firstArticle, newArticle), refreshed.data)
+    }
+
+    @Test
     fun missingTotalContinuesUntilEmptyAndEmptyFirstPageAlsoStops() = runBlocking {
         val service = FakeSearchService()
         val paging = SearchArticlePaging(service, "游戏")
@@ -222,6 +322,38 @@ class SearchDataLayerTest {
         assertTrue(service.requests.all { it.offset == 0 && it.limit == 8 })
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun repositoryAppendsAtLastItemAndContinuesPastDuplicateOnlyPage() = runTest {
+        val service = FakeSearchService()
+        val firstArticles = List(8) { ColumnArticle(id = it + 1) }
+        val nextArticles = List(8) { ColumnArticle(id = it + 9) }
+        service.pages[0] = SearchArticleDataModel(firstArticles, error = 0, total = 24)
+        service.pages[8] = SearchArticleDataModel(firstArticles, error = 0, total = 24)
+        service.pages[16] = SearchArticleDataModel(nextArticles, error = 0, total = 24)
+        val repository = SearchRepository(service)
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val presenter = object : PagingDataPresenter<ColumnArticle>(dispatcher) {
+            override suspend fun presentPagingDataEvent(event: PagingDataEvent<ColumnArticle>) = Unit
+        }
+        backgroundScope.launch(dispatcher) {
+            repository.searchArticle("游戏").collectLatest { presenter.collectFrom(it) }
+        }
+        runCurrent()
+        assertEquals(firstArticles, presenter.snapshot().items)
+
+        presenter[6]
+        runCurrent()
+        assertEquals(listOf(0), service.requests.map { it.offset })
+
+        presenter[7]
+        runCurrent()
+        assertEquals(listOf(0, 8, 16), service.requests.map { it.offset })
+        assertTrue(service.requests.all { it.limit == 8 })
+        assertEquals(firstArticles + nextArticles, presenter.snapshot().items)
+        assertTrue(presenter.loadStateFlow.value?.append?.endOfPaginationReached == true)
+    }
+
     private fun withService(
         response: String = """{"data":[],"error":0,"total":0}""",
         onRequest: (Request) -> Unit = {},
@@ -253,6 +385,7 @@ class SearchDataLayerTest {
 
     private class FakeSearchService : SearchService {
         var response = SearchArticleDataModel(error = 0)
+        val pages = mutableMapOf<Int, SearchArticleDataModel>()
         var failure: Exception? = null
         val requests = mutableListOf<SearchRequest>()
 
@@ -267,7 +400,7 @@ class SearchDataLayerTest {
         ): SearchArticleDataModel {
             requests += SearchRequest(free, title, searchType, stime, etime, offset, limit)
             failure?.let { throw it }
-            return response
+            return pages[offset] ?: response
         }
     }
 

@@ -29,7 +29,8 @@ class SearchRepository @Inject constructor(
         config = PagingConfig(
             pageSize = 8,
             initialLoadSize = 8,
-            enablePlaceholders = false
+            enablePlaceholders = false,
+            prefetchDistance = 1
         )
     ) {
         SearchArticlePaging(service, title)
