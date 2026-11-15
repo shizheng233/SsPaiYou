@@ -38,6 +38,7 @@ fun HeaderOfUserDetail(
     followed: Boolean,
     primary: ColorScheme,
     onFollowedChange: (Boolean) -> Unit,
+    followEnabled: Boolean,
     username: String,
     bio: String,
     followingCount: Int,
@@ -74,7 +75,7 @@ fun HeaderOfUserDetail(
                     FilledTonalIconToggleButton(
                         checked = followed,
                         onCheckedChange = onFollowedChange,
-                        enabled = !isMine,
+                        enabled = !isMine && followEnabled,
                     ) {
                         Icon(
                             painter = painterResource(

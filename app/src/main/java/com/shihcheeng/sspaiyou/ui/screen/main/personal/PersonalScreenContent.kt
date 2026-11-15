@@ -48,6 +48,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.ui.theme.AppTheme
+import com.shihcheeng.sspaiyou.utils.extra.click
 import com.shihcheeng.sspaiyou.utils.imageUrlFor
 
 @Composable
@@ -61,6 +62,7 @@ fun PersonalScreenContent(
     onHistory: () -> Unit,
     onFavourite: () -> Unit,
     onMine: () -> Unit,
+    onFollowedClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.colorScheme
@@ -80,7 +82,8 @@ fun PersonalScreenContent(
                 beingDays = beingDays,
                 followingCount = followingCount,
                 followerCount = followerCount,
-                onMine = onMine
+                onMine = onMine,
+                onFollowrdClick = onFollowedClick
             )
             Text(
                 text = stringResource(R.string.personal_shortcuts),
@@ -127,6 +130,7 @@ private fun ProfileCard(
     beingDays: Int?,
     followingCount: Int,
     followerCount: Int,
+    onFollowrdClick: () -> Unit,
     onMine: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -230,7 +234,8 @@ private fun ProfileCard(
                 ProfileStatistic(
                     value = followingCount,
                     label = stringResource(R.string.personal_following),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    onClick = onFollowrdClick
                 )
                 ProfileStatistic(
                     value = followerCount,
@@ -243,7 +248,12 @@ private fun ProfileCard(
 }
 
 @Composable
-private fun ProfileStatistic(value: Int, label: String, modifier: Modifier = Modifier) {
+private fun ProfileStatistic(
+    modifier: Modifier = Modifier,
+    value: Int,
+    label: String,
+    onClick: () -> Unit = {}
+) {
     Column(
         modifier = modifier.semantics(mergeDescendants = true) {},
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -251,7 +261,10 @@ private fun ProfileStatistic(value: Int, label: String, modifier: Modifier = Mod
         Text(
             text = value.toString(),
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.click {
+                onClick()
+            }
         )
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
@@ -340,7 +353,8 @@ private fun PersonalScreenContentPreview() {
                 onSetting = {},
                 onFavourite = {},
                 onMine = {},
-                onHistory = {}
+                onHistory = {},
+                onFollowedClick = {}
             )
         }
     }

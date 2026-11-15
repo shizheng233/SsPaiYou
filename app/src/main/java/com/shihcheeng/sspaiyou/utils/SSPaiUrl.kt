@@ -30,4 +30,6 @@ object SSPaiUrl {
     const val FOLLOW_COLUMN = "special/column/user/follow"
     const val INSERT_COMMENT = "https://sspai.com/api/v2/comment/insert"
     const val SEARCH_ARTICLE = "search/article/page/get"
+    const val FOLLOW_USER = "user/follow"
+    const val FOLLOW_USER_LIST = "user/follow/page/get"
 }

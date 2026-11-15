@@ -15,6 +15,9 @@ val SystemBarStyle.Companion.TRANSPARENT: SystemBarStyle
         darkScrim = Color.TRANSPARENT
     )
 
+/**
+ * 这是没有波纹动画的Clickable实现。
+ */
 fun Modifier.click(
     enabled: Boolean = true,
     onClick: () -> Unit

@@ -71,6 +71,7 @@ fun UserScreenContent(
     followed: Boolean,
     color: String?,
     onFollowedChange: (Boolean) -> Unit,
+    followEnabled: Boolean,
     username: String,
     bio: String,
     followingCount: Int,
@@ -112,6 +113,7 @@ fun UserScreenContent(
                 followed = followed,
                 primary = primary,
                 onFollowedChange = onFollowedChange,
+                followEnabled = followEnabled,
                 username = username,
                 bio = bio,
                 followingCount = followingCount,
@@ -357,4 +359,3 @@ fun UserScreenContent(
         }
     }
 }
-

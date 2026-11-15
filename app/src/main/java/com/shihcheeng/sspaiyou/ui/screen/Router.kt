@@ -8,9 +8,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.shihcheeng.sspaiyou.ui.screen.userfollowed.UserFollowedScreen
 import com.shihcheeng.sspaiyou.ui.screen.Router.Bullet.proceedToBullet
 import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
+import com.shihcheeng.sspaiyou.ui.screen.Router.FollowedUser.proceedToUserFollowed
 import com.shihcheeng.sspaiyou.ui.screen.Router.HistoryScreen.proceedToHistory
 import com.shihcheeng.sspaiyou.ui.screen.Router.Login.proceedTo
 import com.shihcheeng.sspaiyou.ui.screen.Router.TagsScreen.proceedToTagsDetail
@@ -80,7 +82,10 @@ fun Router(
                 onHistory = {
                     navHostController.proceedToHistory(it)
                 },
-                onSearch = { navHostController proceedTo Router.SearchScreen }
+                onSearch = { navHostController proceedTo Router.SearchScreen },
+                onFollowed = {
+                    navHostController.proceedToUserFollowed(it)
+                },
             ) {
                 navHostController proceedTo Router.Login
             }
@@ -176,6 +181,12 @@ fun Router(
                 navHostController.popBackStack()
             }
         }
+        composable(Router.FollowedUser.name) {
+            UserFollowedScreen(
+                onUserClick = { navHostController.proceedToUserInfo(it) },
+                onBack = navHostController::popBackStack
+            )
+        }
     }
 }
 
@@ -249,7 +260,7 @@ sealed interface Router {
             get() = "USER_INFO/{slug}"
 
         fun NavHostController.proceedToUserInfo(slug: String) {
-            navigate(name.replace("{slug}", slug))
+            navigate(name.replace("{slug}", Uri.encode(slug)))
         }
 
     }
@@ -290,6 +301,19 @@ sealed interface Router {
     data object SearchScreen : Router {
         override val name: String
             get() = "SEARCH"
+    }
+
+    data object FollowedUser : Router {
+        override val name: String
+            get() = "followed_user/{user_slug}"
+
+        /**
+         * 跳转到用户关注用户的界面，注意到有可能有的用户具有特殊字符，需要转化一下。
+         * @param userSlug 当前用户的slug。
+         */
+        fun NavHostController.proceedToUserFollowed(userSlug: String) {
+            navigate(name.replace("{user_slug}", Uri.encode(userSlug)))
+        }
     }
 
 }

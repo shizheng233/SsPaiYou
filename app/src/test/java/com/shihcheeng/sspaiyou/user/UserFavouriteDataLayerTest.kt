@@ -7,6 +7,9 @@ import com.shihcheeng.sspaiyou.api.data.column.ColumnArticle
 import com.shihcheeng.sspaiyou.api.data.user.UserinfoDataModel
 import com.shihcheeng.sspaiyou.api.data.user.activity.UserActivityDataModel
 import com.shihcheeng.sspaiyou.api.data.user.favourite.UserFavouriteDataModel
+import com.shihcheeng.sspaiyou.api.data.user.follow.FollowMessageModel
+import com.shihcheeng.sspaiyou.api.data.user.follow.FollowUserRequest
+import com.shihcheeng.sspaiyou.api.data.user.follow.UserFollowedDataModel
 import com.shihcheeng.sspaiyou.api.data.user.third.ThirdUserDataModel
 import com.shihcheeng.sspaiyou.api.service.UserService
 import com.shihcheeng.sspaiyou.paging.UserFavouritePaging
@@ -212,6 +215,11 @@ class UserFavouriteDataLayerTest {
         override suspend fun getUserInfo(): UserinfoDataModel = error("unused")
 
         override suspend fun getUserInfo(slug: String): ThirdUserDataModel = error("unused")
+
+        override suspend fun followUser(request: FollowUserRequest): FollowMessageModel = error("unused")
+
+        override suspend fun getUserList(limit: Int, offset: Int, slug: String): UserFollowedDataModel =
+            error("unused")
 
         override suspend fun getUserActivity(
             limit: Int,

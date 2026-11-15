@@ -1,5 +1,6 @@
 package com.shihcheeng.sspaiyou.ui.screen.user
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -9,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -16,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,6 +44,16 @@ fun UserScreen(
     val favourites = if (selectedTab == 1) viewModel.favourites.collectAsLazyPagingItems() else null
     val user by viewModel.dataOfUser.collectAsStateWithLifecycle()
     val currentUserSlug by viewModel.currentUserSlug.collectAsStateWithLifecycle()
+    val token by viewModel.token.collectAsStateWithLifecycle()
+    val followPending by viewModel.followPending.collectAsStateWithLifecycle()
+    val followError by viewModel.followError.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    LaunchedEffect(followError) {
+        if (followError) {
+            Toast.makeText(context, R.string.user_follow_error, Toast.LENGTH_SHORT).show()
+            viewModel.clearFollowError()
+        }
+    }
     val activityList = rememberLazyListState()
     val favouriteList = rememberLazyListState()
     val list = if (selectedTab == 0) activityList else favouriteList
@@ -108,7 +121,8 @@ fun UserScreen(
                     ?.takeIf { x ->
                         x.isNotEmpty()
                     },
-                onFollowedChange = {},
+                onFollowedChange = viewModel::setFollowed,
+                followEnabled = !token.isNullOrBlank() && it.data.slug !in followPending,
                 username = it.data.nickname,
                 bio = it.data.bio,
                 followingCount = it.data.followingCount,

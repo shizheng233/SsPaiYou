@@ -40,7 +40,8 @@ fun MainScreen(
     onColumnClick: (Int) -> Unit,
     onTagClick: (String) -> Unit,
     onHistory: (String) -> Unit,
-    onSearch:() -> Unit,
+    onSearch: () -> Unit,
+    onFollowed: (String) -> Unit,
     onLoginClick: () -> Unit
 ) {
 
@@ -143,7 +144,8 @@ fun MainScreen(
                     onFavourite = onFavourite,
                     onSetting = onSetting,
                     onMine = onMineClick,
-                    onHistory = { userSlug?.let { x -> onHistory(x) } }
+                    onHistory = { userSlug?.let { x -> onHistory(x) } },
+                    onFollowed = onFollowed
                 )
             }
         }
