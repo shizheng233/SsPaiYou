@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -51,6 +52,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 @OptIn(FlowPreview::class)
@@ -122,7 +124,7 @@ fun DetailScreen(
             )
         }
             .distinctUntilChanged()
-            .debounce(700)
+            .debounce(700.milliseconds)
             .collect { (itemIndex, itemOffsetPx, progress) ->
                 viewModel.saveReadingProgress(
                     article = currentArticle,
@@ -248,20 +250,22 @@ fun DetailScreen(
                         .fillMaxSize()
                 ) {
                     CompositionLocalProvider(LocalUriHandler provides urlHandler) {
-                        DetailScreenContent(
-                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                            state = state,
-                            title = it.title,
-                            author = it.author,
-                            publishedDate = publishedDate,
-                            tags = tags,
-                            blocks = contentBlocks,
-                            extendsBodys = bodyExtendsBodys,
-                            bottomPadding = padding.calculateBottomPadding(),
-                            onAvatarClick = onAvatarClick,
-                            onTagClick = onTagClick,
-                            onImageClick = { selectedImageUrl = it }
-                        )
+                        SelectionContainer(modifier = Modifier.fillMaxSize()) {
+                            DetailScreenContent(
+                                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                                state = state,
+                                title = it.title,
+                                author = it.author,
+                                publishedDate = publishedDate,
+                                tags = tags,
+                                blocks = contentBlocks,
+                                extendsBodys = bodyExtendsBodys,
+                                bottomPadding = padding.calculateBottomPadding(),
+                                onAvatarClick = onAvatarClick,
+                                onTagClick = onTagClick,
+                                onImageClick = { x -> selectedImageUrl = x }
+                            )
+                        }
                     }
                 }
             }
