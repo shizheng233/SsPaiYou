@@ -18,10 +18,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ColumnRepository @Inject constructor(
+class ColumnRepository internal constructor(
     private val service: ColumnService,
-    private val tokenManager: LocalTokenManager
+    private val readToken: () -> String?
 ) {
+    // Resolve the token on every read so in-flight requests can detect session changes.
+    @Inject
+    constructor(service: ColumnService, tokenManager: LocalTokenManager) :
+        this(service, tokenManager::getToken)
 
     private val _followChanges = MutableSharedFlow<Pair<Int, Boolean>>(extraBufferCapacity = 16)
     val followChanges = _followChanges.asSharedFlow()
@@ -36,9 +40,9 @@ class ColumnRepository @Inject constructor(
             _followPending.value = _followPending.value + id
         }
         try {
-            val token = tokenManager.getToken()?.takeIf { it.isNotBlank() } ?: return
+            val token = readToken()?.takeIf { it.isNotBlank() } ?: return
             val response = service.followColumn(ColumnFollowRequest(id, if (followed) 1 else 2))
-            if (token != tokenManager.getToken()) return
+            if (token != readToken()) return
             check(response.error == 0) {
                 response.msg.ifBlank { "Column follow API error: ${response.error}" }
             }
