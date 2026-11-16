@@ -46,7 +46,7 @@ fun ArticleCommentPushEditor(
 
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.PartiallyExpanded)
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
     )
 
     ModalBottomSheet(
