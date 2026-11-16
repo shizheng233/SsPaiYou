@@ -2,6 +2,7 @@ package com.shihcheeng.sspaiyou.favourite
 
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsEnabled
@@ -25,6 +26,8 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostResponse
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.repository.DetailRepository
 import com.shihcheeng.sspaiyou.repository.FakeHistoryDAO
@@ -235,6 +238,7 @@ class DetailFavouriteTest {
             val pending by viewModel.isFavouriteUpdating.collectAsStateWithLifecycle()
             MaterialTheme {
                 DetailBottomBar(
+                    bottomAppBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior(),
                     commentCount = 0,
                     likeCount = 0,
                     onShareCommit = {},
@@ -244,7 +248,8 @@ class DetailFavouriteTest {
                     onLikeClick = viewModel::toggleLike,
                     isLike = (data as NetState.Success).content.liked,
                     isBookmarked = (data as NetState.Success).content.favorited,
-                    bookmarkEnabled = !token.isNullOrBlank() && !pending
+                    bookmarkEnabled = !token.isNullOrBlank() && !pending,
+                    onPostCommentClick = {}
                 )
             }
         }
@@ -277,5 +282,19 @@ class DetailFavouriteTest {
 
         override suspend fun likeItOrNot(request: ArticleLikeRequest): ArticleLikeResponse =
             error("Unexpected like request")
+
+        override suspend fun postComment(
+            url: String,
+            request: CommentPostRequest
+        ): CommentPostResponse {
+            return CommentPostResponse(
+                data = CommentPostResponse.CommentPostResponseData(
+                    id = article.id,
+                    status = 3,
+                    success = true
+                ),
+                error = 0
+            )
+        }
     }
 }

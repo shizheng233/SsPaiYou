@@ -1,12 +1,14 @@
 package com.shihcheeng.sspaiyou.ui.screen.detail
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -32,6 +34,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -72,6 +75,7 @@ fun DetailScreen(
     val contentBlocks by viewModel.contentBlocks.collectAsStateWithLifecycle()
     val bodyExtendsBodys by viewModel.bodyExtendsBlocks.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val commentStatus by viewModel.sendMessageStatus.collectAsStateWithLifecycle()
     val state = rememberLazyListState()
     var showComments by rememberSaveable { mutableStateOf(false) }
     var selectedImageUrl by rememberSaveable(viewModel.id) { mutableStateOf<String?>(null) }
@@ -79,11 +83,35 @@ fun DetailScreen(
     var restoredArticleId by remember(article?.id) { mutableIntStateOf(-1) }
     val context = LocalContext.current
     val setting = LocalComposeSetting.current
+    val resource = LocalResources.current
     val shareTitle = stringResource(R.string.share_text)
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val favouriteErrorMessage = stringResource(R.string.article_favourite_error)
+    var showCommentPushEditor by rememberSaveable { mutableStateOf(false) }
+    val (commentByUserEditing, onUserEditing) = rememberSaveable { mutableStateOf("") }
+    val bottomAppBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+
+    LaunchedEffect(commentStatus) {
+        val message = when (val status = commentStatus) {
+            DetailViewModel.CommentSendStatus.Success -> {
+                showCommentPushEditor = false
+                onUserEditing("")
+                resource.getString(R.string.article_comment_send_success)
+            }
+
+            is DetailViewModel.CommentSendStatus.Error -> {
+                status.message?.takeIf { it.isNotBlank() }?.let {
+                    resource.getString(R.string.article_comment_send_error_detail, it)
+                } ?: resource.getString(R.string.article_comment_send_error)
+            }
+
+            else -> return@LaunchedEffect
+        }
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        viewModel.clearCommentSendStatus()
+    }
 
     LaunchedEffect(article?.id, contentBlocks, bodyExtendsBodys) {
         val currentArticle = article ?: return@LaunchedEffect
@@ -165,7 +193,7 @@ fun DetailScreen(
         drawerContent = {
             ModalDrawerSheet(
                 drawerState = drawerState,
-                drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
                 DetailTocDrawer(
                     entries = tocEntries,
@@ -220,7 +248,17 @@ fun DetailScreen(
                         likeCount = article.articleCount.likeCount,
                         onLikeClick = viewModel::toggleLike,
                         isLike = article.liked,
-                        likeEnabled = !isLikeUpdating
+                        likeEnabled = !isLikeUpdating,
+                        bottomAppBarScrollBehavior = bottomAppBarScrollBehavior,
+                        onPostCommentClick = {
+                            if (token.isNullOrBlank()) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(resource.getString(R.string.no_login))
+                                }
+                            } else {
+                                showCommentPushEditor = true
+                            }
+                        }
                     )
                 }
             }
@@ -240,9 +278,7 @@ fun DetailScreen(
                         it.releasedTime.toLong().timestampToChinese()
                     }"
                 } else {
-                    remember(it.pubDate) {
-                        it.pubDate
-                    }
+                    remember(it.pubDate) { it.pubDate }
                 }
                 val tags = remember(it.tags) { it.tags.orEmpty().map { tag -> tag.title } }
                 Box(
@@ -252,7 +288,9 @@ fun DetailScreen(
                     CompositionLocalProvider(LocalUriHandler provides urlHandler) {
                         SelectionContainer(modifier = Modifier.fillMaxSize()) {
                             DetailScreenContent(
-                                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                                modifier = Modifier
+                                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                                    .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection),
                                 state = state,
                                 title = it.title,
                                 author = it.author,
@@ -287,6 +325,16 @@ fun DetailScreen(
     selectedImageUrl?.let { url ->
         key(url) {
             ArticleImageDialog(url = url, onDismiss = { selectedImageUrl = null })
+        }
+    }
+    if (showCommentPushEditor && article != null && article.id > 0 && !token.isNullOrBlank()) {
+        ArticleCommentPushEditor(
+            onDismissRequest = { showCommentPushEditor = false },
+            comment = commentByUserEditing,
+            onCommentEdit = onUserEditing,
+            isSending = commentStatus == DetailViewModel.CommentSendStatus.Sending
+        ) { value ->
+            viewModel.sendComment(article.id, value)
         }
     }
 }

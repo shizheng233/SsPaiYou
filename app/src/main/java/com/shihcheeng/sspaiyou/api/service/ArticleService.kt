@@ -6,11 +6,14 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostResponse
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface ArticleService {
 
@@ -45,4 +48,10 @@ interface ArticleService {
     suspend fun likeItOrNot(
         @Body request: ArticleLikeRequest
     ): ArticleLikeResponse
+
+    @POST
+    suspend fun postComment(
+        @Url url: String = SSPaiUrl.INSERT_COMMENT,
+        @Body request: CommentPostRequest
+    ): CommentPostResponse
 }

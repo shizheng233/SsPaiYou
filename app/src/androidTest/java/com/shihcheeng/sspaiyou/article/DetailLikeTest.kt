@@ -2,6 +2,7 @@ package com.shihcheeng.sspaiyou.article
 
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -29,6 +30,8 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostResponse
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.repository.DetailRepository
 import com.shihcheeng.sspaiyou.repository.FakeHistoryDAO
@@ -81,7 +84,8 @@ class DetailLikeTest {
     @After
     fun tearDown() {
         compose.runOnIdle { store.clear() }
-        testContext.getSharedPreferences("TOKEN_MANAGER", Context.MODE_PRIVATE).edit().clear().commit()
+        testContext.getSharedPreferences("TOKEN_MANAGER", Context.MODE_PRIVATE).edit().clear()
+            .commit()
     }
 
     @Test
@@ -119,12 +123,16 @@ class DetailLikeTest {
         compose.waitUntil { !article().liked && !viewModel.isLikeUpdating.value }
         compose.onNodeWithContentDescription("喜欢").assertIsOff().assertIsEnabled()
         compose.onNodeWithText("(12)").assertIsDisplayed()
-        assertEquals(listOf(ArticleLikeRequest(115074, 1), ArticleLikeRequest(115074, 2)), service.requests)
+        assertEquals(
+            listOf(ArticleLikeRequest(115074, 1), ArticleLikeRequest(115074, 2)),
+            service.requests
+        )
     }
 
     @Test
     fun initiallyLikedArticleCanBeUnlikedWithoutNegativeCount() {
-        service.article = service.article.copy(liked = true, articleCount = ArticleCount(likeCount = 0))
+        service.article =
+            service.article.copy(liked = true, articleCount = ArticleCount(likeCount = 0))
         createViewModel()
         showBottomBar()
         compose.onNodeWithContentDescription("取消喜欢").assertIsOn().performClick()
@@ -287,7 +295,11 @@ class DetailLikeTest {
         compose.setContent {
             CompositionLocalProvider(LocalComposeSetting provides settings) {
                 MaterialTheme {
-                    DetailScreen(viewModel = viewModel, onAvatarClick = {}, onLinkClick = {}, onNavBack = {})
+                    DetailScreen(
+                        viewModel = viewModel,
+                        onAvatarClick = {},
+                        onLinkClick = {},
+                        onNavBack = {})
                 }
             }
         }
@@ -300,6 +312,7 @@ class DetailLikeTest {
             val article = (data as NetState.Success).content
             MaterialTheme {
                 DetailBottomBar(
+                    bottomAppBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior(),
                     commentCount = 0,
                     likeCount = article.articleCount.likeCount,
                     onShareCommit = {},
@@ -309,7 +322,8 @@ class DetailLikeTest {
                     onLikeClick = viewModel::toggleLike,
                     isLike = article.liked,
                     likeEnabled = !pending,
-                    isBookmarked = article.favorited
+                    isBookmarked = article.favorited,
+                    onPostCommentClick = {}
                 )
             }
         }
@@ -330,20 +344,44 @@ class DetailLikeTest {
         override suspend fun getArticleDetail(id: String, view: String, supportWebp: Boolean) =
             ArticleDataModel(data = article)
 
-        override suspend fun getMemberArticleDetail(slug: String, view: String, supportWebp: Boolean): ArticleDataModel {
+        override suspend fun getMemberArticleDetail(
+            slug: String,
+            view: String,
+            supportWebp: Boolean
+        ): ArticleDataModel {
             requestedSlug = slug
             return ArticleDataModel(data = article)
         }
 
-        override suspend fun getArticleComments(limit: Int, offset: Int, createdAt: Long, articleId: Int) =
+        override suspend fun getArticleComments(
+            limit: Int,
+            offset: Int,
+            createdAt: Long,
+            articleId: Int
+        ) =
             ArticleCommentDataModel()
 
-        override suspend fun favouriteOrNot(request: ArticleFavouriteRequest) = ArticleFavouriteResponse(0)
+        override suspend fun favouriteOrNot(request: ArticleFavouriteRequest) =
+            ArticleFavouriteResponse(0)
 
         override suspend fun likeItOrNot(request: ArticleLikeRequest): ArticleLikeResponse {
             requests += request
             failure?.let { throw it }
             return pending?.await() ?: response
+        }
+
+        override suspend fun postComment(
+            url: String,
+            request: CommentPostRequest
+        ): CommentPostResponse {
+            return CommentPostResponse(
+                data = CommentPostResponse.CommentPostResponseData(
+                    id = article.id,
+                    status = 3,
+                    success = true
+                ),
+                error = 0
+            )
         }
     }
 }

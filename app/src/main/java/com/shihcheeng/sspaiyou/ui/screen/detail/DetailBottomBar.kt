@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +36,7 @@ import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
 @Composable
 fun DetailBottomBar(
     modifier: Modifier = Modifier,
+    bottomAppBarScrollBehavior: BottomAppBarScrollBehavior,
     commentCount: Int,
     likeCount: Int,
     onShareCommit: () -> Unit,
@@ -44,12 +47,14 @@ fun DetailBottomBar(
     isLike: Boolean,
     isBookmarked: Boolean = false,
     bookmarkEnabled: Boolean = true,
+    onPostCommentClick: () -> Unit,
     likeEnabled: Boolean = true
 ) {
     val color = MaterialTheme.colorScheme
     val typo = MaterialTheme.typography
     FlexibleBottomAppBar(
         modifier = modifier,
+        scrollBehavior = bottomAppBarScrollBehavior
     ) {
         Surface(
             modifier = Modifier
@@ -57,7 +62,8 @@ fun DetailBottomBar(
                 .fillMaxHeight()
                 .padding(vertical = 12.dp),
             shape = CircleShape,
-            color = color.surfaceContainerHigh
+            color = color.surfaceContainerHigh,
+            onClick = onPostCommentClick
         ) {
             Box(
                 modifier = Modifier,
@@ -181,6 +187,7 @@ fun DetailBottomBar(
 fun DetailBottomBarPreview() {
     AppTheme {
         DetailBottomBar(
+            bottomAppBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior(),
             commentCount = 24,
             onViewComments = {},
             likeCount = 12,
@@ -188,7 +195,8 @@ fun DetailBottomBarPreview() {
             onBookmarkClick = { },
             onTocClick = { },
             onLikeClick = {},
-            isLike = false
+            isLike = false,
+            onPostCommentClick = {}
         )
     }
 }

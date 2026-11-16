@@ -54,6 +54,9 @@ class DetailViewModel @Inject constructor(
     private val _likeError = MutableStateFlow<LikeError?>(null)
     val likeError = _likeError.asStateFlow()
 
+    private val _sendMessageStatus = MutableStateFlow<CommentSendStatus>(CommentSendStatus.Empty)
+    val sendMessageStatus = _sendMessageStatus.asStateFlow()
+
     private val _contentBlocks = MutableStateFlow<List<DetailContent>>(emptyList())
     val contentBlocks = _contentBlocks.asStateFlow()
 
@@ -256,6 +259,43 @@ class DetailViewModel @Inject constructor(
             e.printStackOnlyDebug()
             _data.emit(NetState.Error(e))
         }
+    }
+
+
+    fun sendComment(
+        articleID: Int,
+        comment: String
+    ) {
+        if (_sendMessageStatus.value == CommentSendStatus.Sending || comment.isBlank()) return
+
+        // Set before launching so rapid clicks cannot enqueue duplicate comments.
+        _sendMessageStatus.value = CommentSendStatus.Sending
+        viewModelScope.launch {
+            try {
+                require(articleID > 0) { "文章ID必须大于0" }
+                repository.postComment(articleID, comment)
+                _sendMessageStatus.value = CommentSendStatus.Success
+            } catch (e: CancellationException) {
+                _sendMessageStatus.value = CommentSendStatus.Empty
+                throw e
+            } catch (e: Exception) {
+                e.printStackOnlyDebug()
+                _sendMessageStatus.value = CommentSendStatus.Error(e.localizedMessage)
+            }
+        }
+    }
+
+    fun clearCommentSendStatus() {
+        if (_sendMessageStatus.value != CommentSendStatus.Sending) {
+            _sendMessageStatus.value = CommentSendStatus.Empty
+        }
+    }
+
+    sealed interface CommentSendStatus {
+        data object Empty : CommentSendStatus
+        data object Sending : CommentSendStatus
+        data object Success : CommentSendStatus
+        data class Error(val message: String?) : CommentSendStatus
     }
 
 }

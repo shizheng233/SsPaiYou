@@ -8,6 +8,8 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeResponse
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleComment
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostRequest
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostResponse
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.paging.ArticleCommentPaging
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
@@ -196,6 +198,9 @@ class ArticleCommentTest {
 
         override suspend fun likeItOrNot(request: ArticleLikeRequest): ArticleLikeResponse =
             error("Unexpected like request")
+
+        override suspend fun postComment(url: String, request: CommentPostRequest): CommentPostResponse =
+            error("Unexpected comment post request")
 
         override suspend fun getArticleComments(limit: Int, offset: Int, createdAt: Long, articleId: Int): ArticleCommentDataModel {
             requests += CommentRequest(limit, offset, createdAt, articleId)

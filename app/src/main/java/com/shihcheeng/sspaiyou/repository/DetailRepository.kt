@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleFavouriteRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.ArticleLikeRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleComment
+import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostRequest
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.paging.ArticleCommentPaging
 import kotlinx.coroutines.Dispatchers
@@ -54,5 +55,24 @@ class DetailRepository @Inject constructor(
             }
         }.getOrThrow().data
     }
+
+    suspend fun postComment(
+        articleID: Int,
+        comment: String
+    ) = runCatching {
+        service.postComment(
+            request = CommentPostRequest(
+                articleId = articleID,
+                comment = comment
+            )
+        )
+    }.onSuccess {
+        if (it.error != 0) {
+            throw Exception(it.error.toString())
+        } else if (!it.data.success) {
+            throw Exception("错误：success=${it.data.success} 且 status=${it.data.status}")
+        }
+    }.getOrThrow().data
+
 
 }
