@@ -23,8 +23,9 @@ iOS上感觉没有啥，但是后面换到Android客户端感觉有点小脱节�
 
 ## 自己构建
 
-克隆源码，修改`settings.gradle.kts`
-中的，克隆由大肥鱼写的[expressive-settings](https://github.com/shizheng233/expressive-settings)：
+1. 克隆此项目源码；
+2. 克隆由大肥鱼写的[expressive-settings](https://github.com/shizheng233/expressive-settings)；
+3. 修改`settings.gradle.kts`中的：
 
 ```diff
 maven {
@@ -32,8 +33,9 @@ maven {
 +    url = uri("你的expressive-settings\repo地址")
 }
 ```
-
 为什么会这样：因为我懒。
+
+4. 可以尝试运行，然后一点一点修复遇见出现的编译问题，直至最后生成产物。
 
 ## 截屏
 
@@ -41,7 +43,7 @@ maven {
 |-------------------------|-------------------------|-------------------------|
 | ![sc01](./sc/sc_01.jpg) | ![sc01](./sc/sc_02.jpg) | ![sc01](./sc/sc_03.jpg) |
 | ![sc01](./sc/sc_04.jpg) | ![sc01](./sc/sc_05.jpg) | ![sc01](./sc/sc_06.jpg) |
-| ![sc01](./sc/sc_07.png) | \                       | \                       |
+| ![sc01](./sc/sc_07.png) | ![sc01](./sc/sc_08.jpg) | ![sc01](./sc/sc_09.jpg) |
 
 ## Cookie / Token 本地加密
 
