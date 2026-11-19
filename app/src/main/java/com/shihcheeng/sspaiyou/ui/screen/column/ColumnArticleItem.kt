@@ -2,20 +2,30 @@ package com.shihcheeng.sspaiyou.ui.screen.column
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,82 +34,130 @@ import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.api.data.column.ColumnArticle
 import com.shihcheeng.sspaiyou.api.data.column.ColumnUser
 import com.shihcheeng.sspaiyou.ui.theme.AppTheme
+import com.shihcheeng.sspaiyou.utils.extra.calculateDay
+import com.shihcheeng.sspaiyou.utils.extra.click
+import com.shihcheeng.sspaiyou.utils.extra.timestampToChinese
 import com.shihcheeng.sspaiyou.utils.imageUrlForNullable
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun ColumnArticleItem(
+fun ColumnArticleItem(
     article: ColumnArticle,
     onClick: () -> Unit,
     onUserClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val date = remember(article.releasedTime) {
-        article.releasedTime.takeIf { it > 0 }?.let {
-            DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                .withZone(ZoneId.systemDefault())
-                .format(Instant.ofEpochSecond(it))
-        }
-    }
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = RectangleShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        if (article.banner.isNotBlank()) {
+        Row(
+            modifier = Modifier
+                .click{
+                    onUserClick(article.author.slug)
+                }
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             AsyncImage(
-                model = imageUrlForNullable(article.banner),
+                model = imageUrlForNullable(article.author.avatar.takeIf { it.isNotBlank() }),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
                 placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer),
                 error = ColorPainter(MaterialTheme.colorScheme.secondaryContainer),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2f)
+                    .size(42.dp)
+                    .clip(CircleShape)
             )
+            Column(
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Text(
+                    text = article.author.nickname,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${article.releasedTime.calculateDay()} ${article.releasedTime.timestampToChinese()}",
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
         }
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .padding(
+                    top = 16.dp, bottom = 22.dp
+                ),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             Text(
-                article.title,
-                style = MaterialTheme.typography.titleLarge,
+                text = article.title,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
-            ColumnUserItem(
-                nickname = article.author.nickname,
-                avatar = article.author.avatar,
-                slug = article.author.slug,
-                onUserClick = onUserClick
-            )
+
             if (article.summary.isNotBlank()) {
                 Text(
-                    article.summary,
+                    text = article.summary,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            if (article.banner.isNotBlank()) {
+                AsyncImage(
+                    model = imageUrlForNullable(article.banner),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    placeholder = ColorPainter(MaterialTheme.colorScheme.secondaryContainer),
+                    error = ColorPainter(MaterialTheme.colorScheme.secondaryContainer),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(2f)
+                        .clip(MaterialTheme.shapes.medium),
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                date?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
-                Text(
-                    stringResource(R.string.column_article_likes, article.likeCount),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                Icon(
+                    painter = painterResource(R.drawable.outline_flash_on_24),
+                    contentDescription = stringResource(R.string.column_article_likes, article.likeCount),
+                    modifier = Modifier.size(18.dp)
                 )
                 Text(
-                    stringResource(R.string.column_article_comments, article.commentCount),
+                    text = article.likeCount.toString(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.width(12.dp))
+                Icon(
+                    painter = painterResource(R.drawable.outline_message_24),
+                    contentDescription = stringResource(R.string.column_article_comments, article.likeCount),
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = article.likeCount.toString(),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
         }
+
+
     }
 }
 
@@ -118,7 +176,7 @@ private fun ColumnArticleItemPreview() {
             ),
             onClick = {},
             onUserClick = {},
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(vertical = 16.dp)
         )
     }
 }

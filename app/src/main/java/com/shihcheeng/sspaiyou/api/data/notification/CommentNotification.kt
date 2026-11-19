@@ -1,0 +1,91 @@
+package com.shihcheeng.sspaiyou.api.data.notification
+
+import androidx.annotation.Keep
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Keep
+@Serializable
+data class CommentNotification(
+    val id: Int,
+    val key: String,
+    val icon: String = "",
+    val title: String = "",
+    val data: CommentNotificationDetail,
+    val template: String = "",
+    val action: String = "",
+    @SerialName("is_read") val isRead: Boolean,
+    @SerialName("created_at") val createdAt: Long,
+    @SerialName("is_deleted") val isDeleted: Boolean = false,
+    @SerialName("article_belong_to_member") val articleBelongToMember: Boolean = false,
+    @SerialName("allow_delete") val allowDelete: Boolean = false,
+    @SerialName("button_title") val buttonTitle: String = "",
+    @SerialName("button_url") val buttonUrl: String = ""
+)
+
+@Keep
+@Serializable
+data class CommentNotificationDetail(
+    @SerialName("article_title") val articleTitle: String = "",
+    @SerialName("article_id") val articleId: Int = 0,
+    @SerialName("article_slug") val articleSlug: String = "",
+    @SerialName("article_banner") val articleBanner: String = "",
+    val comment: String = "",
+    @SerialName("source_comment") val sourceComment: String = "",
+    @SerialName("comment_id") val commentId: Int = 0,
+    @SerialName("comment_reply") val commentReply: String = "",
+    @SerialName("source_comment_reply") val sourceCommentReply: String = "",
+    @SerialName("comment_reply_id") val commentReplyId: Int = 0,
+    @SerialName("comment_reply_reply_id") val commentReplyReplyId: Int = 0,
+    @SerialName("source_comment_reply_reply") val sourceCommentReplyReply: String = "",
+    @SerialName("comment_reply_reply") val commentReplyReply: String = "",
+    @SerialName("user_id") val userId: Int = 0,
+    val slug: String = "",
+    val nickname: String = "",
+    val avatar: String = "",
+    @SerialName("banned_until") val bannedUntil: Long = 0,
+    @SerialName("banned_time") val bannedTime: Long = 0,
+    @SerialName("banned_time_format") val bannedTimeFormat: String = "",
+    @SerialName("special_column_id") val specialColumnId: Int = 0,
+    @SerialName("special_column_title") val specialColumnTitle: String = "",
+    @SerialName("accusation_id") val accusationId: Int = 0,
+    @SerialName("accusation_reject_reason") val accusationRejectReason: String = "",
+    @SerialName("message_id") val messageId: Int = 0,
+    @SerialName("message_body") val messageBody: String = "",
+    @SerialName("bullet_created_at") val bulletCreatedAt: Long = 0,
+    @SerialName("bullet_title") val bulletTitle: String = "",
+    @SerialName("bullet_banner") val bulletBanner: String = "",
+    @SerialName("thread_id_hash") val threadIdHash: String = "",
+    @SerialName("thread_body") val threadBody: String = "",
+    @SerialName("thread_source_body") val threadSourceBody: String = "",
+    @SerialName("thread_comment_id_hash") val threadCommentIdHash: String = "",
+    @SerialName("thread_comment_body") val threadCommentBody: String = "",
+    @SerialName("thread_source_comment_body") val threadSourceCommentBody: String = "",
+    @SerialName("thread_comment_reply_id_hash") val threadCommentReplyIdHash: String = "",
+    @SerialName("thread_comment_reply_body") val threadCommentReplyBody: String = "",
+    @SerialName("thread_source_comment_reply_body") val threadSourceCommentReplyBody: String = "",
+    @SerialName("bullet_accusation_id") val bulletAccusationId: Int = 0,
+    @SerialName("bullet_accusation_reject_reason") val bulletAccusationRejectReason: String = "",
+    @SerialName("thread_comment_reply_reply_id_hash") val threadCommentReplyReplyIdHash: String = "",
+    @SerialName("thread_source_comment_reply_reply_body") val threadSourceCommentReplyReplyBody: String = "",
+    @SerialName("thread_comment_reply_reply_body") val threadCommentReplyReplyBody: String = "",
+    @SerialName("series_id") val seriesId: Int = 0,
+    @SerialName("series_title") val seriesTitle: String = "",
+    @SerialName("recommend_to_home_up_at") val recommendToHomeUpAt: Long = 0,
+    @SerialName("recommend_to_home_up_at_format") val recommendToHomeUpAtFormat: String = "",
+    @SerialName("community_topic_id_hash") val communityTopicIdHash: String = "",
+    @SerialName("community_topic_body") val communityTopicBody: String = "",
+    @SerialName("community_topic_title") val communityTopicTitle: String = "",
+    @SerialName("community_topic_comment_id_hash") val communityTopicCommentIdHash: String = "",
+    @SerialName("community_topic_comment_body") val communityTopicCommentBody: String = "",
+    @SerialName("community_topic_comment_reply_id_hash") val communityTopicCommentReplyIdHash: String = "",
+    @SerialName("community_topic_comment_reply_body") val communityTopicCommentReplyBody: String = "",
+    @SerialName("community_topic_source_comment_reply_body") val communityTopicSourceCommentReplyBody: String = "",
+    @SerialName("community_accusation_id") val communityAccusationId: Int = 0,
+    @SerialName("community_accusation_reject_reason") val communityAccusationRejectReason: String = "",
+    @SerialName("community_topic_comment_reply_reply_id_hash") val communityTopicCommentReplyReplyIdHash: String = "",
+    @SerialName("community_topic_source_comment_reply_reply_body") val communityTopicSourceCommentReplyReplyBody: String = "",
+    @SerialName("community_topic_comment_reply_reply_body") val communityTopicCommentReplyReplyBody: String = "",
+    @SerialName("article_body_extend_id") val articleBodyExtendId: Int = 0,
+    @SerialName("article_body_extend_title") val articleBodyExtendTitle: String = ""
+)

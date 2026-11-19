@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.shihcheeng.sspaiyou.database.base.LocalHistoryRecordBase
 import com.shihcheeng.sspaiyou.database.base.LocalSearchKeywordRecordBase
+import com.shihcheeng.sspaiyou.database.base.NotificationDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +16,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object LocalRecordModula {
+
+    @Provides
+    @Singleton
+    fun provideNotificationDatabase(@ApplicationContext context: Context) =
+        Room.databaseBuilder<NotificationDatabase>(context = context, name = "notifications")
+            .setDriver(AndroidSQLiteDriver()).build()
+
+    @Provides
+    fun provideNotificationDao(database: NotificationDatabase) = database.notificationDao()
 
     @Provides
     @Singleton

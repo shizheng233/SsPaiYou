@@ -4,6 +4,7 @@ import com.shihcheeng.sspaiyou.api.data.home.main.HomeMainDataModel
 import com.shihcheeng.sspaiyou.api.data.home.second.SecondHomeDataModel
 import com.shihcheeng.sspaiyou.api.data.home.sub.HomeSubDataModel
 import com.shihcheeng.sspaiyou.api.data.home.top.HeaderBannerDataModel
+import com.shihcheeng.sspaiyou.api.data.notification.InformationMineResponse
 import com.shihcheeng.sspaiyou.utils.Constants
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
 import com.shihcheeng.sspaiyou.utils.extra.getSystemSecond
@@ -37,5 +38,17 @@ interface HomeService {
         @Query("offset") offset: Int = 0,
         @Query("type") type: String = Constants.TYPE_HOME_MAIN
     ): HeaderBannerDataModel
+
+    @GET(SSPaiUrl.INFORMATION_MINE)
+    suspend fun getInformation(
+        @Query("last_message_flag") lastMessageFlag: Boolean = false,
+        @Query("community") community: Boolean = true,
+        @Query("has_bullet") hasBullet: Boolean = true,
+        @Query("has_article_body_extend_status")
+        hasArticleBodyExtendStatus: Boolean = true,
+        @Query("has_article_comment_status") hasArticleCommentStatus: Boolean = true,
+        @Query("has_article_comment_reply_status")
+        hasArticleCommentReplyStatus: Boolean = true
+    ): InformationMineResponse
 
 }

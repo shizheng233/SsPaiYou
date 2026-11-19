@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -23,7 +24,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.triStateItem
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     onTagClick: (String) -> Unit,
     onClick: (String) -> Unit
 ) {

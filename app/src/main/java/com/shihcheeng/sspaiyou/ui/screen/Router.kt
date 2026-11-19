@@ -8,7 +8,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shihcheeng.sspaiyou.ui.screen.userfollowed.UserFollowedScreen
 import com.shihcheeng.sspaiyou.ui.screen.Router.Bullet.proceedToBullet
 import com.shihcheeng.sspaiyou.ui.screen.Router.Column.proceedToColumn
 import com.shihcheeng.sspaiyou.ui.screen.Router.Detail.proceedToDetail
@@ -27,10 +26,12 @@ import com.shihcheeng.sspaiyou.ui.screen.history.HistoryScreen
 import com.shihcheeng.sspaiyou.ui.screen.innerbrowser.WebUrlBrowserScreen
 import com.shihcheeng.sspaiyou.ui.screen.login.WebLoginScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.MainScreen
+import com.shihcheeng.sspaiyou.ui.screen.notity.NotifyScreen
 import com.shihcheeng.sspaiyou.ui.screen.setting.SSPaiSettingScreen
 import com.shihcheeng.sspaiyou.ui.screen.sreach.SearchScreen
 import com.shihcheeng.sspaiyou.ui.screen.tags.TagsScreen
 import com.shihcheeng.sspaiyou.ui.screen.user.UserScreen
+import com.shihcheeng.sspaiyou.ui.screen.userfollowed.UserFollowedScreen
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
 
@@ -86,6 +87,9 @@ fun Router(
                 onFollowed = {
                     navHostController.proceedToUserFollowed(it)
                 },
+                onTouchNotify = {
+                    navHostController proceedTo Router.Notify
+                }
             ) {
                 navHostController proceedTo Router.Login
             }
@@ -185,6 +189,12 @@ fun Router(
             UserFollowedScreen(
                 onUserClick = { navHostController.proceedToUserInfo(it) },
                 onBack = navHostController::popBackStack
+            )
+        }
+        composable(Router.Notify.name) {
+            NotifyScreen(
+                onBack = navHostController::popBackStack,
+                onArticleClick = { navHostController.proceedToDetail(it) }
             )
         }
     }
@@ -314,6 +324,12 @@ sealed interface Router {
         fun NavHostController.proceedToUserFollowed(userSlug: String) {
             navigate(name.replace("{user_slug}", Uri.encode(userSlug)))
         }
+    }
+
+    object Notify : Router {
+        override val name: String
+            get() = "NOTIFY"
+
     }
 
 }

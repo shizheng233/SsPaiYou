@@ -8,6 +8,7 @@ import com.shihcheeng.sspaiyou.api.data.home.main.MainData
 import com.shihcheeng.sspaiyou.api.data.home.second.SecondHomeDataModel
 import com.shihcheeng.sspaiyou.api.data.home.sub.HomeSubDataModel
 import com.shihcheeng.sspaiyou.api.data.home.top.HeaderBannerDataModel
+import com.shihcheeng.sspaiyou.api.data.notification.InformationMineResponse
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.paging.HomePaging
 import kotlinx.coroutines.CancellationException
@@ -197,6 +198,12 @@ class HomePagingTest {
 
         override suspend fun getHomeMain(limit: Int, offset: Int, type: String): HeaderBannerDataModel =
             error("unused")
+
+        override suspend fun getInformation(
+            lastMessageFlag: Boolean, community: Boolean, hasBullet: Boolean,
+            hasArticleBodyExtendStatus: Boolean, hasArticleCommentStatus: Boolean,
+            hasArticleCommentReplyStatus: Boolean
+        ): InformationMineResponse = error("unused")
     }
 
     private data class HomeRequest(val limit: Int, val offset: Int, val createdAt: Long)

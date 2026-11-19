@@ -98,7 +98,7 @@ fun ColumnScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            (info as? NetState.Success)?.content?.title
+                            text = (info as? NetState.Success)?.content?.title
                                 ?.takeIf { it.isNotBlank() } ?: stringResource(R.string.column),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -139,9 +139,9 @@ fun ColumnScreen(
                 articles = articles,
                 onArticleClick = onArticleClick,
                 onUserClick = onUserClick,
+                contentPadding = padding,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
             )
         }
     }
@@ -150,21 +150,22 @@ fun ColumnScreen(
 @Composable
 private fun ColumnArticleList(
     articles: LazyPagingItems<ColumnArticle>,
+    contentPadding: PaddingValues,
     onArticleClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val refresh = articles.loadState.refresh
     Box(modifier) {
-        when {
-            articles.itemCount == 0 && refresh is LoadState.Loading -> ColumnLoading(Modifier.fillMaxSize())
-            articles.itemCount == 0 && refresh is LoadState.Error -> Error(
+        when (articles.itemCount) {
+            0 if refresh is LoadState.Loading -> ColumnLoading(Modifier.fillMaxSize())
+            0 if refresh is LoadState.Error -> Error(
                 error = refresh.error.localizedMessage,
                 onClick = articles::retry
             )
 
-            articles.itemCount == 0 -> Text(
-                stringResource(R.string.column_articles_empty),
+            0 -> Text(
+                text = stringResource(R.string.column_articles_empty),
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(24.dp),
@@ -175,7 +176,10 @@ private fun ColumnArticleList(
 
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(
+                    top = contentPadding.calculateTopPadding() + 16.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 32.dp
+                ),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (refresh is LoadState.Loading) {

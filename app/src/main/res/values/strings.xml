@@ -1,4 +1,10 @@
 <resources>
+    <string name="notification_title">通知</string>
+    <string name="notification_online">回应</string>
+    <string name="notification_comment">评论通知</string>
+    <string name="notification_empty">暂无通知</string>
+    <string name="notification_read">已读</string>
+    <string name="notification_unread">未读</string>
     <string name="app_name">SsPai You</string>
     <string name="home">主页</string>
     <string name="matrix">Matrix</string>
@@ -152,4 +158,6 @@
     <string name="article_comment_send_success">评论发送成功</string>
     <string name="article_comment_send_error">评论发送失败，请重试</string>
     <string name="article_comment_send_error_detail">评论发送失败：%1$s</string>
+    <string name="have_notify">有通知</string>
+    <string name="all_notify_clear">通知全部已读</string>
 </resources>

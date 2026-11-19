@@ -3,6 +3,7 @@ package com.shihcheeng.sspaiyou.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.shihcheeng.sspaiyou.api.data.home.second.MainsItem
+import com.shihcheeng.sspaiyou.api.data.notification.InformationMine
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.paging.HomePaging
 import com.shihcheeng.sspaiyou.utils.Constants
@@ -28,6 +29,14 @@ class HomeRepository @Inject constructor(
 
     suspend fun getHomeBanner(): List<MainsItem> = withContext(Dispatchers.Default) {
         homeService.getHomeSecond().data.mains
+    }
+
+    suspend fun getInformation(): InformationMine {
+        val response = homeService.getInformation()
+        check(response.error == 0) {
+            response.msg.ifBlank { "Information request failed: ${response.error}" }
+        }
+        return checkNotNull(response.data) { "Information response has no data" }
     }
 
 }

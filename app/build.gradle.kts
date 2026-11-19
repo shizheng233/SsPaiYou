@@ -118,6 +118,7 @@ dependencies {
     implementation(common.androidx.room)
     ksp(common.androidx.room.complier)
     implementation(common.androidx.room.ktx)
+    implementation(common.androidx.room.paging)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(common.androidx.room.testing)

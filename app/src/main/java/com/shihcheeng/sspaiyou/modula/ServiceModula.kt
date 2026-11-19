@@ -5,6 +5,7 @@ import com.shihcheeng.sspaiyou.api.service.BulletService
 import com.shihcheeng.sspaiyou.api.service.ColumnService
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.api.service.MatrixService
+import com.shihcheeng.sspaiyou.api.service.NotificationService
 import com.shihcheeng.sspaiyou.api.service.SearchService
 import com.shihcheeng.sspaiyou.api.service.TagsService
 import com.shihcheeng.sspaiyou.api.service.UserService
@@ -18,6 +19,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ServiceModula {
+
+    @Singleton
+    @Provides
+    fun provideNotificationService(retrofit: Retrofit): NotificationService =
+        retrofit.create(NotificationService::class.java)
 
     @Singleton
     @Provides

@@ -32,4 +32,7 @@ object SSPaiUrl {
     const val SEARCH_ARTICLE = "search/article/page/get"
     const val FOLLOW_USER = "user/follow"
     const val FOLLOW_USER_LIST = "user/follow/page/get"
+    const val INFORMATION_MINE = "information/user/unread/count/info/get"
+    const val INFORMATION_PAGE_GET = "information/user/notification/comment/page/get"
+    const val ONLINE_PAGE_GET = "information/user/notification/online/page/get"
 }
