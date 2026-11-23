@@ -54,6 +54,7 @@ fun MainScreen(
     onTagClick: (String) -> Unit,
     onHistory: (String) -> Unit,
     onSearch: () -> Unit,
+    onPageUrlClick: (String) -> Unit,
     onFollowed: (String) -> Unit,
     onTouchNotify: () -> Unit,
     onLoginClick: () -> Unit
@@ -188,7 +189,8 @@ fun MainScreen(
             when (selectedIndex) {
                 0 -> HomeScreen(
                     onClick = onClick,
-                    onTagClick = onTagClick
+                    onTagClick = onTagClick,
+                    onPageUrlClick = onPageUrlClick
                 )
 
                 1 -> MatrixScreen(

@@ -1,6 +1,5 @@
 package com.shihcheeng.sspaiyou.ui.screen.main.home
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -26,6 +26,7 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.triStateItem
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onTagClick: (String) -> Unit,
+    onPageUrlClick: (String) -> Unit,
     onClick: (String) -> Unit
 ) {
     val data = viewModel.data.collectAsLazyPagingItems()
@@ -78,6 +79,10 @@ fun HomeScreen(
                                     BannerType.TOPIC,
                                     BannerType.SERIES,
                                     BannerType.OTHER -> {
+                                    }
+
+                                    BannerType.PAGE -> {
+                                        onPageUrlClick(s)
                                     }
                                 }
                             }
@@ -186,12 +191,12 @@ fun HomeScreen(
 
 }
 
-internal fun String.detectiveUrlTypeOp(
+private fun String.detectiveUrlTypeOp(
     onEach: (BannerType, String) -> Unit
 ) {
     // pathSegments decodes URL escapes once and excludes query/fragment components.
     // Navigation and Retrofit must receive the original tag, not its encoded URL segment.
-    val segments = Uri.parse(this).pathSegments
+    val segments = this.toUri().pathSegments
     val typeString = segments.getOrNull(segments.lastIndex - 1)
     onEach(
         when (typeString) {
@@ -199,6 +204,7 @@ internal fun String.detectiveUrlTypeOp(
             "topic" -> BannerType.TOPIC
             "series" -> BannerType.SERIES
             "tag" -> BannerType.TAG
+            "page" -> BannerType.PAGE
             else -> BannerType.OTHER
         },
         segments.lastOrNull().orEmpty()

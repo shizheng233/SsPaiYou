@@ -89,6 +89,9 @@ fun Router(
                 },
                 onTouchNotify = {
                     navHostController proceedTo Router.Notify
+                },
+                onPageUrlClick = {
+                    navHostController.proceedToInnerBrowser("https://sspai.com/page/$it")
                 }
             ) {
                 navHostController proceedTo Router.Login
