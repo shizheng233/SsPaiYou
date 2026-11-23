@@ -46,7 +46,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun NotificationItem(
+fun NotificationItem(
     icon: String,
     avatar: String,
     nickname: String,
@@ -65,7 +65,8 @@ internal fun NotificationItem(
         animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
         label = "notificationReadState"
     )
-    val readState = stringResource(if (isRead) R.string.notification_read else R.string.notification_unread)
+    val readState =
+        stringResource(if (isRead) R.string.notification_read else R.string.notification_unread)
     val plainTitle = remember(title) { Jsoup.parseBodyFragment(title).text() }
     val plainBody = remember(body) { Jsoup.parseBodyFragment(body).text() }
     val plainTarget = remember(target) { Jsoup.parseBodyFragment(target).text() }
@@ -87,7 +88,10 @@ internal fun NotificationItem(
             .fillMaxWidth()
             .semantics { stateDescription = readState },
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = containerColor, contentColor = colors.onSurface)
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = colors.onSurface
+        )
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -103,7 +107,9 @@ internal fun NotificationItem(
                     NotificationAvatar(avatar = avatar, modifier = Modifier.fillMaxSize())
                     if (!isRead) {
                         Surface(
-                            modifier = Modifier.align(Alignment.TopEnd).size(8.dp),
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(8.dp),
                             shape = CircleShape,
                             color = colors.primary,
                             content = {}
@@ -183,11 +189,14 @@ private fun NotificationAvatar(avatar: String, modifier: Modifier = Modifier) {
 @Composable
 private fun NotificationIcon(icon: String, modifier: Modifier = Modifier) {
     val value = remember(icon) { Jsoup.parseBodyFragment(icon).text().trim() }
-    val isImage = value.startsWith("https://") || value.startsWith("http://") || value.startsWith("/") ||
-        value.substringBefore('?').endsWith(".png", ignoreCase = true) ||
-        value.substringBefore('?').endsWith(".webp", ignoreCase = true)
+    val isImage =
+        value.startsWith("https://") || value.startsWith("http://") || value.startsWith("/") ||
+                value.substringBefore('?').endsWith(".png", ignoreCase = true) ||
+                value.substringBefore('?').endsWith(".webp", ignoreCase = true)
     Box(
-        modifier = modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp).clearAndSetSemantics {},
+        modifier = modifier
+            .sizeIn(minWidth = 24.dp, minHeight = 24.dp)
+            .clearAndSetSemantics {},
         contentAlignment = Alignment.Center
     ) {
         if (isImage) {
@@ -235,7 +244,9 @@ private fun NotificationTarget(title: String, image: String, modifier: Modifier 
                     placeholder = ColorPainter(colors.secondaryContainer),
                     error = ColorPainter(colors.secondaryContainer),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(width = 64.dp, height = 48.dp).clip(MaterialTheme.shapes.small)
+                    modifier = Modifier
+                        .size(width = 64.dp, height = 48.dp)
+                        .clip(MaterialTheme.shapes.small)
                 )
             }
         }
@@ -261,7 +272,8 @@ private fun NotificationItemPreview() {
                     body = "我也喜欢初春，Windows 上除了 Warp 还有啥其他的终端没。",
                     target = "你还需要 Terminal 吗？我为什么选择 Kaku？",
                     targetImage = "preview",
-                    createdAt = LocalDate.now().atTime(15, 56).atZone(ZoneId.systemDefault()).toEpochSecond(),
+                    createdAt = LocalDate.now().atTime(15, 56).atZone(ZoneId.systemDefault())
+                        .toEpochSecond(),
                     isRead = false,
                     onClick = {}
                 )
