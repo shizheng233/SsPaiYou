@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.security.keystore.KeyPermanentlyInvalidatedException
+import android.webkit.CookieManager
 import androidx.core.content.edit
 import com.shihcheeng.sspaiyou.utils.extra.flowKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -52,8 +53,9 @@ class LocalTokenManager internal constructor(
             }
         }
 
-    /** Atomically clears all session cookies and user identity, waiting for disk persistence. */
+    /** 清除本地会话和 WebView 的少数派登录 Cookie。 */
     suspend fun logout() = withContext(Dispatchers.IO) {
+        val webCookies = CookieManager.getInstance()
         synchronized(storageLock) {
             val editor = tokenPreferences.edit()
             // Explicit removals also notify listeners on Android 10, unlike clear().
@@ -62,6 +64,11 @@ class LocalTokenManager internal constructor(
             }
             editor.putInt(COOKIE_STORAGE_VERSION, ENCRYPTED_VERSION)
             check(editor.commit()) { "Unable to persist logout" }
+
+            val expiredCookie = "${Constants.SSPAI_AWT_JSON}=; $WEB_COOKIE_ATTRIBUTES; Max-Age=0"
+            webCookies.setCookie(Constants.MAIN, expiredCookie)
+            webCookies.setCookie(Constants.MAIN, "$expiredCookie; Domain=sspai.com")
+            webCookies.flush()
         }
     }
 
@@ -95,6 +102,21 @@ class LocalTokenManager internal constructor(
     }
 
     fun getToken(): String? = getCookie(Constants.SSPAI_AWT_JSON)
+
+    internal suspend fun restoreWebSessionCookie() = withContext(context = Dispatchers.IO) {
+        val webCookies = CookieManager.getInstance()
+        synchronized(lock = storageLock) {
+            val token = getCookieLocked(key = Constants.SSPAI_AWT_JSON)
+            if (token.isNullOrBlank() || ';' in token) return@synchronized
+
+            val sessionCookie = "${Constants.SSPAI_AWT_JSON}=$token"
+            val existingCookies = webCookies.getCookie(Constants.MAIN).orEmpty().split(';')
+            // 保留登录网页已设置的 Cookie 属性，由 WebView 根据域名和协议发送。
+            if (existingCookies.none { it.trim() == sessionCookie }) {
+                webCookies.setCookie(Constants.MAIN, "$sessionCookie; $WEB_COOKIE_ATTRIBUTES")
+            }
+        }
+    }
 
     fun transformToAuthorization(): String? = getToken()
         ?.takeIf { it.isNotBlank() }
@@ -173,6 +195,7 @@ class LocalTokenManager internal constructor(
         private const val LOCAL_REAL_USER_NAME = "LOCAL_USER_NAME"
         private const val COOKIE_STORAGE_VERSION = "COOKIE_STORAGE_VERSION"
         private const val ENCRYPTED_VERSION = 1
+        private const val WEB_COOKIE_ATTRIBUTES = "Path=/; Secure; HttpOnly; SameSite=Lax"
         private val storageLock = Any()
     }
 

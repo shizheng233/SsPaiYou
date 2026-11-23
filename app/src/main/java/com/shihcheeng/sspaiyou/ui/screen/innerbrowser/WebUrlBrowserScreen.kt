@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.AttributeSet
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.LinearLayout
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -36,8 +38,11 @@ import com.just.agentweb.AgentWeb
 import com.just.agentweb.WebChromeClient
 import com.just.agentweb.WebViewClient
 import com.shihcheeng.sspaiyou.R
+import com.shihcheeng.sspaiyou.utils.Constants
+import com.shihcheeng.sspaiyou.utils.LocalComposeTokenManager
 import com.shihcheeng.sspaiyou.utils.icons.ExternalLink
 import com.shihcheeng.sspaiyou.utils.icons.SSPaiPack
+import kotlinx.coroutines.launch
 
 @Composable
 fun WebUrlBrowserScreen(
@@ -46,6 +51,11 @@ fun WebUrlBrowserScreen(
 ) {
     val activity = checkNotNull(LocalActivity.current)
     val lifecycleOwner = LocalLifecycleOwner.current
+    val tokenManager = if (url.startsWith(prefix = Constants.MAIN)) {
+        LocalComposeTokenManager.current
+    } else {
+        null
+    }
     var title by remember(url) { mutableStateOf<String?>(null) }
     var browser by remember { mutableStateOf<AgentBrowserView?>(null) }
     val onBack: () -> Unit = {
@@ -93,14 +103,30 @@ fun WebUrlBrowserScreen(
         }
     ) { padding ->
         key(url, activity, lifecycleOwner) {
+            val browserScope = rememberCoroutineScope()
             AndroidView(
                 modifier = Modifier
-                    .padding(padding)
+                    .padding(paddingValues = padding)
                     .fillMaxSize(),
                 factory = { context ->
-                    AgentBrowserView(context, activity, lifecycleOwner.lifecycle, url) {
+                    AgentBrowserView(
+                        context = context,
+                        activity = activity,
+                        lifecycle = lifecycleOwner.lifecycle,
+                        url = url
+                    ) {
                         title = it
-                    }.also { browser = it }
+                    }.also { view ->
+                        browser = view
+                        if (tokenManager == null) {
+                            view.load(url = url)
+                        } else {
+                            browserScope.launch {
+                                tokenManager.restoreWebSessionCookie()
+                                view.load(url = url)
+                            }
+                        }
+                    }
                 },
                 onRelease = { view ->
                     view.release()
@@ -113,13 +139,15 @@ fun WebUrlBrowserScreen(
 
 /** 每个 AndroidView 实例拥有自己的 AgentWeb 和生命周期观察者。 */
 @SuppressLint("SetJavaScriptEnabled")
-private class AgentBrowserView(
+private class AgentBrowserView @JvmOverloads constructor(
     context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
     activity: Activity,
     private val lifecycle: Lifecycle,
     url: String,
     onTitleChanged: (String?) -> Unit
-) : LinearLayout(context) {
+) : LinearLayout(context, attrs, defStyleAttr) {
     private var released = false
     private var loading = true
     private val agentWeb = AgentWeb.with(activity)
@@ -183,7 +211,10 @@ private class AgentBrowserView(
             useWideViewPort = true
         }
         lifecycle.addObserver(lifecycleObserver)
-        agentWeb.urlLoader.loadUrl(url)
+    }
+
+    fun load(url: String) {
+        if (!released) agentWeb.urlLoader.loadUrl(url)
     }
 
     fun goBack(): Boolean = !released && agentWeb.back()

@@ -3,6 +3,7 @@ package com.shihcheeng.sspaiyou.utils
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
+import android.webkit.CookieManager
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -169,6 +170,26 @@ class LocalTokenManagerTest {
         } finally {
             scope.cancel()
         }
+    }
+
+    @Test
+    fun webSessionCookieIsScopedToSspaiAndClearedOnLogout() = runBlocking {
+        val cookies = CookieManager.getInstance()
+        val sessionCookie = "${Constants.SSPAI_AWT_JSON}=$TOKEN"
+
+        try {
+            manager.saveToken(TOKEN)
+            manager.restoreWebSessionCookie()
+
+            assertTrue(cookies.getCookie(Constants.MAIN).orEmpty().contains(sessionCookie))
+            assertFalse(cookies.getCookie("http://sspai.com/").orEmpty().contains(sessionCookie))
+            assertFalse(cookies.getCookie("https://www.sspai.com/").orEmpty().contains(sessionCookie))
+            assertFalse(cookies.getCookie("https://sspai.com.example.com/").orEmpty().contains(sessionCookie))
+        } finally {
+            manager.logout()
+        }
+
+        assertFalse(cookies.getCookie(Constants.MAIN).orEmpty().contains(sessionCookie))
     }
 
     @Test
