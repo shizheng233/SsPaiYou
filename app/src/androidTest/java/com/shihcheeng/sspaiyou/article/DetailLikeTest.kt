@@ -361,6 +361,14 @@ class DetailLikeTest {
         ) =
             ArticleCommentDataModel()
 
+        override suspend fun getArticleBlockIDComments(
+            limit: Int,
+            offset: Int,
+            createdAt: Long,
+            articleId: Int,
+            articleBodyExtendId: Int,
+        ): ArticleCommentDataModel = error("Unexpected block comments request")
+
         override suspend fun favouriteOrNot(request: ArticleFavouriteRequest) =
             ArticleFavouriteResponse(0)
 

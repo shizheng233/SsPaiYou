@@ -4,5 +4,7 @@ enum class DetailScreenKey {
     HEADER,
     AUTHOR,
     CONTENT,
-    IMAGE
+    IMAGE,
+    INNER_COMMENT,
+    INNER_DIVIDER
 }

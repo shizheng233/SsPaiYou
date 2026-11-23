@@ -20,11 +20,25 @@ class DetailRepository @Inject constructor(
     private val service: ArticleService
 ) {
 
-    fun comments(articleId: Int): Flow<PagingData<ArticleComment>> = Pager(
-        config = PagingConfig(pageSize = 20, initialLoadSize = 20, enablePlaceholders = false)
-    ) {
-        ArticleCommentPaging(service, articleId)
-    }.flow
+    fun comments(
+        articleId: Int,
+        articleBodyExtendId: Int? = null,
+    ): Flow<PagingData<ArticleComment>> {
+        val pageSize = if (articleBodyExtendId == null) 20 else 10
+        return Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                initialLoadSize = pageSize,
+                enablePlaceholders = false,
+            ),
+        ) {
+            ArticleCommentPaging(
+                service = service,
+                articleId = articleId,
+                articleBodyExtendId = articleBodyExtendId,
+            )
+        }.flow
+    }
 
     suspend fun setFavourite(articleId: Int, favourite: Boolean) {
         require(articleId > 0) { "Invalid article ID" }

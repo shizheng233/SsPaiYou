@@ -8,7 +8,8 @@ import kotlinx.coroutines.CancellationException
 
 class ArticleCommentPaging(
     private val service: ArticleService,
-    private val articleId: Int
+    private val articleId: Int,
+    private val articleBodyExtendId: Int? = null,
 ) : PagingSource<Int, ArticleComment>() {
     // Keep the same snapshot timestamp across pages so new comments do not shift offsets.
     private val createdAt = System.currentTimeMillis() / 1000
@@ -18,12 +19,22 @@ class ArticleCommentPaging(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ArticleComment> {
         val offset = params.key ?: 0
         return try {
-            val response = service.getArticleComments(
-                limit = params.loadSize,
-                offset = offset,
-                createdAt = createdAt,
-                articleId = articleId
-            )
+            val response = if (articleBodyExtendId == null) {
+                service.getArticleComments(
+                    limit = params.loadSize,
+                    offset = offset,
+                    createdAt = createdAt,
+                    articleId = articleId,
+                )
+            } else {
+                service.getArticleBlockIDComments(
+                    limit = params.loadSize,
+                    offset = offset,
+                    createdAt = createdAt,
+                    articleId = articleId,
+                    articleBodyExtendId = articleBodyExtendId,
+                )
+            }
             check(response.error == 0) {
                 response.msg.ifBlank { "评论加载失败：${response.error}" }
             }

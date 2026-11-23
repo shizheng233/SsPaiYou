@@ -51,7 +51,8 @@ fun DetailScreenContent(
     bottomPadding: Dp = 0.dp,
     onAvatarClick: (String) -> Unit = {},
     onTagClick: (String) -> Unit = {},
-    onImageClick: ((String) -> Unit)? = null
+    onImageClick: ((String) -> Unit)? = null,
+    onBlockCommentsClick: ((Int) -> Unit)? = null,
 ) {
 
     val markdownColors = MaterialTheme.colorScheme.toMarkDownColors()
@@ -88,6 +89,7 @@ fun DetailScreenContent(
     val setting = LocalComposeSetting.current
     val readerFontScale by setting.observe(SettingData.readerScale)
         .collectAsStateWithLifecycle(initialValue = 1.15f)
+    val innerCommentShape = MaterialTheme.shapes.medium
 
     LazyColumn(
         modifier = Modifier
@@ -126,47 +128,26 @@ fun DetailScreenContent(
                 }
             )
         }
+        // 这是少数派特色区块，比如早报、推荐之类的，主要是官方在用。
         if (extendsBodys.isNotEmpty()) {
             extendsBodys.forEachIndexed { indexa, x ->
-                item(
-                    key = x.id.toString() + "_header_" + indexa,
-                    contentType = DetailScreenKey.CONTENT
-                ) {
-                    Text(
-                        text = x.title,
-                        style = sspaiReaderTypo(fontScale = readerFontScale).h2
-                    )
-                }
-                itemsIndexed(
-                    items = x.body,
-                    key = { index: Int, _: DetailContent ->
-                        x.id.toString() + "_body_" + indexa + "_" + index
-                    },
-                    contentType = { _: Int, item: DetailContent ->
-                        when (item) {
-                            is DetailContent.Image -> DetailScreenKey.IMAGE
-                            is DetailContent.Markdown -> DetailScreenKey.CONTENT
-                        }
-                    },
-                ) { _: Int, item: DetailContent ->
-                    when (item) {
-                        is DetailContent.Markdown -> Markdown(
-                            content = item.text,
-                            imageTransformer = imageTransformer,
-                            colors = markdownColors,
-                            typography = sspaiReaderTypo(fontScale = readerFontScale),
-                            padding = markdownPadding,
-                            components = markdownComponents,
-                            animations = markdownAnimations
-                        )
-
-                        is DetailContent.Image -> DetailContentImage(item, onImageClick)
-                    }
-                }
+                articleExtendsBodyBlock(
+                    innerCommentShape = innerCommentShape,
+                    readerFontScale = readerFontScale,
+                    detailImageTransform = imageTransformer,
+                    markdownColors = markdownColors,
+                    markdownPadding = markdownPadding,
+                    markdownComponents = markdownComponents,
+                    markdownAnimations = markdownAnimations,
+                    indexa = indexa,
+                    x = x,
+                    onImageClick = onImageClick,
+                    onCommentsClick = onBlockCommentsClick,
+                )
             }
 
         }
-        //with AI.
+        //with AI, 这是主要的内容去，少数派一般的文章就只有这个块。
         itemsIndexed(
             items = blocks,
             key = { index, _ -> "content_$index" },
@@ -195,7 +176,7 @@ fun DetailScreenContent(
 }
 
 @Composable
-private fun DetailContentImage(image: DetailContent.Image, onImageClick: ((String) -> Unit)?) {
+fun DetailContentImage(image: DetailContent.Image, onImageClick: ((String) -> Unit)?) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {

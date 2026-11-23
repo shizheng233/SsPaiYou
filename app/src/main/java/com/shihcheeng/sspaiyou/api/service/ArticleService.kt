@@ -39,6 +39,15 @@ interface ArticleService {
         @Query("article_id") articleId: Int
     ): ArticleCommentDataModel
 
+    @GET(SSPaiUrl.BASE_URL_V2 + SSPaiUrl.ARTICLE_COMMENT)
+    suspend fun getArticleBlockIDComments(
+        @Query("limit") limit: Int = 10,
+        @Query("offset") offset: Int,
+        @Query("created_at") createdAt: Long,
+        @Query("article_id") articleId: Int,
+        @Query("article_body_extend_id") articleBodyExtendId: Int,
+    ): ArticleCommentDataModel
+
     @POST(SSPaiUrl.FAVOURITE_ON_OFF)
     suspend fun favouriteOrNot(
         @Body request: ArticleFavouriteRequest

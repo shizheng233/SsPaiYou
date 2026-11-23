@@ -67,8 +67,16 @@ class DetailViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val comments = commentArticleId.filterNotNull()
-        .flatMapLatest(repository::comments)
+        .flatMapLatest { articleId -> repository.comments(articleId = articleId) }
         .cachedIn(viewModelScope)
+
+    fun blockComments(
+        articleId: Int,
+        articleBodyExtendId: Int,
+    ) = repository.comments(
+        articleId = articleId,
+        articleBodyExtendId = articleBodyExtendId,
+    )
 
     init {
         load()

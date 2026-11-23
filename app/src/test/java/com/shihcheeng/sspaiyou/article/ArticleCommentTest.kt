@@ -11,6 +11,7 @@ import com.shihcheeng.sspaiyou.api.data.actrcle.comment.ArticleCommentDataModel
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostRequest
 import com.shihcheeng.sspaiyou.api.data.actrcle.comment.CommentPostResponse
 import com.shihcheeng.sspaiyou.api.service.ArticleService
+import com.shihcheeng.sspaiyou.modula.NetworkModula
 import com.shihcheeng.sspaiyou.paging.ArticleCommentPaging
 import com.shihcheeng.sspaiyou.utils.SSPaiUrl
 import kotlinx.coroutines.CancellationException
@@ -93,27 +94,14 @@ class ArticleCommentTest {
 
     @Test
     fun retrofitUsesV2EndpointAndAllQueryParametersWithV1BaseUrl() = runBlocking {
-        var request: Request? = null
-        val mediaType = "application/json".toMediaType()
-        val client = OkHttpClient.Builder().addInterceptor { chain ->
-            request = chain.request()
-            Response.Builder()
-                .request(chain.request())
-                .protocol(Protocol.HTTP_1_1)
-                .code(200)
-                .message("OK")
-                .body(sampleJson().toResponseBody(mediaType))
-                .build()
-        }.build()
-        try {
-            val service = Retrofit.Builder()
-                .baseUrl(SSPaiUrl.BASE_URL)
-                .client(client)
-                .addConverterFactory(Json.asConverterFactory(mediaType))
-                .build()
-                .create(ArticleService::class.java)
-            val result = service.getArticleComments(20, 40, 1793954000L, 123456)
-            val capturedRequest = requireNotNull(request)
+        withArticleService(sample = sampleJson()) { service, request ->
+            val result = service.getArticleComments(
+                limit = 20,
+                offset = 40,
+                createdAt = 1793954000L,
+                articleId = 123456,
+            )
+            val capturedRequest = request()
             val url = capturedRequest.url
             assertEquals("GET", capturedRequest.method)
             assertEquals("https", url.scheme)
@@ -123,7 +111,70 @@ class ArticleCommentTest {
             assertEquals("40", url.queryParameter("offset"))
             assertEquals("1793954000", url.queryParameter("created_at"))
             assertEquals("123456", url.queryParameter("article_id"))
+            assertNull(url.queryParameter("article_body_extend_id"))
             assertEquals(2, result.data.size)
+        }
+    }
+
+    @Test
+    fun blockCommentsPagingRequestsOnlyTheSelectedBlockAndDecodesReplies() = runBlocking {
+        withArticleService(sample = sampleJson(name = "article_block_id_comments.json")) { service, request ->
+            val before = System.currentTimeMillis() / 1000
+            val paging = ArticleCommentPaging(
+                service = service,
+                articleId = 123456,
+                articleBodyExtendId = 3605,
+            )
+            val page = paging.load(
+                params = PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 10,
+                    placeholdersEnabled = false,
+                ),
+            ) as PagingSource.LoadResult.Page
+
+            val capturedRequest = request()
+            val url = capturedRequest.url
+            assertEquals("GET", capturedRequest.method)
+            assertEquals("/api/v2/comment/search/page/get", url.encodedPath)
+            assertEquals("10", url.queryParameter("limit"))
+            assertEquals("0", url.queryParameter("offset"))
+            val createdAt = requireNotNull(url.queryParameter("created_at")).toLong()
+            assertTrue(createdAt in before..(System.currentTimeMillis() / 1000))
+            assertEquals("123456", url.queryParameter("article_id"))
+            assertEquals("3605", url.queryParameter("article_body_extend_id"))
+            assertEquals(7, page.data.size)
+            assertTrue(page.data.all { it.articleBodyExtendId == 3605 })
+            val commentWithReplies = page.data.single { it.id == 434364 }
+            assertEquals(listOf(397151, 397154, 397192), commentWithReplies.reply.map { it.id })
+            assertNull(page.nextKey)
+        }
+    }
+
+    private suspend fun withArticleService(
+        sample: String,
+        test: suspend (ArticleService, () -> Request) -> Unit,
+    ) {
+        var request: Request? = null
+        val mediaType = "application/json".toMediaType()
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            request = chain.request()
+            Response.Builder()
+                .request(chain.request())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(sample.toResponseBody(mediaType))
+                .build()
+        }.build()
+        try {
+            val service = Retrofit.Builder()
+                .baseUrl(SSPaiUrl.BASE_URL)
+                .client(client)
+                .addConverterFactory(NetworkModula.provideJson().asConverterFactory(mediaType))
+                .build()
+                .create(ArticleService::class.java)
+            test(service) { requireNotNull(request) }
         } finally {
             client.dispatcher.executorService.shutdown()
             client.connectionPool.evictAll()
@@ -207,6 +258,14 @@ class ArticleCommentTest {
             failure?.let { throw it }
             return response
         }
+
+        override suspend fun getArticleBlockIDComments(
+            limit: Int,
+            offset: Int,
+            createdAt: Long,
+            articleId: Int,
+            articleBodyExtendId: Int,
+        ): ArticleCommentDataModel = error("Unexpected block comments request")
     }
 
     private data class CommentRequest(val limit: Int, val offset: Int, val createdAt: Long, val articleId: Int)

@@ -274,6 +274,14 @@ class DetailFavouriteTest {
         override suspend fun getArticleComments(limit: Int, offset: Int, createdAt: Long, articleId: Int) =
             ArticleCommentDataModel()
 
+        override suspend fun getArticleBlockIDComments(
+            limit: Int,
+            offset: Int,
+            createdAt: Long,
+            articleId: Int,
+            articleBodyExtendId: Int,
+        ): ArticleCommentDataModel = error("Unexpected block comments request")
+
         override suspend fun favouriteOrNot(request: ArticleFavouriteRequest): ArticleFavouriteResponse {
             requests += request
             failure?.let { throw it }

@@ -78,6 +78,7 @@ fun DetailScreen(
     val commentStatus by viewModel.sendMessageStatus.collectAsStateWithLifecycle()
     val state = rememberLazyListState()
     var showComments by rememberSaveable { mutableStateOf(false) }
+    var selectedCommentBlockId by rememberSaveable(viewModel.id) { mutableStateOf<Int?>(null) }
     var selectedImageUrl by rememberSaveable(viewModel.id) { mutableStateOf<String?>(null) }
     val article = (data as? NetState.Success)?.content
     var restoredArticleId by remember(article?.id) { mutableIntStateOf(-1) }
@@ -301,7 +302,8 @@ fun DetailScreen(
                                 bottomPadding = padding.calculateBottomPadding(),
                                 onAvatarClick = onAvatarClick,
                                 onTagClick = onTagClick,
-                                onImageClick = { x -> selectedImageUrl = x }
+                                onImageClick = { x -> selectedImageUrl = x },
+                                onBlockCommentsClick = { blockId -> selectedCommentBlockId = blockId },
                             )
                         }
                     }
@@ -320,6 +322,27 @@ fun DetailScreen(
                 onAvatarClick(it)
             },
             onImageClick = { selectedImageUrl = it }
+        )
+    }
+    val selectedCommentBlock = selectedCommentBlockId?.let { blockId ->
+        bodyExtendsBodys.firstOrNull { it.id == blockId }
+    }
+    if (selectedCommentBlock != null && article != null && article.id > 0) {
+        val blockComments = remember(viewModel, article.id, selectedCommentBlock.id) {
+            viewModel.blockComments(
+                articleId = article.id,
+                articleBodyExtendId = selectedCommentBlock.id,
+            )
+        }
+        ArticleBlocksCommentDialog(
+            comments = blockComments,
+            commentCount = selectedCommentBlock.commentCount,
+            onDismiss = { selectedCommentBlockId = null },
+            onAvatarClick = { slug ->
+                selectedCommentBlockId = null
+                onAvatarClick(slug)
+            },
+            onImageClick = { selectedImageUrl = it },
         )
     }
     selectedImageUrl?.let { url ->
