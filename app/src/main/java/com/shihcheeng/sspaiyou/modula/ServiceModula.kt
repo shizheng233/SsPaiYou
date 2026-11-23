@@ -3,6 +3,7 @@ package com.shihcheeng.sspaiyou.modula
 import com.shihcheeng.sspaiyou.api.service.ArticleService
 import com.shihcheeng.sspaiyou.api.service.BulletService
 import com.shihcheeng.sspaiyou.api.service.ColumnService
+import com.shihcheeng.sspaiyou.api.service.DiscoverService
 import com.shihcheeng.sspaiyou.api.service.HomeService
 import com.shihcheeng.sspaiyou.api.service.MatrixService
 import com.shihcheeng.sspaiyou.api.service.NotificationService
@@ -72,4 +73,10 @@ object ServiceModula {
     fun provideUserInfoService(
         retrofit: Retrofit
     ): UserService = retrofit.create(UserService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideDiscoverService(
+        retrofit: Retrofit
+    ): DiscoverService = retrofit.create(DiscoverService::class.java)
 }

@@ -35,4 +35,6 @@ object SSPaiUrl {
     const val INFORMATION_MINE = "information/user/unread/count/info/get"
     const val INFORMATION_PAGE_GET = "information/user/notification/comment/page/get"
     const val ONLINE_PAGE_GET = "information/user/notification/online/page/get"
+    const val HOT_PAGE = "article/hot/page/get"
+    const val USER_ACTIVITY_USER_PAGE = "information/user/activity/user/page/get"
 }

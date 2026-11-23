@@ -32,6 +32,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.shihcheeng.sspaiyou.R
 import com.shihcheeng.sspaiyou.modula.NotificationEntryPoint
 import com.shihcheeng.sspaiyou.ui.compoents.Pager
+import com.shihcheeng.sspaiyou.ui.screen.main.discover.DiscoverScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.home.HomeScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.matrix.MatrixScreen
 import com.shihcheeng.sspaiyou.ui.screen.main.personal.PersonalScreen
@@ -186,20 +187,25 @@ fun MainScreen(
             index = select,
             modifier = Modifier.padding(padding)
         ) { selectedIndex ->
-            when (selectedIndex) {
-                0 -> HomeScreen(
+            when (navItems[selectedIndex].type) {
+                MainScreenItemType.HOME -> HomeScreen(
                     onClick = onClick,
                     onTagClick = onTagClick,
                     onPageUrlClick = onPageUrlClick
                 )
 
-                1 -> MatrixScreen(
+                MainScreenItemType.DISCOVER -> DiscoverScreen(
+                    onArticleClick = onClick,
+                    onUserClick = onMineClick
+                )
+
+                MainScreenItemType.MATRIX -> MatrixScreen(
                     onClick = onClick,
                     onBulletClick = onBulletClick,
                     onColumnClick = onColumnClick
                 )
 
-                2 -> PersonalScreen(
+                MainScreenItemType.PERSONAL -> PersonalScreen(
                     onLoginClick = onLoginClick,
                     onFavourite = onFavourite,
                     onSetting = onSetting,
@@ -218,7 +224,8 @@ data class MainScreenItem(
     @DrawableRes
     val icon: Int,
     @DrawableRes
-    val iconAlt: Int
+    val iconAlt: Int,
+    val type: MainScreenItemType
 ) {
 
     companion object {
@@ -228,20 +235,32 @@ data class MainScreenItem(
                 MainScreenItem(
                     name = R.string.home,
                     icon = R.drawable.outline_home_24,
-                    iconAlt = R.drawable.baseline_home_24
+                    iconAlt = R.drawable.baseline_home_24,
+                    type = MainScreenItemType.HOME
+                ),
+                MainScreenItem(
+                    name = R.string.discover,
+                    icon = R.drawable.andrsrxn_eye_scan,
+                    iconAlt = R.drawable.andrsrxn_eye_scan,
+                    type = MainScreenItemType.DISCOVER
                 ),
                 MainScreenItem(
                     name = R.string.matrix,
                     icon = R.drawable.ph_matrix_logo,
-                    iconAlt = R.drawable.ph_matrix_logo_fill
+                    iconAlt = R.drawable.ph_matrix_logo_fill,
+                    type = MainScreenItemType.MATRIX
                 ),
                 MainScreenItem(
                     name = R.string.personal,
                     icon = R.drawable.baseline_person_outline_24,
-                    iconAlt = R.drawable.baseline_person_24
+                    iconAlt = R.drawable.baseline_person_24,
+                    type = MainScreenItemType.PERSONAL
                 )
             )
         }
     }
+}
 
+enum class MainScreenItemType {
+    HOME, DISCOVER, MATRIX, PERSONAL
 }
