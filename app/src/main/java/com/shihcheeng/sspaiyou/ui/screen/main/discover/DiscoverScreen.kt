@@ -62,7 +62,10 @@ fun DiscoverScreen(
                     onUserClick = onUserClick,
                 )
 
-                DiscoverItemType.FOLLOW -> FollowActivityScreen(onArticleId = onArticleClick)
+                DiscoverItemType.FOLLOW -> FollowActivityScreen(
+                    onArticleId = onArticleClick,
+                    onUserClick = onUserClick
+                )
             }
         }
     }

@@ -28,12 +28,14 @@ import com.shihcheeng.sspaiyou.ui.compoents.tristate.TriStateScreen
 import com.shihcheeng.sspaiyou.ui.compoents.tristate.pagingTriState
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityItem
 import com.shihcheeng.sspaiyou.ui.screen.user.activityitems.UserActivityNormalItem
+import com.shihcheeng.sspaiyou.utils.extra.click
 import com.shihcheeng.sspaiyou.ui.compoents.Error as ErrorScreen
 
 @Composable
 fun FollowActivityScreen(
     viewModel: FollowActivityViewModel = hiltViewModel(),
     onArticleId: (String) -> Unit,
+    onUserClick: (String) -> Unit
 ) {
     val items = viewModel.items.collectAsLazyPagingItems()
     val token by viewModel.token.collectAsStateWithLifecycle()
@@ -82,7 +84,13 @@ fun FollowActivityScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 32.dp),
+        contentPadding = PaddingValues(
+            bottom = 52.dp,
+            top = 16.dp,
+            start = 16.dp,
+            end = 16.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         pagingTriState(
             paging = loadState.refresh,
@@ -101,6 +109,11 @@ fun FollowActivityScreen(
                 UserActivityItem(
                     imageUrl = item.author.avatar,
                     actionString = item.action,
+                    modifier = Modifier.click(
+                        onClick = {
+                            onUserClick(item.author.slug)
+                        }
+                    )
                 ) {
                     UserActivityNormalItem(
                         title = item.article.title,
