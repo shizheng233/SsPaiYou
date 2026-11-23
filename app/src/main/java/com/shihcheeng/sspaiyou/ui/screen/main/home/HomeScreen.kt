@@ -191,7 +191,7 @@ fun HomeScreen(
 
 }
 
-private fun String.detectiveUrlTypeOp(
+internal fun String.detectiveUrlTypeOp(
     onEach: (BannerType, String) -> Unit
 ) {
     // pathSegments decodes URL escapes once and excludes query/fragment components.
