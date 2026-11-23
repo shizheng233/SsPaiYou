@@ -45,7 +45,7 @@ fun BannerItem(
     var imagePainter by remember(image) { mutableStateOf<Painter?>(null) }
     Surface(
         onClick = onClick,
-        modifier = modifier.aspectRatio(360 / 274f)
+        modifier = modifier.aspectRatio(1 / 1f)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
